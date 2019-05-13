@@ -303,6 +303,7 @@ export class ChatPreviewComponent implements OnInit {
       }
     }).catch(err => {
       console.log("Error message startFlow :", err)
+      
       this.showDefaultResponce(this.defaultMessage.SERVER_CRASH)
     })
   }
@@ -680,8 +681,10 @@ export class ChatPreviewComponent implements OnInit {
       isLuisCall: 0,
       "dateTime": dateTime
     }
-    this.messageFlow.push(defaultMessage);
-    this.scrollIntoView();
+    this.deleteTypingFromMessageFlow();
+    this.showSendMessage(defaultMessage)
+    // this.messageFlow.push(defaultMessage);
+    // this.scrollIntoView();
   }
   getFlowFromServer(data, header) {
     return new Promise((resolve, reject) => {

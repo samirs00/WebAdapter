@@ -24,12 +24,15 @@ export class ChatPreviewComponent implements OnInit {
     dateTime:any;
     authorizationKey:any
     showTypingDots:boolean = false;
-     sendMessageObj:any = {
-      "data": "assets/images/typing.gif",
+     sendTypingMessage:any = {
       "isSent": 1,
       "inputType": "string",
       "icon": "field-text",
-      "MessageAction":"Common"
+      "MessageAction":"Common",
+      "BotIntentFlow": {
+        "data": "assets/images/typing.gif",
+        "name": "Text",
+      },
     }
 
     message:any = "";
@@ -65,7 +68,8 @@ export class ChatPreviewComponent implements OnInit {
       name: "Default"
     }
     setTimeout(() => {
-      this.showTypingDots = false;
+      // this.showTypingDots = false;
+      this.deleteTypingFromMessageFlow();
       this.showSendMessage({ "MessageAction": "Received","BotIntentFlow": FilteredMessageArray, "dateTime":dateTime });
     }, 2000);
   }
@@ -123,12 +127,13 @@ export class ChatPreviewComponent implements OnInit {
   }
   }
   onDateChange(event){
-    console.log("datechange :", event.target.value)
+    // console.log("datechange :", event.target.value)
     this.getMessage({'IntentName':event.target.value},'other')
   }
   contineuFlow(sendMessageObj){
     this.showSendMessage(sendMessageObj);
-    this.showTypingDots = true;
+    this.showSendMessage(this.sendTypingMessage);
+    // this.showTypingDots = true;
     var result_MessageArray = this.messageFlowTemp;
     this.CheckMessageSendByUser(sendMessageObj, result_MessageArray, (ValdiationResponse) => {
       console.log("CheckMessageSendByUser:ValdiationResposne\n" + JSON.stringify(ValdiationResponse));
@@ -142,7 +147,8 @@ export class ChatPreviewComponent implements OnInit {
               "icon": "field-text",
               "name": "Text",
             }
-            this.showTypingDots = false;
+            // this.showTypingDots = false;
+            this.deleteTypingFromMessageFlow();
           this.showSendMessage({ "MessageAction": "Received","BotIntentFlow": sendMessageObj, "isSend":0 });
       } else {
           this.messageFlowTemp = result_MessageArray
@@ -285,7 +291,8 @@ export class ChatPreviewComponent implements OnInit {
 
   startFlow(data, apiHeader) {
     this.showSendMessage(data);
-    this.showTypingDots = true;
+    this.showSendMessage(this.sendTypingMessage);
+    // this.showTypingDots = true;
     this.getFlowFromServer(data, apiHeader).then(data => {
       // console.log("responce of server :", data);
       if(data['BotIntentFlow'].length > 0 && data['IntentName'] != 'None'){
@@ -306,37 +313,43 @@ export class ChatPreviewComponent implements OnInit {
     let dateTime = this.getDateTimeForSendMessage()
     switch (type) {
       case 'Text':
-        this.showTypingDots = false;
+        // this.showTypingDots = false;
+        this.deleteTypingFromMessageFlow();
         this.showSendMessage({ "MessageAction": "Received","BotIntentFlow": FilteredMessageArray, "dateTime":dateTime });
         interval+=1500;
         break;
 
       case 'Image':
-        this.showTypingDots = false;
+        // this.showTypingDots = false;
+        this.deleteTypingFromMessageFlow();
         this.showSendMessage({ "MessageAction": "Received","BotIntentFlow": FilteredMessageArray, "dateTime":dateTime  });
         interval+=1500;
         break;
 
       case 'Audio':
-        this.showTypingDots = false;
+        // this.showTypingDots = false;
+        this.deleteTypingFromMessageFlow();
         this.showSendMessage({ "MessageAction": "Received","BotIntentFlow": FilteredMessageArray, "dateTime":dateTime  });
         interval+=1500;
         break;
 
       case 'Video':
-        this.showTypingDots = false;
+        // this.showTypingDots = false;
+        this.deleteTypingFromMessageFlow();
         this.showSendMessage({ "MessageAction": "Received","BotIntentFlow": FilteredMessageArray, "dateTime":dateTime  });
         interval+=1500;
         break;
 
       case 'Button':
-        this.showTypingDots = false;
+        // this.showTypingDots = false;
+        this.deleteTypingFromMessageFlow();
         this.showSendMessage({ "MessageAction": "Received","BotIntentFlow": FilteredMessageArray, "dateTime":dateTime  });
         interval+=1500;
         break;
 
       case 'Carousel':
-        this.showTypingDots = false;
+        // this.showTypingDots = false;
+        this.deleteTypingFromMessageFlow();
         let id = this.createDynamicId();
         this.showSendMessage({ "MessageAction": "Received","dynamicId":id,"BotIntentFlow": FilteredMessageArray, "dateTime":dateTime  });
         interval+=1500;
@@ -354,7 +367,8 @@ export class ChatPreviewComponent implements OnInit {
                   var attribute = item.attribute[i];
                   if (attribute.isSent === 0) {
                       // console.log("send message :" , { "MessageAction": "Received","BotIntentFlow": item,"sendMessage": attribute, "isSend":0 });
-                      this.showTypingDots = false;
+                      // this.showTypingDots = false;
+                      this.deleteTypingFromMessageFlow();
                       this.showSendMessage({ "MessageAction": "Received","BotIntentFlow": item,"sendMessage": attribute, "isSend":0 });
                       break;
                   }
@@ -391,13 +405,15 @@ export class ChatPreviewComponent implements OnInit {
         break;
 
       case 'Prompts':
-        this.showTypingDots = false;
+        // this.showTypingDots = false;
+        this.deleteTypingFromMessageFlow();
         this.showSendMessage({ "MessageAction": "Received","BotIntentFlow": FilteredMessageArray,"Button":['YES','NO'] ,"dateTime":dateTime  });
         interval+=1500;
         break;
 
       case 'Default':
-      this.showTypingDots = false;
+      // this.showTypingDots = false;
+      this.deleteTypingFromMessageFlow();
       this.showSendMessage({ "MessageAction": "Received","BotIntentFlow": FilteredMessageArray, "dateTime":dateTime  });
       interval+=1500;
       break;
@@ -562,7 +578,8 @@ export class ChatPreviewComponent implements OnInit {
         var attribute = {
           "question":element
         }
-        this.showTypingDots = false;
+        // this.showTypingDots = false;
+        this.deleteTypingFromMessageFlow();
         this.showSendMessage({ "MessageAction": "Received","BotIntentFlow": message,"sendMessage": attribute, "dateTime":dateTime });
       });
   }
@@ -593,6 +610,7 @@ export class ChatPreviewComponent implements OnInit {
     }
     else {
       console.log("FilteredMessageArray.length <= 0");
+      this.deleteTypingFromMessageFlow();
       this.messageFlowTemp = [];
     }
   }
@@ -641,8 +659,10 @@ export class ChatPreviewComponent implements OnInit {
       isLuisCall: 0,
       "dateTime": dateTime
     }
-    this.messageFlow.push(defaultMessage);
-    this.scrollIntoView();
+    this.deleteTypingFromMessageFlow();
+    this.showSendMessage(defaultMessage)
+    // this.messageFlow.push(defaultMessage);
+    // this.scrollIntoView();
   }
 
 // send message when server get crash and user say exit
@@ -693,17 +713,19 @@ export class ChatPreviewComponent implements OnInit {
       isLuisCall: 0,
       "dateTime": dateTime
     }
-    this.messageFlow.push(obj);
-    this.scrollIntoView();
+    this.deleteTypingFromMessageFlow();
+    this.showSendMessage(obj);
+    // this.messageFlow.push(obj);
+    // this.scrollIntoView();
     this.messageFlowTemp = [];
-    // this.showSendMessage(this.sendMessageObj)
     // this.showTypingDots = true;
   }
 
   checkExitMessage(messageObj){
     if(messageObj.message == 'Exit' || messageObj.message == 'exit'){
-      this.showTypingDots = false;
-      this.showSendMessage(messageObj)
+      // this.showTypingDots = false;
+      this.deleteTypingFromMessageFlow();
+      this.showSendMessage(messageObj);
       return true
     }else{
       return false
@@ -731,7 +753,7 @@ getDateTimeForSendMessage(){
   // callback(time)
 }
 imgLoad(item){
-  // console.log("image is load:", item)
+  console.log("image is load:", item)
   this.scrollIntoView();
 }
 
@@ -933,10 +955,15 @@ logMessage(messageObj){
     })
 }
 
-deleteTypingFromMessageFlow(callback){
+deleteTypingFromMessageFlow(){
   var removeIndex = this.messageFlow.map(function(item) { return item.MessageAction; }).indexOf("Common");
-  this.messageFlow.splice(removeIndex, 1);
-  callback();
+  // console.log("remove index :", removeIndex);
+  if(removeIndex != -1){
+    this.messageFlow.splice(removeIndex, 1);
+  }
+  
+  // console.log("in delete typing from messageflow :", this.messageFlow);
+  // callback();
 }
 
 

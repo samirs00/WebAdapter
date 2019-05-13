@@ -42,14 +42,14 @@
             </div>
           </div>
 
-          <!-- <div *ngIf="message.MessageAction == 'Common'" class="ReceivedMessageBox">
+          <div *ngIf="message.MessageAction == 'Common'" class="ReceivedMessageBox">
             <img src="assets/images/e_hd_trans.png" class="botIconImg" alt="" title="" />
             <div id="botMessage" class="receivedMessageData">
                 <div>
-                  <img [src]="message.data" class="" alt="" title="" />
+                  <img [src]="message.BotIntentFlow.data" class="" alt="" title="" />
                 </div>
             </div>
-          </div> -->
+          </div>
 
           <div class="ReceivedMessageBox" *ngIf="message.MessageAction == 'Received'">
             <img src="assets/images/e_hd_trans.png" class="botIconImg" alt="" title="" />

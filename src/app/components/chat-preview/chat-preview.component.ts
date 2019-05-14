@@ -702,6 +702,7 @@ export class ChatPreviewComponent implements OnInit {
     })
   }
 
+  //show exit message 
   showExitMessage(message) {
     let dateTime = this.getDateTimeForSendMessage()
     let obj = {
@@ -735,6 +736,7 @@ export class ChatPreviewComponent implements OnInit {
     }
   }
 
+  // push message to messageflow send and received message
 showSendMessage(messageObj){
   // console.log("Send message :", sendMessageObj)
   this.messageFlow.push(messageObj);

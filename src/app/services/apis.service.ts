@@ -10,8 +10,8 @@ import { catchError } from 'rxjs/operators';
 export class ApisService {
 
   // baseUrl: string = 'http://localhost:3000/home';
-      baseUrl:String="http://ec2-54-86-110-104.compute-1.amazonaws.com:5011/home/"  
-      // luisUrl:String="",
+      // baseUrl:String="http://ec2-54-86-110-104.compute-1.amazonaws.com:5011/home/"  
+      baseUrl: String = 'https://convee.ai:1992/home/';      // production URL
       // baseUrl:String="http://192.168.9.99:9090/home/";
 
   constructor(private httpClient: HttpClient) { }

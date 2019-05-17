@@ -19,10 +19,12 @@ export class ChatPreviewComponent implements OnInit {
     carouselId:string = "sampleId";
     carouselHref:any = "#sampleId";
     botId:any;
-    tokenId:any;
+    userid:any;
     userName:any;
     dateTime:any;
-    authorizationKey:any
+    authorizationKey:any;
+    imageSrc:any;
+    localImgSrc:any = "assets/images/e_hd_trans.png"
     showTypingDots:boolean = false;
      sendTypingMessage:any = {
       "isSent": 1,
@@ -45,16 +47,44 @@ export class ChatPreviewComponent implements OnInit {
                
   
   ngOnInit() {
-    let url = this.router.url;
-    var result = url.split('/');
-    this.botId =result[result.indexOf('botid') + 1]
-    this.tokenId =result[result.indexOf('tokenid') + 1]
-    this.userName =result[result.indexOf('username') + 1]
-    this.authorizationKey =result[result.indexOf('authorizationkey') + 1]
-    console.log("botid :", this.botId, "tokenId :", this.tokenId, "authorizationKey :", this.authorizationKey)
+    
+    // console.log("URL :", url);
+    // const urlParams = new URLSearchParams(window.location.search);
+    // const myParam = urlParams.get('authorizationkey');
+    // console.log(myParam);
+    // var url1 = new URL(window.location.href);
+    // console.log(window.location.href);
+
+    // var c = url1.searchParams.get("botid");
+    // console.log("Botid :", this.getParameterByName('botid', window.location.href));
+    this.botId =this.getParameterByName('botid', window.location.href)
+    this.userid =this.getParameterByName('userid', window.location.href)
+    // this.userName =this.getParameterByName('username', window.location.href)
+    this.authorizationKey =this.getParameterByName('authorizationToken', window.location.href)
+    this.imageSrc =this.getParameterByName('imgsrc', window.location.href);
+    if(this.imageSrc){
+      this.localImgSrc = this.imageSrc;
+    }
+
+
+    // let url = this.router.url;
+    // var result = url.split('/');
+    // this.botId =result[result.indexOf('botid') + 1]
+    // this.tokenId =result[result.indexOf('tokenid') + 1]
+    // this.userName =result[result.indexOf('username') + 1]
+    // this.authorizationKey =result[result.indexOf('authorizationkey') + 1]
+    console.log("botid :", this.botId, "userid :", this.userid, "authorizationToken :", this.authorizationKey, "localImgSrc :", this.localImgSrc)
     // this.welcomeMessage(this.userName)
   }
-
+   getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, '\\$&');
+    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+    results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    }
   welcomeMessage(userName){
     let dateTime = this.getDateTimeForSendMessage()
     let FilteredMessageArray = {
@@ -77,9 +107,12 @@ export class ChatPreviewComponent implements OnInit {
     console.log("Send message :", messageObject.Label || messageObject.IntentName);
     if((messageObject.Label || messageObject.IntentName != "") && (messageObject.Label || messageObject.IntentName != null) && (messageObject.Label || messageObject.IntentName != undefined)){
     this.message = "";
+    if(!this.userid){
+      this.userid = "userId"
+    }
     let header = {
       "botId": this.botId,
-      "tokenId": this.tokenId
+      "tokenId": this.userid
     }
     let dateTime = this.getDateTimeForSendMessage()
     var sendMessageObj = {}
@@ -183,6 +216,7 @@ export class ChatPreviewComponent implements OnInit {
             }
             if (ResultResponse.exitConversation) {
               // clearUserData(envelope.sender_id);
+              this.deleteTypingFromMessageFlow();
               this.messageFlowTemp = [];
               return;
             }
@@ -494,9 +528,11 @@ export class ChatPreviewComponent implements OnInit {
       callback(userAnswer)
       this.sendJsonResultToUI(userAnswer, message);
     } catch (error) {
+      this.deleteTypingFromMessageFlow();
       console.log("Error occure in get catch")
     }
   }
+
   async jsonPostRquest(message ,url, requestBody, content_type, callback){
     try {
       let jsonApiResponse = await this.JsonPostRequest(url, requestBody, content_type);
@@ -506,7 +542,6 @@ export class ChatPreviewComponent implements OnInit {
       }
       let parseJsonResponse:any = await this.parseJson(obj);
       // console.log("parseJsonResponse :", parseJsonResponse);
-
       message.answer_attributes = parseJsonResponse.answer_attributes;
       var userAnswer = message.answer
       message.answer_attributes.forEach(element => {
@@ -517,6 +552,7 @@ export class ChatPreviewComponent implements OnInit {
       callback(userAnswer)
 
     } catch (error) {
+      this.deleteTypingFromMessageFlow();
       console.log("Error occure in post catch")
     }
   }
@@ -537,6 +573,7 @@ export class ChatPreviewComponent implements OnInit {
         })
     })
   }
+
   JsonPostRequest(url, data, content_type){
     return new Promise((resolve, reject) => {
       this.apiService.JsonPostRequest(url, data, content_type)
@@ -570,6 +607,7 @@ export class ChatPreviewComponent implements OnInit {
         })
     })
   }
+
   sendJsonResultToUI(userAnswer, message){
       console.log("sendJsonResultToUI :", userAnswer);
       let dateTime = this.getDateTimeForSendMessage()
@@ -695,7 +733,7 @@ export class ChatPreviewComponent implements OnInit {
           }
         }, err => {
           if (err) {
-            console.log("Error is occured....");
+            console.log("Error is occured....: ", err);
             reject(err)
           }
         })
@@ -939,7 +977,7 @@ logMessage(messageObj){
 
   var logBody =
   {
-    UserId: this.tokenId,
+    UserId: this.userid,
     BotId: this.botId,
     MessageAction: messageObj.MessageAction,
     EndUserId: "userId",

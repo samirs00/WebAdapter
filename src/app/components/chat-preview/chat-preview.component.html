@@ -43,7 +43,7 @@
           </div>
 
           <div *ngIf="message.MessageAction == 'Common'" class="ReceivedMessageBox">
-            <img src="assets/images/e_hd_trans.png" class="botIconImg" alt="" title="" />
+            <img src="{{localImgSrc}}" class="botIconImg" alt="" title="" />
             <div id="botMessage" class="receivedMessageData">
                 <div>
                   <img [src]="message.BotIntentFlow.data" class="" alt="" title="" />
@@ -52,7 +52,7 @@
           </div>
 
           <div class="ReceivedMessageBox" *ngIf="message.MessageAction == 'Received'">
-            <img src="assets/images/e_hd_trans.png" class="botIconImg" alt="" title="" />
+            <img src="{{localImgSrc}}" class="botIconImg" alt="" title="" />
           
             <div id="botMessage" class="receivedMessageData" *ngIf="message.BotIntentFlow.name != 'Carousel'">
               <div *ngIf="message.BotIntentFlow.name === 'Text'">

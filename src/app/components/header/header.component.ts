@@ -1,6 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { MediaMatcher } from '@angular/cdk/layout';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
 
 @Component({
   selector: 'app-header',
@@ -8,27 +6,30 @@ import { Router, ActivatedRoute } from '@angular/router';
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent implements OnInit {
-  mobileQuery: MediaQueryList;
   
- 
-  // fillerNav = Array.from({ length: 50 }, (_, i) => `Nav Item ${i + 1}`);
-  private _mobileQueryListener: () => void;
-  constructor(private router: Router,
-    private route: ActivatedRoute,
-    changeDetectorRef: ChangeDetectorRef,
-    media: MediaMatcher){
-      this.mobileQuery = media.matchMedia('(max-width: 600px)');
-      this._mobileQueryListener = () => changeDetectorRef.detectChanges();
-      this.mobileQuery.addListener(this._mobileQueryListener);
+  botIcon:any;
+  localBotIcon:any = "assets/images/e_hd_trans.png"
+  constructor(){
+
     }
 
   ngOnInit() {
-    // let botId = this.route.snapshot.params.botId;
-    // let tokenId = this.route.snapshot.params.tokenId;
-    // console.log("botid :", botId, "tokenId :", tokenId)
-    // this.router.navigate(['/botId',botId,'/tokenId', tokenId]);
-    // this.router.navigate(['/botId'], { queryParams: { 'botId': '**', 'tokenId': '**' } });
+    this.botIcon =this.getParameterByName('imgsrc', window.location.href)
+    console.log("this.botIcon :",this.botIcon);
+    if(this.botIcon){
+      this.localBotIcon = this.botIcon;
+    }
+    
+  }
 
+  getParameterByName(name, url) {
+    if (!url) url = window.location.href;
+    name = name.replace(/[\[\]]/g, '\\$&');
+    var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+      results = regex.exec(url);
+    if (!results) return null;
+    if (!results[2]) return '';
+    return decodeURIComponent(results[2].replace(/\+/g, ' '));
   }
 
 }

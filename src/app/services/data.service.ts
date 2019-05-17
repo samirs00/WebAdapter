@@ -6,6 +6,7 @@ import { Injectable } from '@angular/core';
 export class DataService {
 
   data:any = [];
+  botDetails:any;
   constructor() { }
   addmessageInArray(obj){
     console.log("addmessageInArray :", obj)
@@ -13,5 +14,11 @@ export class DataService {
   }
   getMessageFromArray(){
     return this.data;
+  }
+  setBotDetails(botDetails){
+    this.botDetails = botDetails
+  }
+  getBotDetails(){
+    return this.botDetails;
   }
 }

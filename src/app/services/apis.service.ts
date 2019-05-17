@@ -1,6 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpResponse, HttpClientModule  } from '@angular/common/http';
 import { Observable } from 'rxjs';
+// import { Observable } from 'rxjs/Observable';
+// import 'rxjs/add/operator/catch';
+// import 'rxjs/add/observable/throw';
+import { throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 
@@ -70,28 +74,28 @@ export class ApisService {
     if (error.status === 401) {
       var message = "error";
       // this._tostrservice.showCustom();
-      return Observable.throw(new Error(error.status));
+      return throwError(new Error(error.status));
       // alert("Server error please try again!");
     }
     // 500 - internal server error
     else if (error.status === 500) {
-      return Observable.throw(new Error(error.status));
+      return throwError(new Error(error.status));
     }
     // 400 - bad request
     else if (error.status === 400) {
-      return Observable.throw(new Error(error.status));
+      return throwError(new Error(error.status));
     }
     // 409 - conflict
     else if (error.status === 409) {
-      return Observable.throw(new Error(error.status));
+      return throwError(new Error(error.status));
     }
     // 408 - request timeout
     else if (error.status === 408) {
-      return Observable.throw(new Error(error.status));
+      return throwError(new Error(error.status));
     }
     else {
       // console.error(error.message || error);
-      return Observable.throw(error.message || error);
+      return throwError(error.message || error);
     }
 
   }

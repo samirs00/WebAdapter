@@ -60,7 +60,7 @@ export class ChatPreviewComponent implements OnInit {
     this.botId =this.getParameterByName('botid', window.location.href)
     this.userid =this.getParameterByName('userid', window.location.href)
     // this.userName =this.getParameterByName('username', window.location.href)
-    this.authorizationKey =this.getParameterByName('authorizationToken', window.location.href)
+    this.authorizationKey =this.getParameterByName('authorizationtoken', window.location.href)
     this.imageSrc =this.getParameterByName('imgsrc', window.location.href);
     if(this.imageSrc){
       this.localImgSrc = this.imageSrc;
@@ -73,7 +73,7 @@ export class ChatPreviewComponent implements OnInit {
     // this.tokenId =result[result.indexOf('tokenid') + 1]
     // this.userName =result[result.indexOf('username') + 1]
     // this.authorizationKey =result[result.indexOf('authorizationkey') + 1]
-    console.log("botid :", this.botId, "userid :", this.userid, "authorizationToken :", this.authorizationKey, "localImgSrc :", this.localImgSrc)
+    console.log("botid :", this.botId, "userid :", this.userid, "authorizationtoken :", this.authorizationKey, "localImgSrc :", this.localImgSrc)
     // this.welcomeMessage(this.userName)
   }
    getParameterByName(name, url) {

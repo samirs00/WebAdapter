@@ -458,6 +458,9 @@ export class ChatPreviewComponent implements OnInit {
     var url = message.endpoint_url;
     var requestBody = {};
     var content_type = {};
+    if(!this.authorizationKey){
+      this.authorizationKey = "authorizationKey"
+    }
     if (url.indexOf('weather') >= 0) {
       content_type = {
         "content_type": 'application/javascript',
@@ -795,9 +798,20 @@ getDateTimeForSendMessage(){
   return dateTime
   // callback(time)
 }
+scrollCarousel(){
+  setTimeout(() => {
+    document.getElementById('ChatView').scrollTo(0, document.getElementById('ChatView').scrollHeight);
+    // console.log("after 1000")
+  }, 2000);
+}
 imgLoad(item){
-  console.log("image is load:", item)
-  this.scrollIntoView();
+  // console.log("image is load:", item)
+  // this.scrollIntoView();
+  if(item == 'carousel'){
+    this.scrollCarousel();
+  }else{
+    this.scrollIntoView();
+  }
 }
 
 checkIfPromptInputIsCorrect(text, SentMessage, ResultResponse) {

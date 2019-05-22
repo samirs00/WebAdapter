@@ -483,6 +483,7 @@ export class ChatPreviewComponent implements OnInit {
           })
           //trim extra characters in url
           url = url.trimRight('&&')
+          console.log("url :", url)
           this.jsonGetRequest(message,url, requestBody, content_type, (data =>{
             callback(data)
           }));
@@ -514,22 +515,19 @@ export class ChatPreviewComponent implements OnInit {
 
   async jsonGetRequest(message ,url, requestBody, content_type, callback){
     try {
-      let jsonApiResponse = await this.JsonGetRequest(url, requestBody, content_type);
-      var obj = {
+      let getRequest = {
+        "apiType":"GET",
+        "url": url,
+        "requestBody": requestBody,
+        "authorizationKey": content_type.authorizationKey,
+        "content_type":content_type.content_type,
         "answer_attributes":message.answer_attributes,
-        "jsonResponse" : jsonApiResponse
+        "json_card":message
       }
-      let parseJsonResponse:any = await this.parseJson(obj);
-      // console.log("parseJsonResponse :", parseJsonResponse);
-
-      message.answer_attributes = parseJsonResponse.answer_attributes;
-      var userAnswer = message.answer
-      message.answer_attributes.forEach(element => {
-        userAnswer=userAnswer.replace( element.key,/*element.key +" : "+ */element.value+"\n");
-      });
-      console.log("final json get:", userAnswer);
-      callback(userAnswer)
-      this.sendJsonResultToUI(userAnswer, message);
+      let jsonApiResponse = await this.getAndParseJSONApi(getRequest);
+      console.log("final json get:", jsonApiResponse);
+      callback(jsonApiResponse)
+      this.sendJsonResultToUI(jsonApiResponse, message);
     } catch (error) {
       this.deleteTypingFromMessageFlow();
       console.log("Error occure in get catch")
@@ -538,35 +536,33 @@ export class ChatPreviewComponent implements OnInit {
 
   async jsonPostRquest(message ,url, requestBody, content_type, callback){
     try {
-      let jsonApiResponse = await this.JsonPostRequest(url, requestBody, content_type);
-      var obj = {
+      let postRequest = {
+        "apiType":"POST",
+        "url": url,
+        "requestBody": requestBody,
+        "authorizationKey": content_type.authorizationKey,
+        "content_type":content_type.content_type,
         "answer_attributes":message.answer_attributes,
-        "jsonResponse" : jsonApiResponse
+        "json_card":message
       }
-      let parseJsonResponse:any = await this.parseJson(obj);
-      // console.log("parseJsonResponse :", parseJsonResponse);
-      message.answer_attributes = parseJsonResponse.answer_attributes;
-      var userAnswer = message.answer
-      message.answer_attributes.forEach(element => {
-        userAnswer=userAnswer.replace( element.key,/*element.key +" : "+ */element.value+"\n");
-      });
-      console.log("final json post:", userAnswer);
-      this.sendJsonResultToUI(userAnswer, message);
-      callback(userAnswer)
+      let jsonApiResponse = await this.getAndParseJSONApi(postRequest);
+      console.log("final json post:", jsonApiResponse);
+      this.sendJsonResultToUI(jsonApiResponse, message);
+      callback(jsonApiResponse)
 
     } catch (error) {
       this.deleteTypingFromMessageFlow();
       console.log("Error occure in post catch")
     }
   }
-
-  parseJson(data){
+  getAndParseJSONApi(data){
     return new Promise((resolve, reject) => {
-      this.apiService.JsonParse(data)
+      this.apiService.jsonRequest(data)
         .subscribe(res => {
-          // console.log("parseJson API call res:", res)
-          if (res) {
-            resolve(res)
+          if (res.status === 200) {
+            resolve(res.result)
+          }else{
+            reject(res.result)
           }
         }, err => {
           if (err) {
@@ -576,43 +572,42 @@ export class ChatPreviewComponent implements OnInit {
         })
     })
   }
+  // JsonPostRequest(url, data, content_type){
+  //   return new Promise((resolve, reject) => {
+  //     this.apiService.JsonPostRequest(url, data, content_type)
+  //       .subscribe(res => {
+  //         console.log("JsonPostRequest API call res :", res)
+  //         if (res) {
+  //           resolve(res)
+  //         }
+  //       }, err => {
+  //         if (err) {
+  //           // console.log("Error is occured....");
+  //           reject(err)
+  //         }
+  //       })
+  //   })
+  // }
 
-  JsonPostRequest(url, data, content_type){
-    return new Promise((resolve, reject) => {
-      this.apiService.JsonPostRequest(url, data, content_type)
-        .subscribe(res => {
-          console.log("JsonPostRequest API call res :", res)
-          if (res) {
-            resolve(res)
-          }
-        }, err => {
-          if (err) {
-            // console.log("Error is occured....");
-            reject(err)
-          }
-        })
-    })
-  }
-
-  JsonGetRequest(url, data, content_type){
-    return new Promise((resolve, reject) => {
-      this.apiService.JsonGetRequest(url, data, content_type)
-        .subscribe(res => {
-          console.log("JsonGetRequest API call res :", res)
-          if (res) {
-            resolve(res)
-          }
-        }, err => {
-          if (err) {
-            // console.log("Error is occured....");
-            reject(err)
-          }
-        })
-    })
-  }
+  // JsonGetRequest(url, data, content_type){
+  //   return new Promise((resolve, reject) => {
+  //     this.apiService.JsonGetRequest(url, data, content_type)
+  //       .subscribe(res => {
+  //         console.log("JsonGetRequest API call res :", res)
+  //         if (res) {
+  //           resolve(res)
+  //         }
+  //       }, err => {
+  //         if (err) {
+  //           // console.log("Error is occured....");
+  //           reject(err)
+  //         }
+  //       })
+  //   })
+  // }
 
   sendJsonResultToUI(userAnswer, message){
-      console.log("sendJsonResultToUI :", userAnswer);
+      // console.log("sendJsonResultToUI :", userAnswer);
       let dateTime = this.getDateTimeForSendMessage()
       var msgChunk = userAnswer.match(/.{1,639}/g);
       // console.log("msgChunk :", msgChunk);

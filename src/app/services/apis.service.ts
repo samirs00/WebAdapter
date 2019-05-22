@@ -38,28 +38,33 @@ export class ApisService {
     .pipe(catchError(this.handleErrorObservable));
   }
 
-  JsonPostRequest(url,data,content_type): Observable<any>{
-    let headers = new HttpHeaders()
-    .set('Content-Type', 'application/json')
-    .append('Authorization', content_type.authorizationKey)
-    return this.httpClient.post(url , data, {headers})
-    .pipe(catchError(this.handleErrorObservable));
-  }
-  JsonGetRequest(url,data, content_type): Observable<any>{
-    let headers = new HttpHeaders()
-    .set('Content-Type', 'application/json')
-    .append('Authorization', content_type.authorizationKey)
-    return this.httpClient.get(url , {headers})
-    .pipe(catchError(this.handleErrorObservable));
-  }
-  JsonParse(data): Observable<any>{
-    // let headers = new HttpHeaders()
-    // .set('Content-Type', 'application/json')
-    // .append('botId', header.botId)
-    // .append('tokenId', header.tokenId)
-    return this.httpClient.post(this.baseUrl + 'parseJson', data)
-    .pipe(catchError(this.handleErrorObservable));
-  }
+  // JsonPostRequest(url,data,content_type): Observable<any>{
+  //   let headers = new HttpHeaders()
+  //   .set('Content-Type', 'application/json')
+  //   .append('Authorization', content_type.authorizationKey)
+  //   return this.httpClient.post(url , data, {headers})
+  //   .pipe(catchError(this.handleErrorObservable));
+  // }
+  // JsonGetRequest(url,data, content_type): Observable<any>{
+  //   let headers = new HttpHeaders()
+  //   .set('Content-Type', 'application/json')
+  //   .append('Authorization', content_type.authorizationKey)
+  //   // .append('Accept', "*/*")
+  //   .set("Access-Control-Allow-Origin", "*")
+  //   // .append("Access-Control-Allow-Credentials", "tre")
+  //   // .append("Access-Control-Allow-Methods", "GET")
+  //   // .append("Access-Control-Request-Headers", "Content-type,X-Requested-With,Origin,accept")
+  //   return this.httpClient.get(url , {headers})
+  //   .pipe(catchError(this.handleErrorObservable));
+  // }
+  // JsonParse(data): Observable<any>{
+  //   // let headers = new HttpHeaders()
+  //   // .set('Content-Type', 'application/json')
+  //   // .append('botId', header.botId)
+  //   // .append('tokenId', header.tokenId)
+  //   return this.httpClient.post(this.baseUrl + 'parseJson', data)
+  //   .pipe(catchError(this.handleErrorObservable));
+  // }
   logMessage(data): Observable<any>{
         // let headers = new HttpHeaders()
     // .set('Content-Type', 'application/json')
@@ -67,6 +72,14 @@ export class ApisService {
     // .append('tokenId', header.tokenId)
     return this.httpClient.post(this.baseUrl + 'logRecord', data)
     .pipe(catchError(this.handleErrorObservable));
+  }
+  jsonRequest(data): Observable<any> {
+    // let headers = new HttpHeaders()
+    // .set('Content-Type', 'application/json')
+    // .append('botId', header.botId)
+    // .append('tokenId', header.tokenId)
+    return this.httpClient.post(this.baseUrl + 'getAndParseJSONApi', data)
+      .pipe(catchError(this.handleErrorObservable));
   }
 
   private handleErrorObservable(error: Response | any) {

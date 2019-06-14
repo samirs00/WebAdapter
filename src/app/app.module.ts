@@ -4,25 +4,23 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 // import { NguCarouselModule } from '@ngu/carousel';
 
-
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-
-
 
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {NoopAnimationsModule} from '@angular/platform-browser/animations';
 import {MatToolbarModule} from '@angular/material/toolbar';
 import { HeaderComponent } from './components/header/header.component';
-import { FooterComponent } from './components/footer/footer.component';
+// import { FooterComponent } from './components/footer/footer.component';
 import { ChatPreviewComponent } from './components/chat-preview/chat-preview.component';
+import { GooglePlaceModule } from "ngx-google-places-autocomplete";
 
 
 @NgModule({
   declarations: [
     AppComponent,
     HeaderComponent,
-    FooterComponent,
+    // FooterComponent,
     ChatPreviewComponent
   ],
   imports: [
@@ -33,6 +31,7 @@ import { ChatPreviewComponent } from './components/chat-preview/chat-preview.com
     MatToolbarModule,
     FormsModule,
     HttpClientModule,
+    GooglePlaceModule,
     // NguCarouselModule
   ],
   providers: [],

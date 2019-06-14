@@ -1,9 +1,12 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild,  } from '@angular/core';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DataService } from '../../services/data.service'
 import { ApisService } from '../../services/apis.service'
 import { DefaultMessage } from '../../classes/common-data'
 import * as $ from 'jquery';
+import { PaymentOption } from '../../services/custom-option'
+// import { CreditCardValidator } from 'angular-cc-library';
 // import * as moment from "moment";
 // import { NEXT } from '@angular/core/src/render3/interfaces/view';
 
@@ -14,6 +17,8 @@ import * as $ from 'jquery';
   styleUrls: ['./chat-preview.component.css']
 })
 export class ChatPreviewComponent implements OnInit {
+  
+  public paymentOption: PaymentOption = {};
 
   public defaultMessage: DefaultMessage = new DefaultMessage();
     carouselId:string = "sampleId";
@@ -43,10 +48,11 @@ export class ChatPreviewComponent implements OnInit {
   constructor(public dataService: DataService, 
               private apiService :ApisService,
               private route: ActivatedRoute,
-              private router:Router ) {}
+              private router:Router) {}
                
   
   ngOnInit() {
+
     
     // console.log("URL :", url);
     // const urlParams = new URLSearchParams(window.location.search);
@@ -162,6 +168,10 @@ export class ChatPreviewComponent implements OnInit {
   onDateChange(event){
     // console.log("datechange :", event.target.value)
     this.getMessage({'IntentName':event.target.value},'other')
+  }
+  handleAddressChange(event){
+    // console.log("handleAddressChange :", event);
+    this.getMessage({'IntentName':event.formatted_address},'other')
   }
   contineuFlow(sendMessageObj){
     this.showSendMessage(sendMessageObj);
@@ -954,6 +964,12 @@ checkIfPromptInputIsCorrect(text, SentMessage, ResultResponse) {
         }
       }
       break;
+      case '@sys.address':
+      {
+        ResultResponse.isValid = true;
+        ResultResponse.ReturnMessage = "";
+      }
+      break;
 
     default:
       console.log("Entity type not found..");
@@ -1018,7 +1034,9 @@ deleteTypingFromMessageFlow(){
   // console.log("in delete typing from messageflow :", this.messageFlow);
   // callback();
 }
-
+sendPaymentDetails(event){
+  console.log("sendPaymentDetails :", this.paymentOption)
+}
 
 
   // sendJsonApiPrompt(messageObject, date){

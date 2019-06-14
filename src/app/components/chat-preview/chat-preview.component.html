@@ -1,7 +1,7 @@
 <div id="ChatView" class="container-fluid chatView">
   <div class="row">
     <div class="col-sm-12 col-md-12">
-      <div class="user-chat-list" >
+      <div class="user-chat-list">
         <!-- <ul>
           <li class="bot">
             <div>
@@ -45,41 +45,49 @@
           <div *ngIf="message.MessageAction == 'Common'" class="ReceivedMessageBox">
             <img src="{{localImgSrc}}" class="botIconImg" alt="" title="" />
             <div id="botMessage" class="receivedMessageData">
-                <div>
-                  <img [src]="message.BotIntentFlow.data" class="" alt="" title="" />
-                </div>
+              <div>
+                <img [src]="message.BotIntentFlow.data" class="" alt="" title="" />
+              </div>
             </div>
           </div>
 
           <div class="ReceivedMessageBox" *ngIf="message.MessageAction == 'Received'">
             <img src="{{localImgSrc}}" class="botIconImg" alt="" title="" />
-          
-            <div id="botMessage" class="receivedMessageData" *ngIf="message.BotIntentFlow.name != 'Carousel'">
+
+            <div id="botMessage" class="receivedMessageData"
+              *ngIf="message.BotIntentFlow.name != 'Carousel' && message.BotIntentFlow.name != 'Default'">
               <div *ngIf="message.BotIntentFlow.name === 'Text'">
                 {{message.BotIntentFlow.data}}
               </div>
-            
+
               <div *ngIf="message.BotIntentFlow.name === 'Button'">
                 <div>{{message.BotIntentFlow.data}}</div>
                 <div>
                   <button *ngFor="let btn of message.BotIntentFlow.buttonoptions" class="btn btnstyle"
-                    style="margin: 5px 5px 5px 0;" (click)="getMessage(btn,'button')">{{btn.Label || btn.IntentName}}</button>
+                    style="margin: 5px 5px 5px 0;"
+                    (click)="getMessage(btn,'button')">{{btn.Label || btn.IntentName}}</button>
                 </div>
               </div>
 
               <div *ngIf="message.BotIntentFlow.name === 'Prompts'">
                 <div>{{message.BotIntentFlow.data}}</div>
-                <div *ngIf="message.BotIntentFlow.entityType === '@sys.choice' || message.BotIntentFlow.entityType === '@sys.confirm'">
+                <div
+                  *ngIf="message.BotIntentFlow.entityType === '@sys.choice' || message.BotIntentFlow.entityType === '@sys.confirm'">
                   <button *ngFor="let btn of message.Button" class="btn btnstyle" style="margin: 5px 5px 5px 0;"
                     (click)="getMessage({'IntentName':btn},'button')">{{btn}}</button>
                 </div>
-                <div  *ngIf="message.BotIntentFlow.entityType === '@sys.date'">
-                  <input class="dateClass" placeholder="dd-mm-yy" type="date" name="bday" (change)="onDateChange($event)"> 
+                <div *ngIf="message.BotIntentFlow.entityType === '@sys.date'">
+                  <input class="dateClass" placeholder="dd-mm-yy" type="date" name="bday"
+                    (change)="onDateChange($event)">
+                </div>
+                <div *ngIf="message.BotIntentFlow.entityType === '@sys.address'">
+                  <input class="addressClass" ngx-google-places-autocomplete #placesRef="ngx-places"
+                    (onAddressChange)="handleAddressChange($event)" placeholder="  Enter address" name="address">
                 </div>
               </div>
 
               <div *ngIf="message.BotIntentFlow.name === 'Image'">
-                  <img class="receivedImage" [src]="message.BotIntentFlow.data" (load)="imgLoad('image')" />
+                <img class="receivedImage" [src]="message.BotIntentFlow.data" (load)="imgLoad('image')" />
               </div>
 
               <div *ngIf="message.BotIntentFlow.name === 'Video'">
@@ -93,6 +101,10 @@
                   <source [src]="message.BotIntentFlow.data" type="audio/wav">
                   <source [src]="message.BotIntentFlow.data" type="audio/mpeg">
                 </audio>
+              </div>
+              <div *ngIf="message.BotIntentFlow.name === 'payment'">
+                <div>{{message.BotIntentFlow.data}}</div>
+
               </div>
 
               <!-- <div *ngIf="message.BotIntentFlow.name === 'Carousel'">
@@ -128,57 +140,255 @@
                     </div>
                 </div> -->
 
-                <div *ngIf="message.BotIntentFlow.name === 'Json API'">
-                  {{message.sendMessage.question}}
-                </div>
+              <div *ngIf="message.BotIntentFlow.name === 'Json API'">
+                {{message.sendMessage.question}}
+              </div>
 
-                <div *ngIf="message.BotIntentFlow.name === 'Default'">
-                    {{message.BotIntentFlow.data}}
-                </div>
+              <div *ngIf="message.BotIntentFlow.name === 'Default'">
+                <div>{{message.BotIntentFlow.data}}</div>
+
+              </div>
 
             </div>
             <div id="botMessage" class="receivedCarousel" *ngIf="message.BotIntentFlow.name === 'Carousel'">
-                <div id="{{message.dynamicId}}" class="carousel slide" data-ride="carousel">
-                    <div class="carousel-inner">
-                      <div class="carousel-item" *ngFor="let image of message.BotIntentFlow.carousel">
-                        <div *ngIf="image.linkUrl" >
-                            <a href="{{image.linkUrl}}" target="_blank">
-                              <img src="{{image.imageUrl}}"  (load)="imgLoad('carousel')" >
-                            </a>
-                          </div>
-                          <div *ngIf="!image.linkUrl">
-                            <a>
-                              <img src="{{image.imageUrl}}" (load)="imgLoad('carousel')">
-                            </a>
-                          </div>
-                          <div class="carouselTitleDesc">
-                            <h5>{{image.title}}</h5>
-                            <h6>{{image.desc}}</h6>
-                          </div>
-                          <div class="btnDiv">
-                            <button *ngFor="let btn of image.buttons" class="btn carouselButton" (click)="getMessage(btn, 'button')">
-                              <div>
-                                {{btn.Label || btn.IntentName}}
-                              </div>
-                            </button>
-                          </div>
-                        <!-- <button *ngFor="let btn of image.buttons" class="btn carouselButton" 
+              <div id="{{message.dynamicId}}" class="carousel slide" data-ride="carousel">
+                <div class="carousel-inner">
+                  <div class="carousel-item" *ngFor="let image of message.BotIntentFlow.carousel">
+                    <div *ngIf="image.linkUrl">
+                      <a href="{{image.linkUrl}}" target="_blank">
+                        <img src="{{image.imageUrl}}" (load)="imgLoad('carousel')">
+                      </a>
+                    </div>
+                    <div *ngIf="!image.linkUrl">
+                      <a>
+                        <img src="{{image.imageUrl}}" (load)="imgLoad('carousel')">
+                      </a>
+                    </div>
+                    <div class="carouselTitleDesc">
+                      <h5>{{image.title}}</h5>
+                      <h6>{{image.desc}}</h6>
+                    </div>
+                    <div class="btnDiv">
+                      <button *ngFor="let btn of image.buttons" class="btn carouselButton"
+                        (click)="getMessage(btn, 'button')">
+                        <div>
+                          {{btn.Label || btn.IntentName}}
+                        </div>
+                      </button>
+                    </div>
+                    <!-- <button *ngFor="let btn of image.buttons" class="btn carouselButton" 
                           (click)="getMessage(btn, 'button')">
                           <div>
                             {{btn.Label || btn.IntentName}}
                           </div>
                         </button> -->
+                  </div>
+                </div>
+                <a class="carousel-control-prev" href="#{{message.dynamicId}}" role="button" data-slide="prev">
+                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                  <span class="sr-only">Previous</span>
+                </a>
+                <a class="carousel-control-next" href="#{{message.dynamicId}}" role="button" data-slide="next">
+                  <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                  <span class="sr-only">Next</span>
+                </a>
+              </div>
+            </div>
+            <div id="botMessage" class="receivedCarousel" *ngIf="message.BotIntentFlow.name === 'Default'">
+
+
+
+              <form #paymentOption="ngForm" >
+                <div class="form-group row">
+                  <label class="control-label col-md-4 col-form-label"><b>Enter Amount</b></label>
+                  <input #amount="ngModel" name="amount" id="amount" class="form-control col-md-7" type="number"
+                    placeholder="Enter amount" min="1" [(ngModel)]="paymentOption.amount" required>
+                  <div class="col-md-4"></div>
+                  <div class="error-message col-md-8" *ngIf="amount.errors && (amount.dirty || amount.touched)">
+                    <div [hidden]="!amount.errors.required">
+                      required*
+                    </div>
+                    <!-- <div [hidden]="!amount.errors.min">
+                        Minimum 1 
+                      </div> -->
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label class="control-label col-md-4 col-form-label"><b>Name</b></label>
+                  <input #personName="ngModel" name="personName" id="personName" class="form-control col-md-7"
+                    type="text" placeholder="Enter name" [(ngModel)]="paymentOption.personName" required>
+                  <div class="col-md-4"></div>
+                  <div class="error-message col-md-8"
+                    *ngIf="personName.errors && (personName.dirty || personName.touched)">
+                    <div [hidden]="!personName.errors.required">
+                      required*
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label class="control-label col-md-4 col-form-label"><b>Card number</b></label>
+                  <input #cardNumber="ngModel" name="cardNumber" id="cardNumber" class="form-control col-md-7"
+                    type="text" placeholder="Enter card number" minlength="14" maxlength="17" pattern="\d*"
+                    [(ngModel)]="paymentOption.cardNumber" required>
+                  <div class="col-md-4"></div>
+                  <div class="error-message col-md-8"
+                    *ngIf="cardNumber.errors && (cardNumber.dirty || cardNumber.touched)">
+                    <div [hidden]="!cardNumber.errors.required">
+                      required*
+                    </div>
+                    <div [hidden]="!cardNumber.errors.minlength">
+                      Minimum 14 digit
+                    </div>
+                    <div [hidden]="!cardNumber.errors.maxlength">
+                      Maximum 17 digit
+                    </div>
+                    <div [hidden]="!cardNumber.errors.pattern">
+                      Eneter number only
+                    </div>
+                  </div>
+                </div>
+
+              
+                <div class="form-group row">
+                  <div class="col-md-6 row">
+                    <label class="control-label col-md-4 col-form-label"><b>Expiry month</b></label>
+                    <select #expiryMonth="ngModel" name="expiryMonth" id="expiryMonth" class="form-control col-md-7" [(ngModel)]="paymentOption.expiryMonth" required>
+                      <!-- <option value="" [selected]="true" [ngValue]="undefined">Select an Invoice Type</option> -->
+                      <option value="01">JAN</option>
+                      <option value="02">FEB</option>
+                      <option value="03">MAR</option>
+                      <option value="04">APR</option>
+                      <option value="05">MAY</option>
+                      <option value="06">JUN</option>
+                      <option value="07">JUL</option>
+                      <option value="08">AUG</option>
+                      <option value="09">SEP</option>
+                      <option value="10">OCT</option>
+                      <option value="11">NOV</option>
+                      <option value="12">DEC</option>
+                    </select>
+                    <div class="col-md-4"></div>
+                    <div class="error-message col-md-8"
+                      *ngIf="expiryMonth.errors && (expiryMonth.dirty || expiryMonth.touched)">
+                      <div [hidden]="!expiryMonth.errors.required">
+                        required*
                       </div>
                     </div>
-                    <a class="carousel-control-prev" href="#{{message.dynamicId}}" role="button" data-slide="prev">
-                      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                      <span class="sr-only">Previous</span>
-                    </a>
-                    <a class="carousel-control-next" href="#{{message.dynamicId}}" role="button" data-slide="next">
-                      <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                      <span class="sr-only">Next</span>
-                    </a>
                   </div>
+                  <div class="col-md-6 row">
+                    <label class="control-label col-md-4 col-form-label"><b>Expiry year</b></label>
+                    <select #expiryYear="ngModel" name="expiryYear" id="expiryYear" class="form-control col-md-7" [(ngModel)]="paymentOption.expiryYear" required>
+                        <!-- <option value="" [selected]="true" [ngValue]="undefined">Select an Invoice Type</option> -->
+                        <option value="2019">2019</option>
+                        <option value="2020">2020</option>
+                        <option value="2021">2021</option>
+                        <option value="2022">2022</option>
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026">2026</option>
+                        <option value="2027">2027</option>
+                        <option value="2028">2028</option>
+                        <option value="2029">2029</option>
+                        <option value="2030">2030</option>
+                        <option value="2031">2031</option>
+                        <option value="2032">2032</option>
+                        <option value="2033">2033</option>
+                        <option value="2034">2034</option>
+                        <option value="2035">2035</option>
+                        <option value="2036">2036</option>
+                        <option value="2037">2037</option>
+                        <option value="2038">2038</option>
+                        <option value="2039">2039</option>
+                        <option value="2040">2040</option>
+                        <option value="2041">2041</option>
+                        <option value="2042">2042</option>
+                        <option value="2043">2043</option>
+                        <option value="2044">2044</option>
+                        <option value="2045">2045</option>
+                        <option value="2046">2046</option>
+                        <option value="2047">2047</option>
+                        <option value="2048">2048</option>
+                        <option value="2049">2049</option>
+                        <option value="2050">2050</option>
+                        <option value="2051">2051</option>
+                        <option value="2052">2052</option>
+                        <option value="2053">2053</option>
+                        <option value="2054">2054</option>
+                        <option value="2055">2055</option>
+                        <option value="2056">2056</option>
+                        <option value="2057">2057</option>
+                        <option value="2058">2058</option>
+                        <option value="2059">2059</option>
+                        <option value="2060">2060</option>
+                        <option value="2061">2061</option>
+                        <option value="2062">2062</option>
+                        <option value="2063">2063</option>
+                        <option value="2064">2064</option>
+                        <option value="2065">2065</option>
+                        <option value="2065">2066</option>
+                        <option value="2066">2067</option>
+                        <option value="2067">2068</option>
+                        
+                        
+                      </select>
+                    <div class="col-md-4"></div>
+                    <div class="error-message col-md-8"
+                      *ngIf="expiryYear.errors && (expiryYear.dirty || expiryYear.touched)">
+                      <div [hidden]="!expiryYear.errors.required">
+                        required*
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <label class="control-label col-md-4 col-form-label"><b>Enter CVV</b></label>
+                  <input #cvvNumber="ngModel" name="cvvNumber" id="cvvNumber" class="form-control col-md-7" type="text"
+                    placeholder="Enter CVV" minlength="3" maxlength="3" pattern="\d*"
+                    [(ngModel)]="paymentOption.cvvNumber" required>
+                  <div class="col-md-4"></div>
+                  <div class="error-message col-md-8"
+                    *ngIf="cvvNumber.errors && (cvvNumber.dirty || cvvNumber.touched)">
+                    <div [hidden]="!cvvNumber.errors.required">
+                      required*
+                    </div>
+                    <div [hidden]="!cvvNumber.errors.minlength">
+                      Minimum 3 digit
+                    </div>
+                    <div [hidden]="!cvvNumber.errors.pattern">
+                      Eneter number only
+                    </div>
+                  </div>
+                </div>
+
+              </form>
+              <div>
+                  <button [disabled]="!paymentOption.form.valid" type="button" class="btn btnEditor commenBtnCssAddSave" (click)="sendPaymentDetails($event)" style="width:107.80px">Save</button>
+                </div>
+
+              <!-- <div class="row">
+                    <label for="public-kay" class="col-2 col-form-label">Amount</label>
+                    <input (onAddressChange)="handleAddressChange($event)" placeholder="  Enter Name" name="name">
+                  </div>
+              <div class="row">
+                <label for="public-kay" class="col-2 col-form-label">Name</label>
+                <input (onAddressChange)="handleAddressChange($event)" placeholder="  Enter Name" name="name">
+              </div>
+              <div class="row">
+                <label for="public-kay" class="col-2 col-form-label">Card Number</label>
+                <input (onAddressChange)="handleAddressChange($event)" placeholder="  Enter Name" name="name">
+              </div>
+              <div class="row">
+                <label for="public-kay" class="col-2 col-form-label">Ex. Date</label>
+                <input (onAddressChange)="handleAddressChange($event)" placeholder="  Enter Name" name="name">
+              </div>
+              <div class="row">
+                <label for="public-kay" class="col-2 col-form-label">CVV</label>
+                <input (onAddressChange)="handleAddressChange($event)" placeholder="  Enter Name" name="name">
+              </div> -->
             </div>
           </div>
         </div>
@@ -189,21 +399,22 @@
 
 <footer class="footer-toolbar">
   <div class="input-group inputTagCss">
-      <!-- <div class="input-group-prepend">
+    <!-- <div class="input-group-prepend">
           <div class="input-group-text">
               <img src="../../../assets/images/attachment.jpg" class="attachment-image">
           </div>
       </div> -->
-      <input type="text" id="inputSend" class="form-control" (keyup.enter)="getMessage({'IntentName':message}, 'other')" [(ngModel)]="message" placeholder="Type your message">
-      <div class="input-group-append">
-          <button class="btn btnCss" type="submit" (click)="getMessage({'IntentName':message}, 'other')">
-              <img src="assets/images/message-sending-img.png" class="sendBtn">
-          </button>
-      </div>
+    <input type="text" id="inputSend" class="form-control" (keyup.enter)="getMessage({'IntentName':message}, 'other')"
+      [(ngModel)]="message" placeholder="Type your message">
+    <div class="input-group-append">
+      <button class="btn btnCss" type="submit" (click)="getMessage({'IntentName':message}, 'other')">
+        <img src="assets/images/message-sending-img.png" class="sendBtn">
+      </button>
+    </div>
   </div>
   <div class="input-group mb-3 center-block">
     <div class="center-block">
-     <span class="poweredByClass">powered by</span>
+      <span class="poweredByClass">powered by</span>
       <a href="https://convee.ai/" target="_blank">
         <img src="assets/images/convee_logo1.png" class="attachment-image">
       </a>

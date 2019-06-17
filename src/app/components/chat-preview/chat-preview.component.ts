@@ -364,6 +364,13 @@ export class ChatPreviewComponent implements OnInit {
         interval+=1500;
         break;
 
+      case 'Payment':
+        // this.showTypingDots = false;
+        this.deleteTypingFromMessageFlow();
+        this.showSendMessage({ "MessageAction": "Received","BotIntentFlow": FilteredMessageArray, "dateTime":dateTime });
+        interval+=1500;
+        break;
+
       case 'Image':
         // this.showTypingDots = false;
         this.deleteTypingFromMessageFlow();
@@ -1034,11 +1041,101 @@ deleteTypingFromMessageFlow(){
   // console.log("in delete typing from messageflow :", this.messageFlow);
   // callback();
 }
+removeSpace(text: any): any {
+  if (text) {
+    return text.replace(/ /g,'')
+  } else {
+    return text;
+  }
+}
 sendPaymentDetails(event){
-  console.log("sendPaymentDetails :", this.paymentOption)
+  // debugger;
+  console.log("sendPaymentDetails :", this.paymentOption.cardNumber)
+  let tempnum:any = this.paymentOption.cardNumber;
+  console.log("sendPaymentDetails :", tempnum.replace(/(\d{4})/g, '$1 ').replace(/(^\s+|\s+$)/,''));
+  debugger;
+  let dateTime = this.getDateTimeForSendMessage()
+  let sendMessageObj = {
+    "MessageAction": "Send",
+    "BotIntentFlow": {
+      "data": "Amount :"+ this.paymentOption.amount  + "#Card No :"+ this.paymentOption.cardNumber  + "#Expiry month :"+ this.paymentOption.expiryMonth  + "#Expiry year :"+ this.paymentOption.expiryYear + "#CVV :"+ this.paymentOption.cvvNumber,
+      "dateTime": dateTime.substr(dateTime.indexOf(' ')+1),
+      "name": "Text",
+    },
+    BotId: this.botId,
+    // userID: this.userid,
+    message: "Amount :"+ this.paymentOption.amount  + "#Card No :"+ this.paymentOption.cardNumber  + "#Expiry month :"+ this.paymentOption.expiryMonth  + "#Expiry year :"+ this.paymentOption.expiryYear + "#CVV :"+ this.paymentOption.cvvNumber,
+    isLuisCall: 0,
+    "dateTime":dateTime
+  }
+  this.showSendMessage(sendMessageObj)
+
+  let paymentDetails = {
+    "BotId":this.botId,
+    "amount": this.paymentOption.amount,
+    "card":{
+      "number": this.removeSpace(this.paymentOption.cardNumber),
+      "exp_month": this.paymentOption.expiryMonth,
+      "exp_year": this.paymentOption.expiryYear,
+      "cvc": this.paymentOption.cvvNumber
+    }
+  }
+  this.paymentOption = {}
+  this.makeStripePayment(paymentDetails).then(data =>{
+    // console.log("data in makeStripePayment :", data);
+    let response:any = data
+    let dateTime = this.getDateTimeForSendMessage()
+    let paymentMessage = {
+      "MessageAction": "Received",
+      "BotIntentFlow": {
+        "data": response.message,
+        "dateTime": dateTime.substr(dateTime.indexOf(' ')+1),
+        "name": "Default",
+      },
+      "BotId": this.botId,
+      "message": response.message,
+      // userID: userId,
+      "isLuisCall": 0,
+      "dateTime":dateTime
+    }
+    this.showSendMessage(paymentMessage);
+  }).catch(err =>{
+    // console.log("2) errer in makepaymentOnStripe :", err);
+    let paymentMessage = {
+      "MessageAction": "Received",
+      "BotIntentFlow": {
+        "data": err.message,
+        "dateTime": dateTime.substr(dateTime.indexOf(' ')+1),
+        "name": "Default",
+      },
+      "BotId": this.botId,
+      "message": err.message,
+      // userID: userId,
+      "isLuisCall": 0,
+      "dateTime":dateTime
+    }
+    this.showSendMessage(paymentMessage);
+  })
 }
 
-
+makeStripePayment(data) {
+  return new Promise((resolve, reject) => {
+    this.apiService.makePayment(data)
+      .subscribe(res => {
+        console.log("response in makeStripePayment :", res)
+        if (res.status.code === '200') {
+          resolve(res.status)
+        }else{
+          reject(res.status)
+        }
+      }, err => {
+        if (err) {
+          console.log("1) Error is occured in makeStripePayemnt....: ", err);
+          reject(err)
+        }
+      })
+  })
+}
   // sendJsonApiPrompt(messageObject, date){
   //   console.log("BotIntentFlow of JSON or prompt :", messageObject);
   //   if(messageObject.BotIntentFlow.name == "Prompts"){
@@ -1048,7 +1145,7 @@ sendPaymentDetails(event){
   // }
   // send message when server get crash and user say exit
   // defaultResponce(message, timeNow){
-  //   let defaultMessage = {
+  //   let defaultMessage = {:
   //     "MessageAction": "Received",
   //     "BotIntentFlow": {
   //       "data": message,

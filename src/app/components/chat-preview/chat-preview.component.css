@@ -204,7 +204,10 @@
   border-left-color: white;
   margin-right: 3px;
 }
-
+.error-message{
+  color: #e9604a;
+  font-size:11px;
+}
 
 
 ::-webkit-input-placeholder { /* Chrome/Opera/Safari */

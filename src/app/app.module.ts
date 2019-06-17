@@ -14,6 +14,8 @@ import { HeaderComponent } from './components/header/header.component';
 // import { FooterComponent } from './components/footer/footer.component';
 import { ChatPreviewComponent } from './components/chat-preview/chat-preview.component';
 import { GooglePlaceModule } from "ngx-google-places-autocomplete";
+import { NextLinePipe } from './pipes/next-line.pipe';
+import { AddSpacePipe } from './pipes/add-space.pipe';
 
 
 @NgModule({
@@ -21,7 +23,9 @@ import { GooglePlaceModule } from "ngx-google-places-autocomplete";
     AppComponent,
     HeaderComponent,
     // FooterComponent,
-    ChatPreviewComponent
+    ChatPreviewComponent,
+    NextLinePipe,
+    AddSpacePipe
   ],
   imports: [
     BrowserModule,

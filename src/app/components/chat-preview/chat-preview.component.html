@@ -34,7 +34,7 @@
         <div *ngFor="let message of messageFlow">
 
           <div class="SendMessageBox" *ngIf="message.MessageAction == 'Send'">
-            <div id="userMessage" class="sendMessageData">
+            <div id="userMessage" class="sendMessageData" [innerHtml] = "message.BotIntentFlow.data | nextLine">
               {{message.BotIntentFlow.data}}
             </div>
             <div class="dateBox">
@@ -55,7 +55,7 @@
             <img src="{{localImgSrc}}" class="botIconImg" alt="" title="" />
 
             <div id="botMessage" class="receivedMessageData"
-              *ngIf="message.BotIntentFlow.name != 'Carousel' && message.BotIntentFlow.name != 'Default'">
+              *ngIf="message.BotIntentFlow.name != 'Carousel' && message.BotIntentFlow.name != 'Payment'">
               <div *ngIf="message.BotIntentFlow.name === 'Text'">
                 {{message.BotIntentFlow.data}}
               </div>
@@ -102,11 +102,6 @@
                   <source [src]="message.BotIntentFlow.data" type="audio/mpeg">
                 </audio>
               </div>
-              <div *ngIf="message.BotIntentFlow.name === 'payment'">
-                <div>{{message.BotIntentFlow.data}}</div>
-
-              </div>
-
               <!-- <div *ngIf="message.BotIntentFlow.name === 'Carousel'">
                   <div id="{{message.dynamicId}}" class="carousel slide" data-ride="carousel">
                       <div class="carousel-inner">
@@ -194,14 +189,12 @@
                 </a>
               </div>
             </div>
-            <div id="botMessage" class="receivedCarousel" *ngIf="message.BotIntentFlow.name === 'Default'">
+            <div id="botMessage" class="receivedCarousel" *ngIf="message.BotIntentFlow.name === 'Payment'">
 
-
-
-              <form #paymentOption="ngForm" >
+              <form #paymentOptionForm="ngForm" >
                 <div class="form-group row">
-                  <label class="control-label col-md-4 col-form-label"><b>Enter Amount</b></label>
-                  <input #amount="ngModel" name="amount" id="amount" class="form-control col-md-7" type="number"
+                  <label class="control-label col-md-4 col-4 col-form-label"><b>Enter Amount</b></label>
+                  <input #amount="ngModel" name="amount" id="amount" class="form-control col-7 col-md-7" type="number"
                     placeholder="Enter amount" min="1" [(ngModel)]="paymentOption.amount" required>
                   <div class="col-md-4"></div>
                   <div class="error-message col-md-8" *ngIf="amount.errors && (amount.dirty || amount.touched)">
@@ -215,8 +208,8 @@
                 </div>
 
                 <div class="form-group row">
-                  <label class="control-label col-md-4 col-form-label"><b>Name</b></label>
-                  <input #personName="ngModel" name="personName" id="personName" class="form-control col-md-7"
+                  <label class="control-label col-md-4 col-4  col-form-label"><b>Name</b></label>
+                  <input #personName="ngModel" name="personName" id="personName" class="form-control col-7 col-md-7"
                     type="text" placeholder="Enter name" [(ngModel)]="paymentOption.personName" required>
                   <div class="col-md-4"></div>
                   <div class="error-message col-md-8"
@@ -228,10 +221,10 @@
                 </div>
 
                 <div class="form-group row">
-                  <label class="control-label col-md-4 col-form-label"><b>Card number</b></label>
-                  <input #cardNumber="ngModel" name="cardNumber" id="cardNumber" class="form-control col-md-7"
-                    type="text" placeholder="Enter card number" minlength="14" maxlength="17" pattern="\d*"
-                    [(ngModel)]="paymentOption.cardNumber" required>
+                  <label class="control-label col-md-4 col-4  col-form-label"><b>Card number</b></label>
+                  <input #cardNumber="ngModel" name="cardNumber" id="cardNumber" class="form-control col-7 col-md-7"
+                    type="text" (ngModelChange)="paymentOption.cardNumber=$event" placeholder="Enter card number" minlength="17" maxlength="21"
+                     pattern="[0-9 ]+" [ngModel]="paymentOption.cardNumber | addSpace" required>
                   <div class="col-md-4"></div>
                   <div class="error-message col-md-8"
                     *ngIf="cardNumber.errors && (cardNumber.dirty || cardNumber.touched)">
@@ -245,16 +238,15 @@
                       Maximum 17 digit
                     </div>
                     <div [hidden]="!cardNumber.errors.pattern">
-                      Eneter number only
+                      Enter number only
                     </div>
                   </div>
                 </div>
-
               
                 <div class="form-group row">
                   <div class="col-md-6 row">
-                    <label class="control-label col-md-4 col-form-label"><b>Expiry month</b></label>
-                    <select #expiryMonth="ngModel" name="expiryMonth" id="expiryMonth" class="form-control col-md-7" [(ngModel)]="paymentOption.expiryMonth" required>
+                    <label class="control-label col-md-4 col-4  col-form-label"><b>Expiry month</b></label>
+                    <select #expiryMonth="ngModel" name="expiryMonth" id="expiryMonth" class="form-control col-7 col-md-7" [(ngModel)]="paymentOption.expiryMonth" required>
                       <!-- <option value="" [selected]="true" [ngValue]="undefined">Select an Invoice Type</option> -->
                       <option value="01">JAN</option>
                       <option value="02">FEB</option>
@@ -278,8 +270,8 @@
                     </div>
                   </div>
                   <div class="col-md-6 row">
-                    <label class="control-label col-md-4 col-form-label"><b>Expiry year</b></label>
-                    <select #expiryYear="ngModel" name="expiryYear" id="expiryYear" class="form-control col-md-7" [(ngModel)]="paymentOption.expiryYear" required>
+                    <label class="control-label col-md-4 col-4  col-form-label"><b>Expiry year</b></label>
+                    <select #expiryYear="ngModel" name="expiryYear" id="expiryYear" class="form-control col-7  col-md-7" [(ngModel)]="paymentOption.expiryYear" required>
                         <!-- <option value="" [selected]="true" [ngValue]="undefined">Select an Invoice Type</option> -->
                         <option value="2019">2019</option>
                         <option value="2020">2020</option>
@@ -345,8 +337,8 @@
                 </div>
 
                 <div class="form-group row">
-                  <label class="control-label col-md-4 col-form-label"><b>Enter CVV</b></label>
-                  <input #cvvNumber="ngModel" name="cvvNumber" id="cvvNumber" class="form-control col-md-7" type="text"
+                  <label class="control-label col-md-4 col-4 col-form-label"><b>Enter CVV</b></label>
+                  <input #cvvNumber="ngModel" name="cvvNumber" id="cvvNumber" class="form-control col-7  col-md-7" type="text"
                     placeholder="Enter CVV" minlength="3" maxlength="3" pattern="\d*"
                     [(ngModel)]="paymentOption.cvvNumber" required>
                   <div class="col-md-4"></div>
@@ -366,7 +358,7 @@
 
               </form>
               <div>
-                  <button [disabled]="!paymentOption.form.valid" type="button" class="btn btnEditor commenBtnCssAddSave" (click)="sendPaymentDetails($event)" style="width:107.80px">Save</button>
+                  <button [disabled]="!paymentOptionForm.form.valid" type="button" class="btn btnstyle" (click)="sendPaymentDetails($event)" style="width:107.80px">Pay</button>
                 </div>
 
               <!-- <div class="row">

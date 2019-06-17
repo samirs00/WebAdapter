@@ -1,7 +1,7 @@
 export interface PaymentOption {
     amount?: number;
     personName?: string;
-    cardNumber?: number;
+    cardNumber?: string;
     expiryMonth?:string;
     expiryYear?: any;
     cvvNumber?: number;

@@ -1048,7 +1048,7 @@ removeSpace(text: any): any {
     return text;
   }
 }
-sendPaymentDetails(event){
+sendPaymentDetails(event, amount){
   // debugger;
   console.log("sendPaymentDetails :", this.paymentOption.cardNumber)
   let tempnum:any = this.paymentOption.cardNumber;
@@ -1058,13 +1058,13 @@ sendPaymentDetails(event){
   let sendMessageObj = {
     "MessageAction": "Send",
     "BotIntentFlow": {
-      "data": "Amount :"+ this.paymentOption.amount  + "#Card No :"+ this.paymentOption.cardNumber  + "#Expiry month :"+ this.paymentOption.expiryMonth  + "#Expiry year :"+ this.paymentOption.expiryYear + "#CVV :"+ this.paymentOption.cvvNumber,
+      "data": "Amount :"+ amount  + "#Card No :"+ this.paymentOption.cardNumber  + "#Expiry month :"+ this.paymentOption.expiryMonth  + "#Expiry year :"+ this.paymentOption.expiryYear + "#CVV :"+ this.paymentOption.cvvNumber,
       "dateTime": dateTime.substr(dateTime.indexOf(' ')+1),
       "name": "Text",
     },
     BotId: this.botId,
     // userID: this.userid,
-    message: "Amount :"+ this.paymentOption.amount  + "#Card No :"+ this.paymentOption.cardNumber  + "#Expiry month :"+ this.paymentOption.expiryMonth  + "#Expiry year :"+ this.paymentOption.expiryYear + "#CVV :"+ this.paymentOption.cvvNumber,
+    message: "Amount :"+ amount  + "#Card No :"+ this.paymentOption.cardNumber  + "#Expiry month :"+ this.paymentOption.expiryMonth  + "#Expiry year :"+ this.paymentOption.expiryYear + "#CVV :"+ this.paymentOption.cvvNumber,
     isLuisCall: 0,
     "dateTime":dateTime
   }
@@ -1072,7 +1072,7 @@ sendPaymentDetails(event){
 
   let paymentDetails = {
     "BotId":this.botId,
-    "amount": this.paymentOption.amount,
+    "amount": amount,
     "card":{
       "number": this.removeSpace(this.paymentOption.cardNumber),
       "exp_month": this.paymentOption.expiryMonth,

@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild,  } from '@angular/core';
+import { Component, OnInit, ViewChild, } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DataService } from '../../services/data.service'
@@ -6,6 +6,7 @@ import { ApisService } from '../../services/apis.service'
 import { DefaultMessage } from '../../classes/common-data'
 import * as $ from 'jquery';
 import { PaymentOption } from '../../services/custom-option'
+import { IMyDpOptions } from 'mydatepicker';
 // import { CreditCardValidator } from 'angular-cc-library';
 // import * as moment from "moment";
 // import { NEXT } from '@angular/core/src/render3/interfaces/view';
@@ -17,58 +18,63 @@ import { PaymentOption } from '../../services/custom-option'
   styleUrls: ['./chat-preview.component.css']
 })
 export class ChatPreviewComponent implements OnInit {
-  
+
+  public myDatePickerOptions: IMyDpOptions = {
+    // other options...
+    dateFormat: 'mm.dd.yyyy',
+    selectorWidth:''
+};
   public paymentOption: PaymentOption = {};
 
   public defaultMessage: DefaultMessage = new DefaultMessage();
-    carouselId:string = "sampleId";
-    carouselHref:any = "#sampleId";
-    botId:any;
-    userid:any;
-    userName:any;
-    dateTime:any;
-    authorizationKey:any;
-    imageSrc:any;
-    localImgSrc:any = "assets/images/e_hd_trans.png"
-    showTypingDots:boolean = false;
-     sendTypingMessage:any = {
-      "isSent": 1,
-      "inputType": "string",
-      "icon": "field-text",
-      "MessageAction":"Common",
-      "BotIntentFlow": {
-        "data": "assets/images/typing.gif",
-        "name": "Text",
-      },
-    }
+  carouselId: string = "sampleId";
+  carouselHref: any = "#sampleId";
+  botId: any;
+  userid: any;
+  userName: any;
+  dateTime: any;
+  authorizationKey: any;
+  imageSrc: any;
+  localImgSrc: any = "assets/images/e_hd_trans.png"
+  showTypingDots: boolean = false;
+  sendTypingMessage: any = {
+    "isSent": 1,
+    "inputType": "string",
+    "icon": "field-text",
+    "MessageAction": "Common",
+    "BotIntentFlow": {
+      "data": "assets/images/typing.gif",
+      "name": "Text",
+    },
+  }
 
-    message:any = "";
-    messageFlow:any[] = [];
-    messageFlowTemp:any[] = [];
-  constructor(public dataService: DataService, 
-              private apiService :ApisService,
-              private route: ActivatedRoute,
-              private router:Router) {}
-               
-  
+  message: any = "";
+  messageFlow: any[] = [];
+  messageFlowTemp: any[] = [];
+  constructor(public dataService: DataService,
+    private apiService: ApisService,
+    private route: ActivatedRoute,
+    private router: Router) { }
+
+
   ngOnInit() {
 
-    
-    // console.log("URL :", url);
+
+    // // console.log("URL :", url);
     // const urlParams = new URLSearchParams(window.location.search);
     // const myParam = urlParams.get('authorizationkey');
-    // console.log(myParam);
+    // // console.log(myParam);
     // var url1 = new URL(window.location.href);
-    // console.log(window.location.href);
+    // // console.log(window.location.href);
 
     // var c = url1.searchParams.get("botid");
-    // console.log("Botid :", this.getParameterByName('botid', window.location.href));
-    this.botId =this.getParameterByName('botid', window.location.href)
-    this.userid =this.getParameterByName('userid', window.location.href)
+    // // console.log("Botid :", this.getParameterByName('botid', window.location.href));
+    this.botId = this.getParameterByName('botid', window.location.href)
+    this.userid = this.getParameterByName('userid', window.location.href)
     // this.userName =this.getParameterByName('username', window.location.href)
-    this.authorizationKey =this.getParameterByName('authorizationtoken', window.location.href)
-    this.imageSrc =this.getParameterByName('imgsrc', window.location.href);
-    if(this.imageSrc){
+    this.authorizationKey = this.getParameterByName('authorizationtoken', window.location.href)
+    this.imageSrc = this.getParameterByName('imgsrc', window.location.href);
+    if (this.imageSrc) {
       this.localImgSrc = this.imageSrc;
     }
 
@@ -79,24 +85,24 @@ export class ChatPreviewComponent implements OnInit {
     // this.tokenId =result[result.indexOf('tokenid') + 1]
     // this.userName =result[result.indexOf('username') + 1]
     // this.authorizationKey =result[result.indexOf('authorizationkey') + 1]
-    console.log("botid :", this.botId, "userid :", this.userid, "authorizationtoken :", this.authorizationKey, "localImgSrc :", this.localImgSrc)
+    // console.log("botid :", this.botId, "userid :", this.userid, "authorizationtoken :", this.authorizationKey, "localImgSrc :", this.localImgSrc)
     // this.welcomeMessage(this.userName)
   }
-   getParameterByName(name, url) {
+  getParameterByName(name, url) {
     if (!url) url = window.location.href;
     name = name.replace(/[\[\]]/g, '\\$&');
     var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
-    results = regex.exec(url);
+      results = regex.exec(url);
     if (!results) return null;
     if (!results[2]) return '';
     return decodeURIComponent(results[2].replace(/\+/g, ' '));
-    }
-  welcomeMessage(userName){
+  }
+  welcomeMessage(userName) {
     let dateTime = this.getDateTimeForSendMessage()
     let FilteredMessageArray = {
       answer: "",
       class: "half",
-      data: "Welcome " +userName+ ", How can I help you?",
+      data: "Welcome " + userName + ", How can I help you?",
       icon: "field-text",
       id: "4aa0e37c-bfa4-844b-4609-149df9285bc7",
       inputType: "string",
@@ -106,155 +112,156 @@ export class ChatPreviewComponent implements OnInit {
     setTimeout(() => {
       // this.showTypingDots = false;
       this.deleteTypingFromMessageFlow();
-      this.showSendMessage({ "MessageAction": "Received","BotIntentFlow": FilteredMessageArray, "dateTime":dateTime });
+      this.showSendMessage({ "MessageAction": "Received", "BotIntentFlow": FilteredMessageArray, "dateTime": dateTime });
     }, 2000);
   }
   getMessage(messageObject, type) {
-    console.log("Send message :", messageObject.Label || messageObject.IntentName);
-    if((messageObject.Label || messageObject.IntentName != "") && (messageObject.Label || messageObject.IntentName != null) && (messageObject.Label || messageObject.IntentName != undefined)){
-    this.message = "";
-    if(!this.userid){
-      this.userid = "userId"
-    }
-    let header = {
-      "botId": this.botId,
-      "tokenId": this.userid
-    }
-    let dateTime = this.getDateTimeForSendMessage()
-    var sendMessageObj = {}
-    if (type == 'button') {
-      sendMessageObj = {
-        "MessageAction": "Send",
-        "BotIntentFlow": {
-          "data": messageObject.Label || messageObject.IntentName,
-          "dateTime":dateTime.substr(0,dateTime.indexOf(' ')),                         // only time
-          "name": "Text",
-        },
-        BotId: this.botId,
-        // userID: userId,
-        message: messageObject.IntentName,
-        isLuisCall: 0,
-        "dateTime":dateTime
+    // console.log("Send message :", messageObject.Label || messageObject.IntentName);
+    if ((messageObject.Label || messageObject.IntentName != "") && (messageObject.Label || messageObject.IntentName != null) && (messageObject.Label || messageObject.IntentName != undefined)) {
+      this.message = "";
+      if (!this.userid) {
+        this.userid = "userId"
       }
-    } else {
-      sendMessageObj = {
-        "MessageAction": "Send",
-        "BotIntentFlow": {
-          "data": messageObject.IntentName,
-          "dateTime": dateTime.substr(dateTime.indexOf(' ')+1),
-          "name": "Text",
-        },
-        BotId: this.botId,
-        // userID: userId,
-        message: messageObject.IntentName,
-        isLuisCall: 0,
-        "dateTime":dateTime
+      let header = {
+        "botId": this.botId,
+        "tokenId": this.userid
       }
-    }
-    if(this.checkExitMessage(sendMessageObj)){
-      this.showExitMessage(this.defaultMessage.EXIT)
-    } else {
-        if(this.messageFlowTemp.length == 0){
-            //messageFlowTemp is empty
-            this.startFlow(sendMessageObj, header)
-        }else{
-            //data is already present
-            console.log("DATA FOUND IN messageFlowTemp :", this.messageFlowTemp);
-              this.contineuFlow(sendMessageObj);
+      let dateTime = this.getDateTimeForSendMessage()
+      var sendMessageObj = {}
+      if (type == 'button') {
+        sendMessageObj = {
+          "MessageAction": "Send",
+          "BotIntentFlow": {
+            "data": messageObject.Label || messageObject.IntentName,
+            "dateTime": dateTime.substr(0, dateTime.indexOf(' ')),                         // only time
+            "name": "Text",
+          },
+          BotId: this.botId,
+          // userID: userId,
+          message: messageObject.IntentName,
+          isLuisCall: 0,
+          "dateTime": dateTime
         }
+      } else {
+        sendMessageObj = {
+          "MessageAction": "Send",
+          "BotIntentFlow": {
+            "data": messageObject.IntentName,
+            "dateTime": dateTime.substr(dateTime.indexOf(' ') + 1),
+            "name": "Text",
+          },
+          BotId: this.botId,
+          // userID: userId,
+          message: messageObject.IntentName,
+          isLuisCall: 0,
+          "dateTime": dateTime
+        }
+      }
+      if (this.checkExitMessage(sendMessageObj)) {
+        this.showExitMessage(this.defaultMessage.EXIT)
+      } else {
+        if (this.messageFlowTemp.length == 0) {
+          //messageFlowTemp is empty
+          this.startFlow(sendMessageObj, header)
+        } else {
+          //data is already present
+          // console.log("DATA FOUND IN messageFlowTemp :", this.messageFlowTemp);
+          this.contineuFlow(sendMessageObj);
+        }
+      }
     }
   }
+  onDateChange(event) {
+    // console.log("datechange :", event.formatted)
+    this.getMessage({ 'IntentName': event.formatted }, 'other')
   }
-  onDateChange(event){
-    // console.log("datechange :", event.target.value)
-    this.getMessage({'IntentName':event.target.value},'other')
+  handleAddressChange(event) {
+    // // console.log("handleAddressChange :", event);
+    this.getMessage({ 'IntentName': event.formatted_address }, 'other')
   }
-  handleAddressChange(event){
-    // console.log("handleAddressChange :", event);
-    this.getMessage({'IntentName':event.formatted_address},'other')
-  }
-  contineuFlow(sendMessageObj){
+  contineuFlow(sendMessageObj) {
     this.showSendMessage(sendMessageObj);
     this.showSendMessage(this.sendTypingMessage);
     // this.showTypingDots = true;
     var result_MessageArray = this.messageFlowTemp;
     this.CheckMessageSendByUser(sendMessageObj, result_MessageArray, (ValdiationResponse) => {
-      console.log("CheckMessageSendByUser:ValdiationResposne\n" + JSON.stringify(ValdiationResponse));
+      // console.log("CheckMessageSendByUser:ValdiationResposne\n" + JSON.stringify(ValdiationResponse));
       if (ValdiationResponse.isValid === false) {
-          let dateTime = this.getDateTimeForSendMessage()
-          let sendMessageObj = {
-              "data": ValdiationResponse.ReturnMessage,
-              "dateTime": dateTime,
-              "isSent": 1,
-              "inputType": "string",
-              "icon": "field-text",
-              "name": "Text",
-            }
-            // this.showTypingDots = false;
-            this.deleteTypingFromMessageFlow();
-          this.showSendMessage({ "MessageAction": "Received","BotIntentFlow": sendMessageObj, "isSend":0 });
+        let dateTime = this.getDateTimeForSendMessage()
+        let sendMessageObj = {
+          "data": ValdiationResponse.ReturnMessage,
+          "dateTime": dateTime,
+          "isSent": 1,
+          "inputType": "string",
+          "icon": "field-text",
+          "name": "Text",
+        }
+        // this.showTypingDots = false;
+        this.deleteTypingFromMessageFlow();
+        this.showSendMessage({ "MessageAction": "Received", "BotIntentFlow": sendMessageObj, "isSend": 0 });
       } else {
-          this.messageFlowTemp = result_MessageArray
-          this.menageFlow();
+        this.messageFlowTemp = result_MessageArray
+        this.menageFlow();
       }
-  })
+    })
   }
   CheckMessageSendByUser(envelope, MessageArray, callback) {
-      /*
-      * CHECK IF MESSAGE SENT TO USER WAS OF TYPE PROMPTS, IF YES CHECK TEXT ENTERED BY USER 
-      * RETURN "isValid" = "TRUE" IF OK ELSE  
-      * RETURN "isValid" = "FALSE" AND WITH MESSAGE TO SEND TO USER "ReturnMessage"
-      */
-      var ResultResponse = {
-        isValid: true,
-        ReturnMessage: '',
-        StartMenuTrigger: false,
-        exitConversation: false
-      }
-      console.log("Last message CheckMessageSendByUser:" + JSON.stringify(MessageArray));
-      this.getlastPromptSentToUser(MessageArray, (SentMessage) => {
-        console.log("CheckMessageSendByUser SentMessage - " + JSON.stringify(SentMessage))
-        console.log("CheckMessageSendByUser envelope - " + JSON.stringify(envelope))
-        if (SentMessage) {
-          console.log("Last message type is: " + SentMessage.name);
-          if (SentMessage.name === 'Prompts') {
-            ResultResponse = this.checkIfPromptInputIsCorrect(envelope.BotIntentFlow.data, SentMessage, ResultResponse);
-            console.log("ResultResponse :", ResultResponse)
-            //LOG ANSWER 
-            if (ResultResponse.isValid) {
-              SentMessage.answer = envelope.BotIntentFlow.data;
-            }
-            if (ResultResponse.exitConversation) {
-              // clearUserData(envelope.sender_id);
-              this.deleteTypingFromMessageFlow();
-              this.messageFlowTemp = [];
-              return;
-            }
-            callback(ResultResponse);
-
-          } else if (SentMessage.name === 'Json API') {
-            //if last message is a JSON API message
-            console.log('Last message is a JSON API message :', SentMessage);
-            this.bindParameterAnswerToJsonApi(envelope, SentMessage).then(transformedItems => {
-              console.log("transformedItems:" + JSON.stringify(transformedItems));
-              SentMessage.attribute = transformedItems;
-              this.messageFlowTemp = [SentMessage];
-              //Success callback
-              callback(ResultResponse);
-            })
-          } else {
-            // if last send message is of any other type
-            // LAST SENT MESSAGE WAS NOT PROMPTS
-            callback(ResultResponse);
+    /*
+    * CHECK IF MESSAGE SENT TO USER WAS OF TYPE PROMPTS, IF YES CHECK TEXT ENTERED BY USER 
+    * RETURN "isValid" = "TRUE" IF OK ELSE  
+    * RETURN "isValid" = "FALSE" AND WITH MESSAGE TO SEND TO USER "ReturnMessage"
+    */
+    var ResultResponse = {
+      isValid: true,
+      ReturnMessage: '',
+      StartMenuTrigger: false,
+      exitConversation: false
+    }
+    // // console.log("Last message CheckMessageSendByUser:" + JSON.stringify(MessageArray));
+    this.getlastPromptSentToUser(MessageArray, (SentMessage) => {
+      // // console.log("CheckMessageSendByUser SentMessage - " + JSON.stringify(SentMessage))
+      // // console.log("CheckMessageSendByUser envelope - " + JSON.stringify(envelope))
+      if (SentMessage) {
+        // console.log("Last message type is: " + SentMessage.name);
+        if (SentMessage.name === 'Prompts') {
+          this.deleteTypingFromMessageFlow();
+          ResultResponse = this.checkIfPromptInputIsCorrect(envelope.BotIntentFlow.data, SentMessage, ResultResponse);
+          // // console.log("ResultResponse :", ResultResponse)
+          //LOG ANSWER 
+          if (ResultResponse.isValid) {
+            SentMessage.answer = envelope.BotIntentFlow.data;
           }
-        }
-        else {
-          //NO LAST SENT MESSAGE FOUND, MAY BE FIRST MESSAGE
-          console.info('NO LAST SENT MESSAGE FOUND, MAY BE FIRST MESSAGE');
+          if (ResultResponse.exitConversation) {
+            // clearUserData(envelope.sender_id);
+            this.deleteTypingFromMessageFlow();
+            this.messageFlowTemp = [];
+            return;
+          }
+          callback(ResultResponse);
+
+        } else if (SentMessage.name === 'Json API') {
+          //if last message is a JSON API message
+          // // console.log('Last message is a JSON API message :', SentMessage);
+          this.bindParameterAnswerToJsonApi(envelope, SentMessage).then(transformedItems => {
+            // // console.log("transformedItems:" + JSON.stringify(transformedItems));
+            SentMessage.attribute = transformedItems;
+            this.messageFlowTemp = [SentMessage];
+            //Success callback
+            callback(ResultResponse);
+          })
+        } else {
+          // if last send message is of any other type
+          // LAST SENT MESSAGE WAS NOT PROMPTS
           callback(ResultResponse);
         }
-      });
-    }
+      }
+      else {
+        //NO LAST SENT MESSAGE FOUND, MAY BE FIRST MESSAGE
+        console.info('NO LAST SENT MESSAGE FOUND, MAY BE FIRST MESSAGE');
+        callback(ResultResponse);
+      }
+    });
+  }
   bindParameterAnswerToJsonApi(envelope, SentMessage) {
     var attrElement = [];
     return new Promise((resolve, reject) => {
@@ -268,11 +275,11 @@ export class ChatPreviewComponent implements OnInit {
             } else {
               element.answer = envelope.BotIntentFlow.data;
             }
-           
-            console.log("\n Question:" + element.question + "\n Answer:" + element.answer)
+
+            // // console.log("\n Question:" + element.question + "\n Answer:" + element.answer)
             this.getEntityInputIfAny(envelope).then(entityInput => {
               if (entityInput) {
-                // console.log("entity response :", entityInput[0].entity);
+                // // // console.log("entity response :", entityInput[0].entity);
                 let entity = entityInput[0].entity
                 if (!isNaN(entity)) {
                   element.answer = parseInt(entity)
@@ -281,8 +288,8 @@ export class ChatPreviewComponent implements OnInit {
                   element.answer = entityInput[0].entity;
                 }
               }
-            }).catch(err =>{
-              console.log("Error in getEntityInputIfAny :", err)
+            }).catch(err => {
+              // // console.log("Error in getEntityInputIfAny :", err)
             })
             element.isSent = 1;
             binded = true;
@@ -298,7 +305,7 @@ export class ChatPreviewComponent implements OnInit {
     })
   }
 
-  getEntityInputIfAny(envelope) { 
+  getEntityInputIfAny(envelope) {
     var data = {
       "BotId": this.botId,
       "userID": "jasd90q",
@@ -309,13 +316,13 @@ export class ChatPreviewComponent implements OnInit {
     return new Promise((resolve, reject) => {
       this.apiService.getEntityFromLuis(data)
         .subscribe(res => {
-          console.log("responce od get entity if any :", res)
-          if (res && res.result &&res.result.length>0) {
+          // // console.log("responce od get entity if any :", res)
+          if (res && res.result && res.result.length > 0) {
             resolve(res.result)
           }
         }, err => {
           if (err) {
-            console.log("Error is occured....");
+            // // console.log("Error is occured....");
             reject(err)
           }
         })
@@ -338,144 +345,144 @@ export class ChatPreviewComponent implements OnInit {
     this.showSendMessage(this.sendTypingMessage);
     // this.showTypingDots = true;
     this.getFlowFromServer(data, apiHeader).then(data => {
-      // console.log("responce of server :", data);
-      if(data['BotIntentFlow'].length > 0 && data['IntentName'] != 'None'){
+      // // // console.log("responce of server :", data);
+      if (data['BotIntentFlow'].length > 0 && data['IntentName'] != 'None') {
         this.messageFlowTemp = data['BotIntentFlow'];
         this.menageFlow()
-      }else{
+      } else {
         this.showMenuTrigger(data['menutrigger'])
       }
     }).catch(err => {
-      console.log("Error message startFlow :", err)
-      
+      // // console.log("Error message startFlow :", err)
+
       this.showDefaultResponce(this.defaultMessage.SERVER_CRASH)
     })
   }
 
-  manageReceivedMessaged(type, FilteredMessageArray){
-    console.log("show send Message :", type, FilteredMessageArray)
+  manageReceivedMessaged(type, FilteredMessageArray) {
+    // // console.log("show send Message :", type, FilteredMessageArray)
     var interval = 0;
     let dateTime = this.getDateTimeForSendMessage()
     switch (type) {
       case 'Text':
         // this.showTypingDots = false;
         this.deleteTypingFromMessageFlow();
-        this.showSendMessage({ "MessageAction": "Received","BotIntentFlow": FilteredMessageArray, "dateTime":dateTime });
-        interval+=1500;
+        this.showSendMessage({ "MessageAction": "Received", "BotIntentFlow": FilteredMessageArray, "dateTime": dateTime });
+        interval += 1500;
         break;
 
       case 'Payment':
         // this.showTypingDots = false;
         this.deleteTypingFromMessageFlow();
-        this.showSendMessage({ "MessageAction": "Received","BotIntentFlow": FilteredMessageArray, "dateTime":dateTime });
-        interval+=1500;
+        this.showSendMessage({ "MessageAction": "Received", "BotIntentFlow": FilteredMessageArray, "dateTime": dateTime });
+        interval += 1500;
         break;
 
       case 'Image':
         // this.showTypingDots = false;
         this.deleteTypingFromMessageFlow();
-        this.showSendMessage({ "MessageAction": "Received","BotIntentFlow": FilteredMessageArray, "dateTime":dateTime  });
-        interval+=1500;
+        this.showSendMessage({ "MessageAction": "Received", "BotIntentFlow": FilteredMessageArray, "dateTime": dateTime });
+        interval += 1500;
         break;
 
       case 'Audio':
         // this.showTypingDots = false;
         this.deleteTypingFromMessageFlow();
-        this.showSendMessage({ "MessageAction": "Received","BotIntentFlow": FilteredMessageArray, "dateTime":dateTime  });
-        interval+=1500;
+        this.showSendMessage({ "MessageAction": "Received", "BotIntentFlow": FilteredMessageArray, "dateTime": dateTime });
+        interval += 1500;
         break;
 
       case 'Video':
         // this.showTypingDots = false;
         this.deleteTypingFromMessageFlow();
-        this.showSendMessage({ "MessageAction": "Received","BotIntentFlow": FilteredMessageArray, "dateTime":dateTime  });
-        interval+=1500;
+        this.showSendMessage({ "MessageAction": "Received", "BotIntentFlow": FilteredMessageArray, "dateTime": dateTime });
+        interval += 1500;
         break;
 
       case 'Button':
         // this.showTypingDots = false;
         this.deleteTypingFromMessageFlow();
-        this.showSendMessage({ "MessageAction": "Received","BotIntentFlow": FilteredMessageArray, "dateTime":dateTime  });
-        interval+=1500;
+        this.showSendMessage({ "MessageAction": "Received", "BotIntentFlow": FilteredMessageArray, "dateTime": dateTime });
+        interval += 1500;
         break;
 
       case 'Carousel':
         // this.showTypingDots = false;
         this.deleteTypingFromMessageFlow();
         let id = this.createDynamicId();
-        this.showSendMessage({ "MessageAction": "Received","dynamicId":id,"BotIntentFlow": FilteredMessageArray, "dateTime":dateTime  });
-        interval+=1500;
+        this.showSendMessage({ "MessageAction": "Received", "dynamicId": id, "BotIntentFlow": FilteredMessageArray, "dateTime": dateTime });
+        interval += 1500;
         this.addActiveClass(interval);
         break;
-      
+
       case 'Json API':
         // this.showTypingDots = false;
-      // console.log("Json API :", FilteredMessageArray)
-          var item = FilteredMessageArray;
-          //check if request has parameters
-          if (item.attribute && item.attribute.length > 0) {
-              //parameters are associated with this url
-              for (var i = 0; i < item.attribute.length; i++) {
-                  var attribute = item.attribute[i];
-                  if (attribute.isSent === 0) {
-                      // console.log("send message :" , { "MessageAction": "Received","BotIntentFlow": item,"sendMessage": attribute, "isSend":0 });
-                      // this.showTypingDots = false;
-                      this.deleteTypingFromMessageFlow();
-                      this.showSendMessage({ "MessageAction": "Received","BotIntentFlow": item,"sendMessage": attribute, "isSend":0 });
-                      break;
-                  }
-                  //check if this is a last index
-                if (i === item.attribute.length - 1) {
-                  //we have got all the parameters value from user
-                  console.log("we have got all the parameters value from user");
-                  this.sendJSONAPIResponse(item,  (result) => {
-                    console.log("final callback sendJSONAPIResponse:", result)
-                    //mark this message as sent,save in messageFlowTemp
-                    FilteredMessageArray.answer_sent = 1;
-                    FilteredMessageArray.isSent = 1;
-                    // this.messageFlowTemp = FilteredMessageArray
-                    this.messageFlowTemp.push(FilteredMessageArray)
-                    this.menageFlow();
-                  });
-                }
-
-              }
-
-          } else {
-              // no parameters are associated with this url, directly call this api
-              console.log("no parameters are associated with this url, directly call this api")
+        // // // console.log("Json API :", FilteredMessageArray)
+        var item = FilteredMessageArray;
+        //check if request has parameters
+        if (item.attribute && item.attribute.length > 0) {
+          //parameters are associated with this url
+          for (var i = 0; i < item.attribute.length; i++) {
+            var attribute = item.attribute[i];
+            if (attribute.isSent === 0) {
+              // // // console.log("send message :" , { "MessageAction": "Received","BotIntentFlow": item,"sendMessage": attribute, "isSend":0 });
+              // this.showTypingDots = false;
+              this.deleteTypingFromMessageFlow();
+              this.showSendMessage({ "MessageAction": "Received", "BotIntentFlow": item, "sendMessage": attribute, "isSend": 0 });
+              break;
+            }
+            //check if this is a last index
+            if (i === item.attribute.length - 1) {
+              //we have got all the parameters value from user
+              // // console.log("we have got all the parameters value from user");
               this.sendJSONAPIResponse(item, (result) => {
-                console.log("final callback sendJSONAPIResponse:", result)
-                  //mark this message as sent,save in messageFlowTemp
-                  FilteredMessageArray.answer_sent = 1;
-                  FilteredMessageArray.isSent = 1;
-                  // this.messageFlowTemp = FilteredMessageArray
-                  this.messageFlowTemp.push(FilteredMessageArray)
-                  this.menageFlow();
+                // // console.log("final callback sendJSONAPIResponse:", result)
+                //mark this message as sent,save in messageFlowTemp
+                FilteredMessageArray.answer_sent = 1;
+                FilteredMessageArray.isSent = 1;
+                // this.messageFlowTemp = FilteredMessageArray
+                this.messageFlowTemp.push(FilteredMessageArray)
+                this.menageFlow();
               });
+            }
+
           }
+
+        } else {
+          // no parameters are associated with this url, directly call this api
+          // // console.log("no parameters are associated with this url, directly call this api")
+          this.sendJSONAPIResponse(item, (result) => {
+            // // console.log("final callback sendJSONAPIResponse:", result)
+            //mark this message as sent,save in messageFlowTemp
+            FilteredMessageArray.answer_sent = 1;
+            FilteredMessageArray.isSent = 1;
+            // this.messageFlowTemp = FilteredMessageArray
+            this.messageFlowTemp.push(FilteredMessageArray)
+            this.menageFlow();
+          });
+        }
         break;
 
       case 'Prompts':
         // this.showTypingDots = false;
         this.deleteTypingFromMessageFlow();
-        this.showSendMessage({ "MessageAction": "Received","BotIntentFlow": FilteredMessageArray,"Button":['YES','NO'] ,"dateTime":dateTime  });
-        interval+=1500;
+        this.showSendMessage({ "MessageAction": "Received", "BotIntentFlow": FilteredMessageArray, "Button": ['YES', 'NO'], "dateTime": dateTime });
+        interval += 1500;
         break;
 
       case 'Default':
-      // this.showTypingDots = false;
-      this.deleteTypingFromMessageFlow();
-      this.showSendMessage({ "MessageAction": "Received","BotIntentFlow": FilteredMessageArray, "dateTime":dateTime  });
-      interval+=1500;
-      break;
+        // this.showTypingDots = false;
+        this.deleteTypingFromMessageFlow();
+        this.showSendMessage({ "MessageAction": "Received", "BotIntentFlow": FilteredMessageArray, "dateTime": dateTime });
+        interval += 1500;
+        break;
     }
   }
-  sendJSONAPIResponse( message, callback) {
+  sendJSONAPIResponse(message, callback) {
     var url = message.endpoint_url;
     var requestBody = {};
     var content_type = {};
-    if(!this.authorizationKey){
+    if (!this.authorizationKey) {
       this.authorizationKey = "authorizationKey"
     }
     if (url.indexOf('weather') >= 0) {
@@ -485,105 +492,105 @@ export class ChatPreviewComponent implements OnInit {
       }
     } else {
       content_type = {
-      "content_type" : 'application/json',
-      "authorizationKey": this.authorizationKey
+        "content_type": 'application/json',
+        "authorizationKey": this.authorizationKey
       }
     }
-    // console.log("ready url :", url, "ready requestBody :", requestBody, "ready content_type :", content_type)
+    // // // console.log("ready url :", url, "ready requestBody :", requestBody, "ready content_type :", content_type)
     if (message.attribute.length > 0) {
       if (message.api_type === 'GET') {
-          //query string
-          url = url + "?";
-          message.attribute.forEach(attribute => {
-              //get values for all the parameters
-              url = url + attribute.key + "=" + attribute.answer + "&&";
-          })
-          //trim extra characters in url
-          url = url.trimRight('&&')
-          console.log("url :", url)
-          this.jsonGetRequest(message,url, requestBody, content_type, (data =>{
-            callback(data)
-          }));
-          
-      } else {
-          message.attribute.forEach(attribute => {
-              //get values for all the parameters
-              requestBody[attribute.key] = attribute.answer;
-          })
-          this.jsonPostRquest(message,url, requestBody, content_type, (data =>{
-            callback(data)
-          }));
-          // callback()
-      }
-  }else{
-    if(message.api_type === 'GET'){
-      this.jsonGetRequest(message,url, requestBody, content_type, (data)=>{
-        callback(data)
-      });
-    }else{
-      this.jsonPostRquest(message,url, requestBody, content_type,(data =>{
-        callback(data)
-      }));
-    }
-    // callback()
-    
-  }
-}
+        //query string
+        url = url + "?";
+        message.attribute.forEach(attribute => {
+          //get values for all the parameters
+          url = url + attribute.key + "=" + attribute.answer + "&&";
+        })
+        //trim extra characters in url
+        url = url.trimRight('&&')
+        // // console.log("url :", url)
+        this.jsonGetRequest(message, url, requestBody, content_type, (data => {
+          callback(data)
+        }));
 
-  async jsonGetRequest(message ,url, requestBody, content_type, callback){
+      } else {
+        message.attribute.forEach(attribute => {
+          //get values for all the parameters
+          requestBody[attribute.key] = attribute.answer;
+        })
+        this.jsonPostRquest(message, url, requestBody, content_type, (data => {
+          callback(data)
+        }));
+        // callback()
+      }
+    } else {
+      if (message.api_type === 'GET') {
+        this.jsonGetRequest(message, url, requestBody, content_type, (data) => {
+          callback(data)
+        });
+      } else {
+        this.jsonPostRquest(message, url, requestBody, content_type, (data => {
+          callback(data)
+        }));
+      }
+      // callback()
+
+    }
+  }
+
+  async jsonGetRequest(message, url, requestBody, content_type, callback) {
     try {
       let getRequest = {
-        "apiType":"GET",
+        "apiType": "GET",
         "url": url,
         "requestBody": requestBody,
         "authorizationKey": content_type.authorizationKey,
-        "content_type":content_type.content_type,
-        "answer_attributes":message.answer_attributes,
-        "json_card":message
+        "content_type": content_type.content_type,
+        "answer_attributes": message.answer_attributes,
+        "json_card": message
       }
       let jsonApiResponse = await this.getAndParseJSONApi(getRequest);
-      console.log("final json get:", jsonApiResponse);
+      // // console.log("final json get:", jsonApiResponse);
       callback(jsonApiResponse)
       this.sendJsonResultToUI(jsonApiResponse, message);
     } catch (error) {
       this.deleteTypingFromMessageFlow();
-      console.log("Error occure in get catch")
+      // // console.log("Error occure in get catch")
     }
   }
 
-  async jsonPostRquest(message ,url, requestBody, content_type, callback){
+  async jsonPostRquest(message, url, requestBody, content_type, callback) {
     try {
       let postRequest = {
-        "apiType":"POST",
+        "apiType": "POST",
         "url": url,
         "requestBody": requestBody,
         "authorizationKey": content_type.authorizationKey,
-        "content_type":content_type.content_type,
-        "answer_attributes":message.answer_attributes,
-        "json_card":message
+        "content_type": content_type.content_type,
+        "answer_attributes": message.answer_attributes,
+        "json_card": message
       }
       let jsonApiResponse = await this.getAndParseJSONApi(postRequest);
-      console.log("final json post:", jsonApiResponse);
+      // // console.log("final json post:", jsonApiResponse);
       this.sendJsonResultToUI(jsonApiResponse, message);
       callback(jsonApiResponse)
 
     } catch (error) {
       this.deleteTypingFromMessageFlow();
-      console.log("Error occure in post catch")
+      // // console.log("Error occure in post catch")
     }
   }
-  getAndParseJSONApi(data){
+  getAndParseJSONApi(data) {
     return new Promise((resolve, reject) => {
       this.apiService.jsonRequest(data)
         .subscribe(res => {
           if (res.status === 200) {
             resolve(res.result)
-          }else{
+          } else {
             reject(res.result)
           }
         }, err => {
           if (err) {
-            // console.log("Error is occured....");
+            // // // console.log("Error is occured....");
             reject(err)
           }
         })
@@ -593,13 +600,13 @@ export class ChatPreviewComponent implements OnInit {
   //   return new Promise((resolve, reject) => {
   //     this.apiService.JsonPostRequest(url, data, content_type)
   //       .subscribe(res => {
-  //         console.log("JsonPostRequest API call res :", res)
+  //         // // console.log("JsonPostRequest API call res :", res)
   //         if (res) {
   //           resolve(res)
   //         }
   //       }, err => {
   //         if (err) {
-  //           // console.log("Error is occured....");
+  //           // // // console.log("Error is occured....");
   //           reject(err)
   //         }
   //       })
@@ -610,60 +617,83 @@ export class ChatPreviewComponent implements OnInit {
   //   return new Promise((resolve, reject) => {
   //     this.apiService.JsonGetRequest(url, data, content_type)
   //       .subscribe(res => {
-  //         console.log("JsonGetRequest API call res :", res)
+  //         // // console.log("JsonGetRequest API call res :", res)
   //         if (res) {
   //           resolve(res)
   //         }
   //       }, err => {
   //         if (err) {
-  //           // console.log("Error is occured....");
+  //           // // // console.log("Error is occured....");
   //           reject(err)
   //         }
   //       })
   //   })
   // }
 
-  sendJsonResultToUI(userAnswer, message){
-      // console.log("sendJsonResultToUI :", userAnswer);
-      let dateTime = this.getDateTimeForSendMessage()
-      var msgChunk = userAnswer.match(/.{1,639}/g);
-      // console.log("msgChunk :", msgChunk);
-      msgChunk.forEach(element => {
-        var attribute = {
-          "question":element
-        }
-        // this.showTypingDots = false;
-        this.deleteTypingFromMessageFlow();
-        this.showSendMessage({ "MessageAction": "Received","BotIntentFlow": message,"sendMessage": attribute, "dateTime":dateTime });
-      });
+  sendJsonResultToUI(userAnswer, message) {
+    // // // console.log("sendJsonResultToUI :", userAnswer);
+    let dateTime = this.getDateTimeForSendMessage()
+    var msgChunk = userAnswer.match(/.{1,639}/g);
+    // // // console.log("msgChunk :", msgChunk);
+    msgChunk.forEach(element => {
+      var attribute = {
+        "question": element
+      }
+      // this.showTypingDots = false;
+      this.deleteTypingFromMessageFlow();
+      this.showSendMessage({ "MessageAction": "Received", "BotIntentFlow": message, "sendMessage": attribute, "dateTime": dateTime });
+    });
+  }
+
+  /**
+ * This block the flow for specific amount of time,and show typing during timeout
+ * @param {*} FilteredMessageArray 
+ */
+  waitForTimeout(FilteredMessageArray) {
+    // // console.log("waitForTimeout-", +FilteredMessageArray.duration);
+    this.showSendMessage(this.sendTypingMessage);
+    setTimeout(() => {
+      FilteredMessageArray.isSent = 1;
+      // this.messageFlowTemp = FilteredMessageArray
+      this.messageFlowTemp.push(FilteredMessageArray)
+      this.deleteTypingFromMessageFlow();
+      this.menageFlow();
+    }, +FilteredMessageArray.duration * 1000);
+
   }
 
   menageFlow() {
-    // console.log("ManageFlows");
+    // // console.log("ManageFlows");
     var MessageArray = this.messageFlowTemp;
-    // console.log("MessageArray :", MessageArray)
+    // // console.log("MessageArray :", MessageArray)
     var FilteredMessageArray = this.filterArray(MessageArray);
     if (FilteredMessageArray.length > 0) {
-      console.log("FilteredMessageArray.length > 0")
+
+      //now check if this is a timeout card
+      if (FilteredMessageArray[0].name === 'Duration') {
+        this.waitForTimeout(FilteredMessageArray[0]);
+        return;
+      }
+      // console.log("FilteredMessageArray.length > 0")
       this.manageReceivedMessaged(FilteredMessageArray[0].name, FilteredMessageArray[0]);
 
       // UPDATE FLAG IN ARRAY
       FilteredMessageArray[0].isSent = 1;
       if (FilteredMessageArray[0].name === 'Json API' && this.checkIfAllAttribSent(FilteredMessageArray[0])) {
-        // console.log("Check All attribute in array :", FilteredMessageArray[0])
+        // // console.log("Check All attribute in array :", FilteredMessageArray[0])
         return;
       }
 
       // UPDATE TO CONTEXT
       this.messageFlowTemp = FilteredMessageArray
-      // console.log("UPDATE MessageArray :", MessageArray)
+      // // console.log("UPDATE MessageArray :", MessageArray)
       if (FilteredMessageArray[0].name !== 'Prompts' && FilteredMessageArray[0].name !== 'Location' && FilteredMessageArray[0].name !== 'Json API') {
-        console.log("RECURSION CALLED - " + FilteredMessageArray[0].name)
+        // console.log("RECURSION CALLED - " + FilteredMessageArray[0].name)
         this.menageFlow();
       }
     }
     else {
-      console.log("FilteredMessageArray.length <= 0");
+      // console.log("FilteredMessageArray.length <= 0");
       this.deleteTypingFromMessageFlow();
       this.messageFlowTemp = [];
     }
@@ -679,7 +709,7 @@ export class ChatPreviewComponent implements OnInit {
         }
       }
     }
-    // console.log("checkIfAllAttribSent:" + allAttribSent);
+    // // console.log("checkIfAllAttribSent:" + allAttribSent);
     return allAttribSent;
   }
   filterArray(ArrayToFilter) {
@@ -697,15 +727,15 @@ export class ChatPreviewComponent implements OnInit {
     return ResultArray
     // callback(ResultArray);
   }
-    // send menu trigger option
-  showMenuTrigger(menutrigger){
-    let dateTime = this.getDateTimeForSendMessage()   
+  // send menu trigger option
+  showMenuTrigger(menutrigger) {
+    let dateTime = this.getDateTimeForSendMessage()
     let defaultMessage = {
       "MessageAction": "Received",
       "BotIntentFlow": {
         "data": menutrigger.MenuMessage,
         "buttonoptions": menutrigger.MenuIntent,
-        "date": dateTime,                   
+        "date": dateTime,
         "name": 'Button'
       },
       BotId: this.botId,
@@ -719,14 +749,14 @@ export class ChatPreviewComponent implements OnInit {
     // this.scrollIntoView();
   }
 
-// send message when server get crash and user say exit
-  showDefaultResponce(message){
+  // send message when server get crash and user say exit
+  showDefaultResponce(message) {
     let dateTime = this.getDateTimeForSendMessage()
     let defaultMessage = {
       "MessageAction": "Received",
       "BotIntentFlow": {
         "data": message,
-        "date": dateTime,                   
+        "date": dateTime,
         "name": 'Default'
       },
       BotId: this.botId,
@@ -739,6 +769,8 @@ export class ChatPreviewComponent implements OnInit {
     // this.messageFlow.push(defaultMessage);
     // this.scrollIntoView();
   }
+
+  // Get botIntent flow from backend
   getFlowFromServer(data, header) {
     return new Promise((resolve, reject) => {
       this.apiService.getResponseFlow(data, header)
@@ -748,7 +780,7 @@ export class ChatPreviewComponent implements OnInit {
           }
         }, err => {
           if (err) {
-            console.log("Error is occured....: ", err);
+            // console.log("Error is occured....: ", err);
             reject(err)
           }
         })
@@ -778,366 +810,372 @@ export class ChatPreviewComponent implements OnInit {
     // this.showTypingDots = true;
   }
 
-  checkExitMessage(messageObj){
-    if(messageObj.message == 'Exit' || messageObj.message == 'exit'){
+  //check incoming message is exit or another message
+  checkExitMessage(messageObj) {
+    if (messageObj.message == 'Exit' || messageObj.message == 'exit') {
       // this.showTypingDots = false;
       this.deleteTypingFromMessageFlow();
       this.showSendMessage(messageObj);
       return true
-    }else{
+    } else {
       return false
     }
   }
 
   // push message to messageflow send and received message
-showSendMessage(messageObj){
-  // console.log("Send message :", sendMessageObj)
-  this.messageFlow.push(messageObj);
-  this.scrollIntoView();
-  this.logMessage(messageObj)
-}
-// scroll to new added message
-scrollIntoView() {         
-  setTimeout(() => {
-    document.getElementById('ChatView').scrollTo(0, document.getElementById('ChatView').scrollHeight);
-  });
-}
-getDateTimeForSendMessage(){
-  var today = new Date();
-  var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
-  var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-  var dateTime = date + ' ' + time;
-  return dateTime
-  // callback(time)
-}
-scrollCarousel(){
-  setTimeout(() => {
-    document.getElementById('ChatView').scrollTo(0, document.getElementById('ChatView').scrollHeight);
-    // console.log("after 1000")
-  }, 2000);
-}
-imgLoad(item){
-  // console.log("image is load:", item)
-  // this.scrollIntoView();
-  if(item == 'carousel'){
-    this.scrollCarousel();
-  }else{
+  showSendMessage(messageObj) {
+    // // console.log("Send message :", sendMessageObj)
+    this.messageFlow.push(messageObj);
     this.scrollIntoView();
+    this.logMessage(messageObj)
   }
-}
+  // scroll to new added message
+  scrollIntoView() {
+    setTimeout(() => {
+      document.getElementById('ChatView').scrollTo(0, document.getElementById('ChatView').scrollHeight);
+    });
+  }
+  getDateTimeForSendMessage() {
+    var today = new Date();
+    var date = today.getFullYear() + '-' + (today.getMonth() + 1) + '-' + today.getDate();
+    var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    var dateTime = date + ' ' + time;
+    return dateTime
+    // callback(time)
+  }
+  scrollCarousel() {
+    setTimeout(() => {
+      document.getElementById('ChatView').scrollTo(0, document.getElementById('ChatView').scrollHeight);
+      // // console.log("after 1000")
+    }, 2000);
+  }
+  imgLoad(item) {
+    // // console.log("image is load:", item)
+    // this.scrollIntoView();
+    if (item == 'carousel') {
+      this.scrollCarousel();
+    } else {
+      this.scrollIntoView();
+    }
+  }
 
-checkIfPromptInputIsCorrect(text, SentMessage, ResultResponse) {
+  checkIfPromptInputIsCorrect(text, SentMessage, ResultResponse) {
 
-  /*
-   * CHECK IF MESSAGE SENT TO USER WAS OF TYPE PROMPTS, IF YES CHECK TEXT ENTERED BY USER 
-   * RETURN "isValid" = "TRUE" IF OK ELSE  
-   * RETURN "isValid" = "FALSE" AND WITH MESSAGE TO SEND TO USER "ReturnMessage"
-   */
-  switch (SentMessage.entityType) {
-    case '@sys.date':
-      {
+    /*
+     * CHECK IF MESSAGE SENT TO USER WAS OF TYPE PROMPTS, IF YES CHECK TEXT ENTERED BY USER 
+     * RETURN "isValid" = "TRUE" IF OK ELSE  
+     * RETURN "isValid" = "FALSE" AND WITH MESSAGE TO SEND TO USER "ReturnMessage"
+     */
+    switch (SentMessage.entityType) {
+      case '@sys.date':
+        {
           var today = new Date(text);
-          // console.log("today: ", JSON.stringify(today))
+          // // console.log("today: ", JSON.stringify(today))
           var tday = JSON.stringify(today)
-          if(tday != "null"){
+          if (tday != "null") {
             ResultResponse.isValid = true
-          }else{
+          } else {
             ResultResponse.isValid = false;
             ResultResponse.ReturnMessage = "Please enter valid date";
           }
-      }
-      break;
-    case '@sys.number':
-      {
-        if (isNaN(text)) {
-          ResultResponse.isValid = false;
-          ResultResponse.ReturnMessage = "Please enter valid number";
         }
-        else {
-          ResultResponse.isValid = true;
+        break;
+      case '@sys.number':
+        {
+          if (isNaN(text)) {
+            ResultResponse.isValid = false;
+            ResultResponse.ReturnMessage = "Please enter valid number";
+          }
+          else {
+            ResultResponse.isValid = true;
+          }
         }
-      }
-      break;
-    case '@sys.email':
-      {
-        if (text.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/) != null) {
-          ResultResponse.isValid = true;
-        }
-        else {
-          ResultResponse.isValid = false;
-          ResultResponse.ReturnMessage = "Please enter valid email";
-        }
+        break;
+      case '@sys.email':
+        {
+          if (text.match(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/) != null) {
+            ResultResponse.isValid = true;
+          }
+          else {
+            ResultResponse.isValid = false;
+            ResultResponse.ReturnMessage = "Please enter valid email";
+          }
 
-      }
-      break;
-    case '@sys.duration':
-      {
-        ResultResponse.isValid = true;
-        ResultResponse.ReturnMessage = "Please enter valid duration";
-      }
-      break;
-    case '@sys.string':
-      {
-        ResultResponse.isValid = true;
-        ResultResponse.ReturnMessage = "";
-      }
-      break;
-    case '@sys.percentage':
-      {
-        var text = text;
-        //remove unwanted keywards,expressions,symbols
-        text = text.replace('%', '');
-        text = text.replace('percentage', '');
-        text = text.replace('percentile', '');
+        }
+        break;
+      case '@sys.duration':
+        {
+          ResultResponse.isValid = true;
+          ResultResponse.ReturnMessage = "Please enter valid duration";
+        }
+        break;
+      case '@sys.string':
+        {
+          ResultResponse.isValid = true;
+          ResultResponse.ReturnMessage = "";
+        }
+        break;
+      case '@sys.percentage':
+        {
+          var text = text;
+          //remove unwanted keywards,expressions,symbols
+          text = text.replace('%', '');
+          text = text.replace('percentage', '');
+          text = text.replace('percentile', '');
 
-        if (parseInt(text) <= 0 || parseInt(text) > 100 || isNaN(text)) {
-          ResultResponse.isValid = false;
-          ResultResponse.ReturnMessage = "Please enter valid percentage";
+          if (parseInt(text) <= 0 || parseInt(text) > 100 || isNaN(text)) {
+            ResultResponse.isValid = false;
+            ResultResponse.ReturnMessage = "Please enter valid percentage";
+          }
+          else {
+            ResultResponse.isValid = true;
+          }
         }
-        else {
-          ResultResponse.isValid = true;
+        break;
+      case '@sys.age':
+        {
+          if (parseInt(text) >= 120 || isNaN(parseInt(text))) {
+            ResultResponse.isValid = false;
+            ResultResponse.ReturnMessage = "Please enter valid age";
+          }
+          else {
+            ResultResponse.isValid = true;
+          }
         }
-      }
-      break;
-    case '@sys.age':
-      {
-        if (parseInt(text) >= 120||isNaN(parseInt(text))) {
-          ResultResponse.isValid = false;
-          ResultResponse.ReturnMessage = "Please enter valid age";
-        }
-        else {
-          ResultResponse.isValid = true;
-        }
-      }
-      break;
-    case '@sys.confirm':
-      {
-        if (
-          text.toLowerCase() === 'yes' || text.toLowerCase() === 'yup' ||
-          text.toLowerCase() === 'yea' || text.toLowerCase() === 'y' ||
-          text.toLowerCase() === '1' || text.toLowerCase() === 'no' ||
-          text.toLowerCase() === 'nope' || text.toLowerCase() === 'na' ||
-          text.toLowerCase() === 'n' || text.toLowerCase() === '0') {
-
-          // SET VALID FLAG
-          ResultResponse.isValid = true;
+        break;
+      case '@sys.confirm':
+        {
           if (
             text.toLowerCase() === 'yes' || text.toLowerCase() === 'yup' ||
             text.toLowerCase() === 'yea' || text.toLowerCase() === 'y' ||
-            text.toLowerCase() === '1') {
+            text.toLowerCase() === '1' || text.toLowerCase() === 'no' ||
+            text.toLowerCase() === 'nope' || text.toLowerCase() === 'na' ||
+            text.toLowerCase() === 'n' || text.toLowerCase() === '0') {
 
-            // SET IF WE NEED MENU TRIGGER
-            ResultResponse.StartMenuTrigger = false;
-            ResultResponse.ReturnMessage = "Please enter valid option as yes or no";
+            // SET VALID FLAG
+            ResultResponse.isValid = true;
+            if (
+              text.toLowerCase() === 'yes' || text.toLowerCase() === 'yup' ||
+              text.toLowerCase() === 'yea' || text.toLowerCase() === 'y' ||
+              text.toLowerCase() === '1') {
+
+              // SET IF WE NEED MENU TRIGGER
+              ResultResponse.StartMenuTrigger = false;
+              ResultResponse.ReturnMessage = "Please enter valid option as yes or no";
+            }
+            else {
+              // SET IF WE NEED MENU TRIGGER
+              //user has confirmed 'No' as an answer, so exit current conversation
+
+              ResultResponse.exitConversation = true;
+              ResultResponse.StartMenuTrigger = false;
+            }
           }
           else {
-            // SET IF WE NEED MENU TRIGGER
-            //user has confirmed 'No' as an answer, so exit current conversation
-
-            ResultResponse.exitConversation=true;
+            ResultResponse.ReturnMessage = "Please type 'yes' or 'no'";
+            ResultResponse.isValid = false;
+            //ResultResponse.ReturnMessage = SentMessage.data + ", Please enter valid option Yes or No?";
             ResultResponse.StartMenuTrigger = false;
+
           }
         }
-        else {
-          ResultResponse.ReturnMessage = "Please type 'yes' or 'no'";
-          ResultResponse.isValid = false;
-          //ResultResponse.ReturnMessage = SentMessage.data + ", Please enter valid option Yes or No?";
-          ResultResponse.StartMenuTrigger = false;
-
-        }
-      }
-      break;
+        break;
 
       case '@sys.choice':
-      {
-        if (
-          text.toLowerCase() === 'yes' || text.toLowerCase() === 'yup' ||
-          text.toLowerCase() === 'yea' || text.toLowerCase() === 'y' ||
-          text.toLowerCase() === '1' || text.toLowerCase() === 'no' ||
-          text.toLowerCase() === 'nope' || text.toLowerCase() === 'na' ||
-          text.toLowerCase() === 'n' || text.toLowerCase() === '0') {
+        {
+          if (
+            text.toLowerCase() === 'yes' || text.toLowerCase() === 'yup' ||
+            text.toLowerCase() === 'yea' || text.toLowerCase() === 'y' ||
+            text.toLowerCase() === '1' || text.toLowerCase() === 'no' ||
+            text.toLowerCase() === 'nope' || text.toLowerCase() === 'na' ||
+            text.toLowerCase() === 'n' || text.toLowerCase() === '0') {
 
-          // SET VALID FLAG
-          ResultResponse.isValid = true;
-          ResultResponse.StartMenuTrigger = false;
-          ResultResponse.ReturnMessage = "Ok";
+            // SET VALID FLAG
+            ResultResponse.isValid = true;
+            ResultResponse.StartMenuTrigger = false;
+            ResultResponse.ReturnMessage = "Ok";
 
+          }
+          else {
+            ResultResponse.ReturnMessage = "Please type 'yes' or 'no'";
+            ResultResponse.isValid = false;
+            ResultResponse.StartMenuTrigger = false;
+
+          }
         }
-        else {
-          ResultResponse.ReturnMessage = "Please type 'yes' or 'no'";
-          ResultResponse.isValid = false;
-          ResultResponse.StartMenuTrigger = false;
-
-        }
-      }
-      break;
+        break;
       case '@sys.address':
-      {
-        ResultResponse.isValid = true;
-        ResultResponse.ReturnMessage = "";
-      }
-      break;
+        {
+          ResultResponse.isValid = true;
+          ResultResponse.ReturnMessage = "";
+        }
+        break;
 
-    default:
-      console.log("Entity type not found..");
+      default:
+        // console.log("Entity type not found..");
+    }
+
+    return ResultResponse;
   }
 
-  return ResultResponse;
-}
-
- // activate first image in carousel
- addActiveClass(interval) {
-  setTimeout(() => {
-    $(document).ready(function () {
-      $('.carousel').each(function () {
-        $(this).find('.carousel-item').eq(0).addClass('active');
+  // activate first image in carousel
+  addActiveClass(interval) {
+    setTimeout(() => {
+      $(document).ready(function () {
+        $('.carousel').each(function () {
+          $(this).find('.carousel-item').eq(0).addClass('active');
+        });
       });
-    });
-  }, 1500);
+    }, 1500);
 
-}
-// create dynamic Id for carousel card
-createDynamicId(){
-  var today = new Date();
-  var date = today.getFullYear()+'y'+(today.getMonth()+1)+'m'+today.getDate();
-  var time = today.getHours() + "h" + today.getMinutes() + "s" + today.getSeconds() + today.getMilliseconds();
-  var id = 'id'+date+time;
-  return id
-}
-
-logMessage(messageObj){
-
-  var logBody =
-  {
-    UserId: this.userid,
-    BotId: this.botId,
-    MessageAction: messageObj.MessageAction,
-    // EndUserId: "userId",
-    EndUserId: this.userid,
-    Platform: 'Web chat',
-    MessageType: messageObj.BotIntentFlow.name,
-    Message: messageObj,
-    PlatformType: "TEXT"
   }
-  this.apiService.logMessage(logBody)
-    .subscribe(res => {
-      if (res.result) {
-        console.log("Succssfully save log")
-      }
-    }, err => {
-      if (err) {
-        console.log("Error is occured to save log");
-      }
-    })
-}
+  // create dynamic Id for carousel card
+  createDynamicId() {
+    var today = new Date();
+    var date = today.getFullYear() + 'y' + (today.getMonth() + 1) + 'm' + today.getDate();
+    var time = today.getHours() + "h" + today.getMinutes() + "s" + today.getSeconds() + today.getMilliseconds();
+    var id = 'id' + date + time;
+    return id
+  }
 
-deleteTypingFromMessageFlow(){
-  var removeIndex = this.messageFlow.map(function(item) { return item.MessageAction; }).indexOf("Common");
-  // console.log("remove index :", removeIndex);
-  if(removeIndex != -1){
-    this.messageFlow.splice(removeIndex, 1);
-  }
-  
-  // console.log("in delete typing from messageflow :", this.messageFlow);
-  // callback();
-}
-removeSpace(text: any): any {
-  if (text) {
-    return text.replace(/ /g,'')
-  } else {
-    return text;
-  }
-}
-sendPaymentDetails(event, amount){
-  // debugger;
-  console.log("sendPaymentDetails :", this.paymentOption.cardNumber)
-  let tempnum:any = this.paymentOption.cardNumber;
-  console.log("sendPaymentDetails :", tempnum.replace(/(\d{4})/g, '$1 ').replace(/(^\s+|\s+$)/,''));
-  debugger;
-  let dateTime = this.getDateTimeForSendMessage()
-  let sendMessageObj = {
-    "MessageAction": "Send",
-    "BotIntentFlow": {
-      "data": "Amount :"+ amount  + "#Card No :"+ this.paymentOption.cardNumber  + "#Expiry month :"+ this.paymentOption.expiryMonth  + "#Expiry year :"+ this.paymentOption.expiryYear + "#CVV :"+ this.paymentOption.cvvNumber,
-      "dateTime": dateTime.substr(dateTime.indexOf(' ')+1),
-      "name": "Text",
-    },
-    BotId: this.botId,
-    // userID: this.userid,
-    message: "Amount :"+ amount  + "#Card No :"+ this.paymentOption.cardNumber  + "#Expiry month :"+ this.paymentOption.expiryMonth  + "#Expiry year :"+ this.paymentOption.expiryYear + "#CVV :"+ this.paymentOption.cvvNumber,
-    isLuisCall: 0,
-    "dateTime":dateTime
-  }
-  this.showSendMessage(sendMessageObj)
+  logMessage(messageObj) {
 
-  let paymentDetails = {
-    "BotId":this.botId,
-    "amount": amount,
-    "card":{
-      "number": this.removeSpace(this.paymentOption.cardNumber),
-      "exp_month": this.paymentOption.expiryMonth,
-      "exp_year": this.paymentOption.expiryYear,
-      "cvc": this.paymentOption.cvvNumber
+    var logBody =
+    {
+      UserId: this.userid,
+      BotId: this.botId,
+      MessageAction: messageObj.MessageAction,
+      // EndUserId: "userId",
+      EndUserId: this.userid,
+      Platform: 'Web chat',
+      MessageType: messageObj.BotIntentFlow.name,
+      Message: messageObj,
+      PlatformType: "TEXT"
     }
-  }
-  this.paymentOption = {}
-  this.makeStripePayment(paymentDetails).then(data =>{
-    // console.log("data in makeStripePayment :", data);
-    let response:any = data
-    let dateTime = this.getDateTimeForSendMessage()
-    let paymentMessage = {
-      "MessageAction": "Received",
-      "BotIntentFlow": {
-        "data": response.message,
-        "dateTime": dateTime.substr(dateTime.indexOf(' ')+1),
-        "name": "Default",
-      },
-      "BotId": this.botId,
-      "message": response.message,
-      // userID: userId,
-      "isLuisCall": 0,
-      "dateTime":dateTime
-    }
-    this.showSendMessage(paymentMessage);
-  }).catch(err =>{
-    // console.log("2) errer in makepaymentOnStripe :", err);
-    let paymentMessage = {
-      "MessageAction": "Received",
-      "BotIntentFlow": {
-        "data": err.message,
-        "dateTime": dateTime.substr(dateTime.indexOf(' ')+1),
-        "name": "Default",
-      },
-      "BotId": this.botId,
-      "message": err.message,
-      // userID: userId,
-      "isLuisCall": 0,
-      "dateTime":dateTime
-    }
-    this.showSendMessage(paymentMessage);
-  })
-}
-
-makeStripePayment(data) {
-  return new Promise((resolve, reject) => {
-    this.apiService.makePayment(data)
+    this.apiService.logMessage(logBody)
       .subscribe(res => {
-        console.log("response in makeStripePayment :", res)
-        if (res.status.code === '200') {
-          resolve(res.status)
-        }else{
-          reject(res.status)
+        if (res.result) {
+          console.log("Succssfully save log")
         }
       }, err => {
         if (err) {
-          console.log("1) Error is occured in makeStripePayemnt....: ", err);
-          reject(err)
+          console.log("Error is occured to save log");
         }
       })
-  })
-}
+  }
+
+  // delete typing dots from UI
+  deleteTypingFromMessageFlow() {
+    var removeIndex = this.messageFlow.map(function (item) { return item.MessageAction; }).indexOf("Common");
+    // // console.log("remove index :", removeIndex);
+    if (removeIndex != -1) {
+      this.messageFlow.splice(removeIndex, 1);
+    }
+
+    // // console.log("in delete typing from messageflow :", this.messageFlow);
+    // callback();
+  }
+
+  // remove space from card no
+  removeSpace(text: any): any {
+    if (text) {
+      return text.replace(/ /g, '')
+    } else {
+      return text;
+    }
+  }
+  sendPaymentDetails(event, amount) {
+    // debugger;
+    // console.log("sendPaymentDetails :", this.paymentOption.cardNumber)
+    let tempnum: any = this.paymentOption.cardNumber;
+    // console.log("sendPaymentDetails :", tempnum.replace(/(\d{4})/g, '$1 ').replace(/(^\s+|\s+$)/, ''));
+    debugger;
+    let dateTime = this.getDateTimeForSendMessage()
+    let sendMessageObj = {
+      "MessageAction": "Send",
+      "BotIntentFlow": {
+        "data": "Amount :" + amount + "#Card No :" + this.paymentOption.cardNumber + "#Expiry month :" + this.paymentOption.expiryMonth + "#Expiry year :" + this.paymentOption.expiryYear + "#CVV :" + this.paymentOption.cvvNumber,
+        "dateTime": dateTime.substr(dateTime.indexOf(' ') + 1),
+        "name": "Text",
+      },
+      BotId: this.botId,
+      // userID: this.userid,
+      message: "Amount :" + amount + "#Card No :" + this.paymentOption.cardNumber + "#Expiry month :" + this.paymentOption.expiryMonth + "#Expiry year :" + this.paymentOption.expiryYear + "#CVV :" + this.paymentOption.cvvNumber,
+      isLuisCall: 0,
+      "dateTime": dateTime
+    }
+    this.showSendMessage(sendMessageObj)
+
+    let paymentDetails = {
+      "BotId": this.botId,
+      "amount": amount,
+      "card": {
+        "number": this.removeSpace(this.paymentOption.cardNumber),
+        "exp_month": this.paymentOption.expiryMonth,
+        "exp_year": this.paymentOption.expiryYear,
+        "cvc": this.paymentOption.cvvNumber
+      }
+    }
+    this.paymentOption = {}
+    this.makeStripePayment(paymentDetails).then(data => {
+      // // console.log("data in makeStripePayment :", data);
+      let response: any = data
+      let dateTime = this.getDateTimeForSendMessage()
+      let paymentMessage = {
+        "MessageAction": "Received",
+        "BotIntentFlow": {
+          "data": response.message,
+          "dateTime": dateTime.substr(dateTime.indexOf(' ') + 1),
+          "name": "Default",
+        },
+        "BotId": this.botId,
+        "message": response.message,
+        // userID: userId,
+        "isLuisCall": 0,
+        "dateTime": dateTime
+      }
+      this.showSendMessage(paymentMessage);
+    }).catch(err => {
+      // // console.log("2) errer in makepaymentOnStripe :", err);
+      let paymentMessage = {
+        "MessageAction": "Received",
+        "BotIntentFlow": {
+          "data": err.message,
+          "dateTime": dateTime.substr(dateTime.indexOf(' ') + 1),
+          "name": "Default",
+        },
+        "BotId": this.botId,
+        "message": err.message,
+        // userID: userId,
+        "isLuisCall": 0,
+        "dateTime": dateTime
+      }
+      this.showSendMessage(paymentMessage);
+    })
+  }
+
+  makeStripePayment(data) {
+    return new Promise((resolve, reject) => {
+      this.apiService.makePayment(data)
+        .subscribe(res => {
+          // console.log("response in makeStripePayment :", res)
+          if (res.status.code === '200') {
+            resolve(res.status)
+          } else {
+            reject(res.status)
+          }
+        }, err => {
+          if (err) {
+            // console.log("1) Error is occured in makeStripePayemnt....: ", err);
+            reject(err)
+          }
+        })
+    })
+  }
+
+
   // sendJsonApiPrompt(messageObject, date){
-  //   console.log("BotIntentFlow of JSON or prompt :", messageObject);
+  //   // console.log("BotIntentFlow of JSON or prompt :", messageObject);
   //   if(messageObject.BotIntentFlow.name == "Prompts"){
   //       this.sendMessageToUI(messageObject)
   //   }else{
@@ -1164,7 +1202,7 @@ makeStripePayment(data) {
   // }
   // checkLastAddedMessage() {
   //   var val = this.messageFlow[this.messageFlow.length - 1];
-  //   console.log("last added message in checkLastAddedMessage :", val);
+  //   // console.log("last added message in checkLastAddedMessage :", val);
   //   if (val == undefined) {
   //     return true
   //   } else {
@@ -1182,7 +1220,7 @@ makeStripePayment(data) {
   //   for(var a = 0; a< this.messageFlowTemp.length; a++){
   //     switch (this.messageFlowTemp[a].name) {
   //       case 'Text':
-  //         console.log("text message")
+  //         // console.log("text message")
   //         this.setTimeIntervalBetweenFlow({ "MessageAction": "Received","BotIntentFlow": this.messageFlowTemp[a], "isSend":0 }, interval);
   //         interval+=1500;
   //         break;
@@ -1213,7 +1251,7 @@ makeStripePayment(data) {
   //         interval+=1500;
   //         this.addActiveClass(interval);
   //         break;
-        
+
   //       case 'Json API':
   //         this.sendJsonApiPrompt({ "MessageAction": "Received","BotIntentFlow": this.messageFlowTemp[a], "isSend":0  }, interval);
   //         interval+=1500;
@@ -1236,10 +1274,10 @@ makeStripePayment(data) {
   //     messageObj['isSend'] = 1
   //     this.messageFlow.push(messageObj);
   //     this.scrollIntoView();
-  //     console.log("to be deleted :", messageObj);
-  //     // console.log("to be deleted messageFlowTemp:", this.messageFlowTemp);
+  //     // console.log("to be deleted :", messageObj);
+  //     // // console.log("to be deleted messageFlowTemp:", this.messageFlowTemp);
   //   }else if(messageObj.isSend === 1){
-  //     console.log("last message is prompt");
+  //     // console.log("last message is prompt");
   //     this.messageFlow.push(messageObj);
   //     this.scrollIntoView();
   //   }
@@ -1248,10 +1286,10 @@ makeStripePayment(data) {
   // }
 
 }
- 
 
 
 
 
-  
+
+
 

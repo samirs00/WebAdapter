@@ -122,7 +122,8 @@
   color: white;
 }
 .dateClass{
-  border-radius: 25px;
+  /* border-radius: 25px; */
+  width: 130px;
 }
 .addressClass{
   border-radius: 25px;

@@ -2,6 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { MyDatePickerModule } from 'mydatepicker';
 // import { NguCarouselModule } from '@ngu/carousel';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -36,6 +37,7 @@ import { AddSpacePipe } from './pipes/add-space.pipe';
     FormsModule,
     HttpClientModule,
     GooglePlaceModule,
+    MyDatePickerModule 
     // NguCarouselModule
   ],
   providers: [],

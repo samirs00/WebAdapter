@@ -22,8 +22,8 @@ export class ChatPreviewComponent implements OnInit {
   public myDatePickerOptions: IMyDpOptions = {
     // other options...
     dateFormat: 'mm.dd.yyyy',
-    selectorWidth:''
-};
+    selectorWidth: ''
+  };
   public paymentOption: PaymentOption = {};
 
   public defaultMessage: DefaultMessage = new DefaultMessage();
@@ -172,7 +172,7 @@ export class ChatPreviewComponent implements OnInit {
     }
   }
   onDateChange(event) {
-    // console.log("datechange :", event.formatted)
+    console.log("datechange :", event.formatted)
     this.getMessage({ 'IntentName': event.formatted }, 'other')
   }
   handleAddressChange(event) {
@@ -832,7 +832,16 @@ export class ChatPreviewComponent implements OnInit {
   // scroll to new added message
   scrollIntoView() {
     setTimeout(() => {
-      document.getElementById('ChatView').scrollTo(0, document.getElementById('ChatView').scrollHeight);
+      // document.getElementById('ChatView').scrollTo(0, document.getElementById('ChatView').scrollHeight);
+
+      let objDiv = document.getElementById("ChatView");
+      objDiv.scrollTop = objDiv.scrollHeight;
+
+      // $('ChatView').scrollTop(Number.MAX_VALUE);
+
+      // let el = document.getElementById('ChatView');
+      // el.scrollIntoView();
+      // // console.log("after 1000")
     });
   }
   getDateTimeForSendMessage() {
@@ -845,8 +854,10 @@ export class ChatPreviewComponent implements OnInit {
   }
   scrollCarousel() {
     setTimeout(() => {
-      document.getElementById('ChatView').scrollTo(0, document.getElementById('ChatView').scrollHeight);
-      // // console.log("after 1000")
+      // document.getElementById('ChatView').scrollTo(0, document.getElementById('ChatView').scrollHeight);
+      let objDiv = document.getElementById("ChatView");
+      objDiv.scrollTop = objDiv.scrollHeight;
+
     }, 2000);
   }
   imgLoad(item) {
@@ -860,7 +871,7 @@ export class ChatPreviewComponent implements OnInit {
   }
 
   checkIfPromptInputIsCorrect(text, SentMessage, ResultResponse) {
-
+    // console.log("text: ", text)
     /*
      * CHECK IF MESSAGE SENT TO USER WAS OF TYPE PROMPTS, IF YES CHECK TEXT ENTERED BY USER 
      * RETURN "isValid" = "TRUE" IF OK ELSE  
@@ -869,8 +880,10 @@ export class ChatPreviewComponent implements OnInit {
     switch (SentMessage.entityType) {
       case '@sys.date':
         {
-          var today = new Date(text);
-          // // console.log("today: ", JSON.stringify(today))
+          let mystring = text.replace(/\./g,'/')
+          var today = new Date(mystring);
+          // debugger;
+          // console.log("today: ", JSON.stringify(today))
           var tday = JSON.stringify(today)
           if (tday != "null") {
             ResultResponse.isValid = true
@@ -1012,7 +1025,7 @@ export class ChatPreviewComponent implements OnInit {
         break;
 
       default:
-        // console.log("Entity type not found..");
+      // console.log("Entity type not found..");
     }
 
     return ResultResponse;

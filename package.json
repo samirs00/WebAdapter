@@ -27,6 +27,7 @@
     "mydatepicker": "^2.6.6",
     "ngx-google-places-autocomplete": "^2.0.4",
     "rxjs": "~6.3.3",
+    "web-animations-js": "^2.3.2",
     "zone.js": "~0.8.26"
   },
   "devDependencies": {

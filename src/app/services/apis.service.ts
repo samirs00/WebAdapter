@@ -14,7 +14,7 @@ import { catchError } from 'rxjs/operators';
 export class ApisService {
 
       // baseUrl:String="http://ec2-54-86-110-104.compute-1.amazonaws.com:5011/home/"  
-      baseUrl: String = 'https://convee.ai:1992/home/';      // production URL
+      baseUrl: String = 'https://convee.ai:9090/api/';      // production URL
       // baseUrl:String="http://192.168.9.99:9090/home/"; //deepak machine
       // baseUrl:String="https://8a3c607a.ngrok.io/home/";
 
@@ -28,7 +28,14 @@ export class ApisService {
     return this.httpClient.post(this.baseUrl + 'makePayment', data)
     .pipe(catchError(this.handleErrorObservable));
   }
-
+  getResponseFlowV2(data, header): Observable<any>{
+    let headers = new HttpHeaders()
+    .set('Content-Type', 'application/json')
+    .append('botId', header.botId)
+    .append('tokenId', header.tokenId)
+    return this.httpClient.get(this.baseUrl + 'block/getBlockOfMessage'+data)
+      .pipe(catchError(this.handleErrorObservable));
+  }
   getResponseFlow(data, header): Observable<any> {
     let headers = new HttpHeaders()
       .set('Content-Type', 'application/json')

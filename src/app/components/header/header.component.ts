@@ -15,7 +15,7 @@ export class HeaderComponent implements OnInit {
 
   ngOnInit() {
     this.botIcon =this.getParameterByName('imgsrc', window.location.href)
-    console.log("this.botIcon :",this.botIcon);
+    // console.log("this.botIcon :",this.botIcon);
     if(this.botIcon){
       this.localBotIcon = this.botIcon;
     }

@@ -2,16 +2,16 @@
   <div class="row">
     <div class="col-sm-12 col-md-12">
       <div class="user-chat-list">
-        
+
         <div *ngFor="let message of messageFlow">
 
           <!-- show send message -->
           <div class="SendMessageBox" *ngIf="message.MessageAction == 'Send'">
-            <div id="userMessage" class="sendMessageData" [innerHtml]="message.BotIntentFlow.data | nextLine">
-              {{message.BotIntentFlow.data}}
+            <div id="userMessage" class="sendMessageData" [innerHtml]="message.textFlow.data | nextLine">
+              {{message.textFlow.data}}
             </div>
             <div class="dateBox">
-              {{message.BotIntentFlow.dateTime}}
+              {{message.textFlow.dateTime}}
             </div>
           </div>
 
@@ -20,7 +20,7 @@
             <img src="{{localImgSrc}}" class="botIconImg" alt="" title="" />
             <div id="botMessage" class="receivedMessageData">
               <div>
-                <img [src]="message.BotIntentFlow.data" class="" alt="" title="" />
+                <img [src]="message.textFlow.data" class="" alt="" title="" />
               </div>
             </div>
           </div>
@@ -30,64 +30,78 @@
             <img src="{{localImgSrc}}" class="botIconImg" alt="" title="" />
 
             <div id="botMessage" class="receivedMessageData"
-              *ngIf="message.BotIntentFlow.name != 'Carousel' && message.BotIntentFlow.name != 'Payment'">
-             <!-- text card -->
-              <div *ngIf="message.BotIntentFlow.name === 'Text'">
-                {{message.BotIntentFlow.data}}
+              *ngIf="message.textFlow.name != 'Carousel' && message.textFlow.name != 'Payment'">
+              <!-- text card -->
+              <div *ngIf="message.textFlow.name === 'Text'">
+                <div>{{message.textFlow.data}}</div>
+                <div *ngIf="message.textFlow.buttons">
+                  <button *ngFor="let btn of message.textFlow.buttons" class="btn btnstyle"
+                    style="margin: 5px 5px 5px 0;" (click)="getMessage(btn,'button')">{{btn.title}}</button>
+                </div>
               </div>
 
               <!-- button card -->
-              <div *ngIf="message.BotIntentFlow.name === 'Button'">
-                <div>{{message.BotIntentFlow.data}}</div>
+              <div *ngIf="message.textFlow.name === 'Button'">
+                <div>{{message.textFlow.data}}</div>
                 <div>
-                  <button *ngFor="let btn of message.BotIntentFlow.buttonoptions" class="btn btnstyle"
+                  <button *ngFor="let btn of message.textFlow.buttonoptions" class="btn btnstyle"
                     style="margin: 5px 5px 5px 0;"
                     (click)="getMessage(btn,'button')">{{btn.Label || btn.IntentName}}</button>
                 </div>
               </div>
 
-             <!-- Prompts card -->
-              <div *ngIf="message.BotIntentFlow.name === 'Prompts'">
-                <div>{{message.BotIntentFlow.data}}</div>
-                <div
-                  *ngIf="message.BotIntentFlow.entityType === '@sys.choice' || message.BotIntentFlow.entityType === '@sys.confirm'">
+              <!-- quick replies card -->
+              <div *ngIf="message.textFlow.name === 'Quick Replies'">
+                <div>{{message.textFlow.data}}</div>
+                <div>
+                  <button *ngFor="let btn of message.textFlow.buttons" class="btn btnstyle"
+                    style="margin: 5px 5px 5px 0;"
+                    (click)="getMessage(btn,'button')">{{btn.title}}</button>
+                </div>
+              </div>
+
+              <!-- User Input card -->
+              <div *ngIf="message.textFlow.name === 'User Input'">
+                <div>{{message.textFlow.question}}</div>
+                <div *ngIf="message.textFlow.entityType === '@sys.confirm'">
                   <button *ngFor="let btn of message.Button" class="btn btnstyle" style="margin: 5px 5px 5px 0;"
                     (click)="getMessage({'IntentName':btn},'button')">{{btn}}</button>
                 </div>
-                <div class="dateClass" *ngIf="message.BotIntentFlow.entityType === '@sys.date'">
+                <div class="dateClass" *ngIf="message.textFlow.entityType === '@sys.date'">
                   <!-- <input class="dateClass" placeholder="mm-dd-yy" type="date" name="bday"
                     (change)="onDateChange($event)"> -->
-                    <my-date-picker placeholder="mm-dd-yyyy" (dateChanged)="onDateChange($event)" name="mydate" [options]="myDatePickerOptions"></my-date-picker>
+                  <my-date-picker placeholder="mm-dd-yyyy" (dateChanged)="onDateChange($event)" name="mydate"
+                    [options]="myDatePickerOptions"></my-date-picker>
                 </div>
-                <div *ngIf="message.BotIntentFlow.entityType === '@sys.address'">
+                <div *ngIf="message.textFlow.entityType === '@sys.address'">
                   <input class="addressClass" ngx-google-places-autocomplete #placesRef="ngx-places"
                     (onAddressChange)="handleAddressChange($event)" placeholder="  Enter address" name="address">
                 </div>
               </div>
 
               <!-- Image card -->
-              <div *ngIf="message.BotIntentFlow.name === 'Image'">
-                <img class="receivedImage" [src]="message.BotIntentFlow.data" (load)="imgLoad('image')" />
+              <div *ngIf="message.textFlow.name === 'Image'">
+                <img class="receivedImage" [src]="message.textFlow.data" (load)="imgLoad('image')" />
               </div>
 
               <!-- Video card -->
-              <div *ngIf="message.BotIntentFlow.name === 'Video'">
+              <div *ngIf="message.textFlow.name === 'Video'">
                 <video id="videoId" controls="true" autoplay="true" class="receivedVideo">
-                  <source [src]="message.BotIntentFlow.data" type="video/mp4">
+                  <source [src]="message.textFlow.data" type="video/mp4">
                 </video>
               </div>
 
               <!-- Audio card -->
-              <div *ngIf="message.BotIntentFlow.name === 'Audio'">
+              <div *ngIf="message.textFlow.name === 'Audio'">
                 <audio controls class="receivedAudio">
-                  <source [src]="message.BotIntentFlow.data" type="audio/wav">
-                  <source [src]="message.BotIntentFlow.data" type="audio/mpeg">
+                  <source [src]="message.textFlow.data" type="audio/wav">
+                  <source [src]="message.textFlow.data" type="audio/mpeg">
                 </audio>
               </div>
-              <!-- <div *ngIf="message.BotIntentFlow.name === 'Carousel'">
+              <!-- <div *ngIf="message.textFlow.name === 'Carousel'">
                   <div id="{{message.dynamicId}}" class="carousel slide" data-ride="carousel">
                       <div class="carousel-inner">
-                        <div class="carousel-item" *ngFor="let image of message.BotIntentFlow.carousel">
+                        <div class="carousel-item" *ngFor="let image of message.textFlow.carousel">
                           <div *ngIf="image.linkUrl" >
                               <a href="{{image.linkUrl}}" target="_blank">
                                 <img src="{{image.imageUrl}}" (load)="imgLoad('carousel')" >
@@ -117,30 +131,30 @@
                     </div>
                 </div> -->
 
-                <!-- JSON API card -->
-              <div *ngIf="message.BotIntentFlow.name === 'Json API'">
+              <!-- JSON API card -->
+              <div *ngIf="message.textFlow.name === 'Json API'">
                 {{message.sendMessage.question}}
               </div>
 
               <!-- Default message -->
-              <div *ngIf="message.BotIntentFlow.name === 'Default'">
-                <div>{{message.BotIntentFlow.data}}</div>
+              <div *ngIf="message.textFlow.name === 'Default'">
+                <div>{{message.textFlow.data}}</div>
 
               </div>
 
             </div>
 
             <!-- Carousel card -->
-            <div id="botMessage" class="receivedCarousel" *ngIf="message.BotIntentFlow.name === 'Carousel'">
+            <div id="botMessage" class="receivedCarousel" *ngIf="message.textFlow.name === 'Carousel'">
               <div id="{{message.dynamicId}}" class="carousel slide" data-ride="carousel">
                 <div class="carousel-inner">
-                  <div class="carousel-item" *ngFor="let image of message.BotIntentFlow.carousel">
-                    <div *ngIf="image.linkUrl">
+                  <div class="carousel-item" *ngFor="let image of message.textFlow.carousel">
+                    <!-- <div *ngIf="image.linkUrl">
                       <a href="{{image.linkUrl}}" target="_blank">
                         <img src="{{image.imageUrl}}" (load)="imgLoad('carousel')">
                       </a>
-                    </div>
-                    <div *ngIf="!image.linkUrl">
+                    </div> -->
+                    <div>
                       <a>
                         <img src="{{image.imageUrl}}" (load)="imgLoad('carousel')">
                       </a>
@@ -149,20 +163,14 @@
                       <h5>{{image.title}}</h5>
                       <h6>{{image.desc}}</h6>
                     </div>
-                    <div class="btnDiv">
+                    <div *ngIf="image.buttons" class="btnDiv">
                       <button *ngFor="let btn of image.buttons" class="btn carouselButton"
                         (click)="getMessage(btn, 'button')">
                         <div>
-                          {{btn.Label || btn.IntentName}}
+                          {{btn.title}}
                         </div>
                       </button>
                     </div>
-                    <!-- <button *ngFor="let btn of image.buttons" class="btn carouselButton" 
-                          (click)="getMessage(btn, 'button')">
-                          <div>
-                            {{btn.Label || btn.IntentName}}
-                          </div>
-                        </button> -->
                   </div>
                 </div>
                 <a class="carousel-control-prev" href="#{{message.dynamicId}}" role="button" data-slide="prev">
@@ -177,20 +185,21 @@
             </div>
 
             <!-- Payment card -->
-            <div id="botMessage" class="receivedCarousel" *ngIf="message.BotIntentFlow.name === 'Payment'">
-              <div><b>{{message.BotIntentFlow.data}}</b></div>
+            <div id="botMessage" class="receivedCarousel" *ngIf="message.textFlow.name === 'Payment'">
+              <div><b>{{message.textFlow.data}}</b></div>
               <form #paymentOptionForm="ngForm">
                 <div class="form-group row">
                   <label class="control-label col-md-4 col-4 col-form-label"><b>Amount</b></label>
-                  <input #amount="ngModel" name="amount" [readonly]="true" id="amount" class="form-control col-7 col-md-7" type="number"
-                    placeholder="Enter amount" min="1" [(ngModel)]="message.BotIntentFlow.payAmount">
+                  <input #amount="ngModel" name="amount" [readonly]="true" id="amount"
+                    class="form-control col-7 col-md-7" type="number" placeholder="Enter amount" min="1"
+                    [(ngModel)]="message.textFlow.payAmount">
                   <div class="col-md-4"></div>
                   <!-- <div class="error-message col-md-8" *ngIf="amount.errors && (amount.dirty || amount.touched)">
                     <div [hidden]="!amount.errors.required">
                       required*
                     </div> 
                   </div>-->
-                    
+
                 </div>
 
                 <div class="form-group row">
@@ -231,29 +240,29 @@
                 </div>
 
                 <div class="form-group row">
-                    <label class="control-label col-md-4 col-4  col-form-label"><b>Expiry month</b></label>
-                    <select #expiryMonth="ngModel" name="expiryMonth" id="expiryMonth"
-                      class="form-control col-7 col-md-7" [(ngModel)]="paymentOption.expiryMonth" required>
-                      <option value="01">JAN</option>
-                      <option value="02">FEB</option>
-                      <option value="03">MAR</option>
-                      <option value="04">APR</option>
-                      <option value="05">MAY</option>
-                      <option value="06">JUN</option>
-                      <option value="07">JUL</option>
-                      <option value="08">AUG</option>
-                      <option value="09">SEP</option>
-                      <option value="10">OCT</option>
-                      <option value="11">NOV</option>
-                      <option value="12">DEC</option>
-                    </select>
-                    <div class="col-md-4"></div>
-                    <div class="error-message col-md-8"
-                      *ngIf="expiryMonth.errors && (expiryMonth.dirty || expiryMonth.touched)">
-                      <div [hidden]="!expiryMonth.errors.required">
-                        required*
-                      </div>
+                  <label class="control-label col-md-4 col-4  col-form-label"><b>Expiry month</b></label>
+                  <select #expiryMonth="ngModel" name="expiryMonth" id="expiryMonth" class="form-control col-7 col-md-7"
+                    [(ngModel)]="paymentOption.expiryMonth" required>
+                    <option value="01">JAN</option>
+                    <option value="02">FEB</option>
+                    <option value="03">MAR</option>
+                    <option value="04">APR</option>
+                    <option value="05">MAY</option>
+                    <option value="06">JUN</option>
+                    <option value="07">JUL</option>
+                    <option value="08">AUG</option>
+                    <option value="09">SEP</option>
+                    <option value="10">OCT</option>
+                    <option value="11">NOV</option>
+                    <option value="12">DEC</option>
+                  </select>
+                  <div class="col-md-4"></div>
+                  <div class="error-message col-md-8"
+                    *ngIf="expiryMonth.errors && (expiryMonth.dirty || expiryMonth.touched)">
+                    <div [hidden]="!expiryMonth.errors.required">
+                      required*
                     </div>
+                  </div>
                 </div>
                 <div class="form-group row">
                   <label class="control-label col-md-4 col-4  col-form-label"><b>Expiry year</b></label>
@@ -318,10 +327,10 @@
                     </div>
                   </div>
                 </div>
-            <!-- </div> -->
+                <!-- </div> -->
 
 
-            <!-- <div class="form-group row">
+                <!-- <div class="form-group row">
                   <div class="col-md-6 row">
                     <label class="control-label col-md-4 col-4  col-form-label"><b>Expiry month</b></label>
                     <select #expiryMonth="ngModel" name="expiryMonth" id="expiryMonth" class="form-control col-8 col-md-8" [(ngModel)]="paymentOption.expiryMonth" required>
@@ -410,32 +419,33 @@
                   </div>
                 </div> -->
 
-            <div class="form-group row">
-              <label class="control-label col-md-4 col-4 col-form-label"><b>Enter CVV</b></label>
-              <input #cvvNumber="ngModel" name="cvvNumber" id="cvvNumber" class="form-control col-7  col-md-7"
-                type="text" placeholder="Enter CVV" minlength="3" maxlength="3" pattern="\d*"
-                [(ngModel)]="paymentOption.cvvNumber" required>
-              <div class="col-md-4"></div>
-              <div class="error-message col-md-8" *ngIf="cvvNumber.errors && (cvvNumber.dirty || cvvNumber.touched)">
-                <div [hidden]="!cvvNumber.errors.required">
-                  required*
+                <div class="form-group row">
+                  <label class="control-label col-md-4 col-4 col-form-label"><b>Enter CVV</b></label>
+                  <input #cvvNumber="ngModel" name="cvvNumber" id="cvvNumber" class="form-control col-7  col-md-7"
+                    type="text" placeholder="Enter CVV" minlength="3" maxlength="3" pattern="\d*"
+                    [(ngModel)]="paymentOption.cvvNumber" required>
+                  <div class="col-md-4"></div>
+                  <div class="error-message col-md-8"
+                    *ngIf="cvvNumber.errors && (cvvNumber.dirty || cvvNumber.touched)">
+                    <div [hidden]="!cvvNumber.errors.required">
+                      required*
+                    </div>
+                    <div [hidden]="!cvvNumber.errors.minlength">
+                      Minimum 3 digit
+                    </div>
+                    <div [hidden]="!cvvNumber.errors.pattern">
+                      Eneter number only
+                    </div>
+                  </div>
                 </div>
-                <div [hidden]="!cvvNumber.errors.minlength">
-                  Minimum 3 digit
-                </div>
-                <div [hidden]="!cvvNumber.errors.pattern">
-                  Eneter number only
-                </div>
+
+              </form>
+              <div>
+                <button [disabled]="!paymentOptionForm.form.valid" type="button" class="btn btnstyle"
+                  (click)="sendPaymentDetails($event, message.textFlow.payAmount)" style="width:107.80px">Pay</button>
               </div>
-            </div>
 
-            </form>
-            <div>
-              <button [disabled]="!paymentOptionForm.form.valid" type="button" class="btn btnstyle"
-                (click)="sendPaymentDetails($event, message.BotIntentFlow.payAmount)" style="width:107.80px">Pay</button>
-            </div>
-
-            <!-- <div class="row">
+              <!-- <div class="row">
                     <label for="public-kay" class="col-2 col-form-label">Amount</label>
                     <input (onAddressChange)="handleAddressChange($event)" placeholder="  Enter Name" name="name">
                   </div>
@@ -455,12 +465,12 @@
                 <label for="public-kay" class="col-2 col-form-label">CVV</label>
                 <input (onAddressChange)="handleAddressChange($event)" placeholder="  Enter Name" name="name">
               </div> -->
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 </div>
 
 <footer class="footer-toolbar">

@@ -10,3 +10,23 @@ export class DefaultMessage {
     GOOGLE_HOME_EXCEPTION:string ="encountered a glitch. Can you say that again?";
     SERVER_CRASH:string = "Server is busy. Please try after some time"
 }
+export const MessageType = {
+    TEXT:'Text',
+    USER_INPUT:'User Input',
+    BUTTON:'Button',
+    AUDIO:'Audio',
+    VIDEO:'Video',
+    ATTACHMENT:'ATTACHMENT',
+    NONE:'NONE',
+    IMAGE:'Image',
+    LOCATION:'Location',
+    ACCESS:'Access',
+    JSON_API:'JSON API',
+    CAROUSEL:'Carousel',
+    BLOCK_BUTTON:'BlockButton',
+    CONFIRM_PROMPT_BUTTON:'Confirm Prompt Button',
+    TIMEOUT:"Typing",
+    REDIRECT:"Redirect",
+    QUICK_REPLIES:"Quick Replies",
+    QUICK_REPLIES_BUTTON:"Quick Reply Button"
+}

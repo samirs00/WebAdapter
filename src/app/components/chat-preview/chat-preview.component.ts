@@ -2,8 +2,9 @@ import { Component, OnInit, ViewChild, } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DataService } from '../../services/data.service'
-import { ApisService } from '../../services/apis.service'
-import { DefaultMessage } from '../../classes/common-data'
+import { ApisService } from '../../services/apis.service';
+import { DefaultMessage } from '../../classes/common-data';
+import { MessageType } from '../../classes/common-data';
 import * as $ from 'jquery';
 import { PaymentOption } from '../../services/custom-option'
 import { IMyDpOptions } from 'mydatepicker';
@@ -27,10 +28,11 @@ export class ChatPreviewComponent implements OnInit {
   public paymentOption: PaymentOption = {};
 
   public defaultMessage: DefaultMessage = new DefaultMessage();
+  public messageType = MessageType
   carouselId: string = "sampleId";
   carouselHref: any = "#sampleId";
   botId: any;
-  userid: any;
+  userId: any;
   userName: any;
   dateTime: any;
   authorizationKey: any;
@@ -42,7 +44,7 @@ export class ChatPreviewComponent implements OnInit {
     "inputType": "string",
     "icon": "field-text",
     "MessageAction": "Common",
-    "BotIntentFlow": {
+    "textFlow": {
       "data": "assets/images/typing.gif",
       "name": "Text",
     },
@@ -70,7 +72,7 @@ export class ChatPreviewComponent implements OnInit {
     // var c = url1.searchParams.get("botid");
     // // console.log("Botid :", this.getParameterByName('botid', window.location.href));
     this.botId = this.getParameterByName('botid', window.location.href)
-    this.userid = this.getParameterByName('userid', window.location.href)
+    this.userId = this.getParameterByName('userid', window.location.href)
     // this.userName =this.getParameterByName('username', window.location.href)
     this.authorizationKey = this.getParameterByName('authorizationtoken', window.location.href)
     this.imageSrc = this.getParameterByName('imgsrc', window.location.href);
@@ -85,7 +87,7 @@ export class ChatPreviewComponent implements OnInit {
     // this.tokenId =result[result.indexOf('tokenid') + 1]
     // this.userName =result[result.indexOf('username') + 1]
     // this.authorizationKey =result[result.indexOf('authorizationkey') + 1]
-    // console.log("botid :", this.botId, "userid :", this.userid, "authorizationtoken :", this.authorizationKey, "localImgSrc :", this.localImgSrc)
+    console.log("botid :", this.botId, "userid :", this.userId, "authorizationtoken :", this.authorizationKey, "localImgSrc :", this.localImgSrc)
     // this.welcomeMessage(this.userName)
   }
   getParameterByName(name, url) {
@@ -112,32 +114,32 @@ export class ChatPreviewComponent implements OnInit {
     setTimeout(() => {
       // this.showTypingDots = false;
       this.deleteTypingFromMessageFlow();
-      this.showSendMessage({ "MessageAction": "Received", "BotIntentFlow": FilteredMessageArray, "dateTime": dateTime });
+      this.showSendMessage({ "MessageAction": "Received", "textFlow": FilteredMessageArray, "dateTime": dateTime });
     }, 2000);
   }
   getMessage(messageObject, type) {
     // console.log("Send message :", messageObject.Label || messageObject.IntentName);
     if ((messageObject.Label || messageObject.IntentName != "") && (messageObject.Label || messageObject.IntentName != null) && (messageObject.Label || messageObject.IntentName != undefined)) {
       this.message = "";
-      if (!this.userid) {
-        this.userid = "userId"
+      if (!this.userId) {
+        this.userId = "userId"
       }
       let header = {
         "botId": this.botId,
-        "tokenId": this.userid
+        "tokenId": this.userId
       }
       let dateTime = this.getDateTimeForSendMessage()
       var sendMessageObj = {}
       if (type == 'button') {
         sendMessageObj = {
           "MessageAction": "Send",
-          "BotIntentFlow": {
+          "textFlow": {
             "data": messageObject.Label || messageObject.IntentName,
             "dateTime": dateTime.substr(0, dateTime.indexOf(' ')),                         // only time
             "name": "Text",
           },
           BotId: this.botId,
-          // userID: userId,
+          userID: this.userId,
           message: messageObject.IntentName,
           isLuisCall: 0,
           "dateTime": dateTime
@@ -145,13 +147,13 @@ export class ChatPreviewComponent implements OnInit {
       } else {
         sendMessageObj = {
           "MessageAction": "Send",
-          "BotIntentFlow": {
+          "textFlow": {
             "data": messageObject.IntentName,
             "dateTime": dateTime.substr(dateTime.indexOf(' ') + 1),
             "name": "Text",
           },
           BotId: this.botId,
-          // userID: userId,
+          userID: this.userId,
           message: messageObject.IntentName,
           isLuisCall: 0,
           "dateTime": dateTime
@@ -165,7 +167,7 @@ export class ChatPreviewComponent implements OnInit {
           this.startFlow(sendMessageObj, header)
         } else {
           //data is already present
-          // console.log("DATA FOUND IN messageFlowTemp :", this.messageFlowTemp);
+          console.log("DATA FOUND IN messageFlowTemp :", this.messageFlowTemp);
           this.contineuFlow(sendMessageObj);
         }
       }
@@ -198,7 +200,7 @@ export class ChatPreviewComponent implements OnInit {
         }
         // this.showTypingDots = false;
         this.deleteTypingFromMessageFlow();
-        this.showSendMessage({ "MessageAction": "Received", "BotIntentFlow": sendMessageObj, "isSend": 0 });
+        this.showSendMessage({ "MessageAction": "Received", "textFlow": sendMessageObj, "isSend": 0 });
       } else {
         this.messageFlowTemp = result_MessageArray
         this.menageFlow();
@@ -223,13 +225,13 @@ export class ChatPreviewComponent implements OnInit {
       // // console.log("CheckMessageSendByUser envelope - " + JSON.stringify(envelope))
       if (SentMessage) {
         // console.log("Last message type is: " + SentMessage.name);
-        if (SentMessage.name === 'Prompts') {
+        if (SentMessage.name == this.messageType.USER_INPUT) {
           this.deleteTypingFromMessageFlow();
-          ResultResponse = this.checkIfPromptInputIsCorrect(envelope.BotIntentFlow.data, SentMessage, ResultResponse);
+          ResultResponse = this.checkIfPromptInputIsCorrect(envelope.textFlow.data, SentMessage, ResultResponse);
           // // console.log("ResultResponse :", ResultResponse)
           //LOG ANSWER 
           if (ResultResponse.isValid) {
-            SentMessage.answer = envelope.BotIntentFlow.data;
+            SentMessage.answer = envelope.textFlow.data;
           }
           if (ResultResponse.exitConversation) {
             // clearUserData(envelope.sender_id);
@@ -239,7 +241,7 @@ export class ChatPreviewComponent implements OnInit {
           }
           callback(ResultResponse);
 
-        } else if (SentMessage.name === 'Json API') {
+        } else if (SentMessage.name == this.messageType.JSON_API) {
           //if last message is a JSON API message
           // // console.log('Last message is a JSON API message :', SentMessage);
           this.bindParameterAnswerToJsonApi(envelope, SentMessage).then(transformedItems => {
@@ -270,10 +272,10 @@ export class ChatPreviewComponent implements OnInit {
         if (!binded) {
           if (element.isSent === 0) {
             //bind this answer to the question
-            if (!isNaN(envelope.BotIntentFlow.data)) {
-              element.answer = parseInt(envelope.BotIntentFlow.data)
+            if (!isNaN(envelope.textFlow.data)) {
+              element.answer = parseInt(envelope.textFlow.data)
             } else {
-              element.answer = envelope.BotIntentFlow.data;
+              element.answer = envelope.textFlow.data;
             }
 
             // // console.log("\n Question:" + element.question + "\n Answer:" + element.answer)
@@ -309,7 +311,7 @@ export class ChatPreviewComponent implements OnInit {
     var data = {
       "BotId": this.botId,
       "userID": "jasd90q",
-      "message": envelope.BotIntentFlow.data,
+      "message": envelope.textFlow.data,
       "isLuisCall": 0
     }
 
@@ -339,83 +341,98 @@ export class ChatPreviewComponent implements OnInit {
     }
     callback(ResultArray[0]);
   }
+  /**
+   * Find user input object and return separate array of user inputs
+   * work for bot-text and voice
+   * @param {*} flow 
+   */
+  getSeparatedUserInputs(flow) {
+    for (let i = 0; i < flow.length; i++) {
+      var flowElement = flow[i];
+      if (flowElement.name == this.messageType.USER_INPUT) {
+        for (let j = 0; j < flowElement.data.length; j++) {
+          flowElement.data[j].name = flowElement.name;
+        }
+        console.log("getSeparatedUserInputs");
+        //add this at position i
+        flow.splice(i, 1, ...flowElement.data)
+        i = i + flowElement.data.length - 1;
+      }
 
+    }
+    return flow;
+  }
   startFlow(data, apiHeader) {
     this.showSendMessage(data);
     this.showSendMessage(this.sendTypingMessage);
     // this.showTypingDots = true;
-    this.getFlowFromServer(data, apiHeader).then(data => {
-      // // // console.log("responce of server :", data);
-      if (data['BotIntentFlow'].length > 0 && data['IntentName'] != 'None') {
-        this.messageFlowTemp = data['BotIntentFlow'];
-        this.menageFlow()
+    this.getFlowFromServer(data, apiHeader).then(res => {
+      let data: any = res;
+      // console.log("responce of server :", data);
+      if (data.block.textFlowTemp && data.block.textFlowTemp.length > 0) {
+        //we  get array of user input, separate these user input from array and add it to conversation flow
+        //this will require little coding and provide more readability and flexibility.
+        this.messageFlowTemp = this.getSeparatedUserInputs(data.block.textFlowTemp);
+        this.menageFlow();
       } else {
-        this.showMenuTrigger(data['menutrigger'])
+        this.showMenuTrigger(data.defaultResponse)
       }
     }).catch(err => {
-      // // console.log("Error message startFlow :", err)
-
+      console.log("Error message startFlow :", err)
       this.showDefaultResponce(this.defaultMessage.SERVER_CRASH)
     })
   }
 
   manageReceivedMessaged(type, FilteredMessageArray) {
-    // // console.log("show send Message :", type, FilteredMessageArray)
+    console.log("manageReceivedMessaged :", type, FilteredMessageArray)
     var interval = 0;
     let dateTime = this.getDateTimeForSendMessage()
     switch (type) {
-      case 'Text':
-        // this.showTypingDots = false;
+      case this.messageType.TEXT:
         this.deleteTypingFromMessageFlow();
-        this.showSendMessage({ "MessageAction": "Received", "BotIntentFlow": FilteredMessageArray, "dateTime": dateTime });
+        this.showSendMessage({ "MessageAction": "Received", "textFlow": FilteredMessageArray, "dateTime": dateTime });
         interval += 1500;
         break;
 
-      case 'Payment':
-        // this.showTypingDots = false;
+      case this.messageType.IMAGE:
         this.deleteTypingFromMessageFlow();
-        this.showSendMessage({ "MessageAction": "Received", "BotIntentFlow": FilteredMessageArray, "dateTime": dateTime });
+        this.showSendMessage({ "MessageAction": "Received", "textFlow": FilteredMessageArray, "dateTime": dateTime });
         interval += 1500;
         break;
 
-      case 'Image':
-        // this.showTypingDots = false;
+      case this.messageType.AUDIO:
         this.deleteTypingFromMessageFlow();
-        this.showSendMessage({ "MessageAction": "Received", "BotIntentFlow": FilteredMessageArray, "dateTime": dateTime });
+        this.showSendMessage({ "MessageAction": "Received", "textFlow": FilteredMessageArray, "dateTime": dateTime });
         interval += 1500;
         break;
 
-      case 'Audio':
-        // this.showTypingDots = false;
+      case this.messageType.VIDEO:
         this.deleteTypingFromMessageFlow();
-        this.showSendMessage({ "MessageAction": "Received", "BotIntentFlow": FilteredMessageArray, "dateTime": dateTime });
+        this.showSendMessage({ "MessageAction": "Received", "textFlow": FilteredMessageArray, "dateTime": dateTime });
         interval += 1500;
         break;
 
-      case 'Video':
-        // this.showTypingDots = false;
+      case this.messageType.USER_INPUT:
         this.deleteTypingFromMessageFlow();
-        this.showSendMessage({ "MessageAction": "Received", "BotIntentFlow": FilteredMessageArray, "dateTime": dateTime });
+        this.showSendMessage({ "MessageAction": "Received", "textFlow": FilteredMessageArray, "Button": ['YES', 'NO'], "dateTime": dateTime });
         interval += 1500;
         break;
 
-      case 'Button':
-        // this.showTypingDots = false;
+      case this.messageType.QUICK_REPLIES:
         this.deleteTypingFromMessageFlow();
-        this.showSendMessage({ "MessageAction": "Received", "BotIntentFlow": FilteredMessageArray, "dateTime": dateTime });
+        this.showSendMessage({ "MessageAction": "Received", "textFlow": FilteredMessageArray, "dateTime": dateTime });
         interval += 1500;
         break;
 
-      case 'Carousel':
-        // this.showTypingDots = false;
+      case this.messageType.CAROUSEL:
         this.deleteTypingFromMessageFlow();
         let id = this.createDynamicId();
-        this.showSendMessage({ "MessageAction": "Received", "dynamicId": id, "BotIntentFlow": FilteredMessageArray, "dateTime": dateTime });
+        this.showSendMessage({ "MessageAction": "Received", "dynamicId": id, "textFlow": FilteredMessageArray, "dateTime": dateTime });
         interval += 1500;
         this.addActiveClass(interval);
         break;
 
-      case 'Json API':
+      case this.messageType.JSON_API:
         // this.showTypingDots = false;
         // // // console.log("Json API :", FilteredMessageArray)
         var item = FilteredMessageArray;
@@ -425,10 +442,10 @@ export class ChatPreviewComponent implements OnInit {
           for (var i = 0; i < item.attribute.length; i++) {
             var attribute = item.attribute[i];
             if (attribute.isSent === 0) {
-              // // // console.log("send message :" , { "MessageAction": "Received","BotIntentFlow": item,"sendMessage": attribute, "isSend":0 });
+              // // // console.log("send message :" , { "MessageAction": "Received","textFlow": item,"sendMessage": attribute, "isSend":0 });
               // this.showTypingDots = false;
               this.deleteTypingFromMessageFlow();
-              this.showSendMessage({ "MessageAction": "Received", "BotIntentFlow": item, "sendMessage": attribute, "isSend": 0 });
+              this.showSendMessage({ "MessageAction": "Received", "textFlow": item, "sendMessage": attribute, "isSend": 0 });
               break;
             }
             //check if this is a last index
@@ -463,17 +480,23 @@ export class ChatPreviewComponent implements OnInit {
         }
         break;
 
-      case 'Prompts':
+      case 'Button':
         // this.showTypingDots = false;
         this.deleteTypingFromMessageFlow();
-        this.showSendMessage({ "MessageAction": "Received", "BotIntentFlow": FilteredMessageArray, "Button": ['YES', 'NO'], "dateTime": dateTime });
+        this.showSendMessage({ "MessageAction": "Received", "textFlow": FilteredMessageArray, "dateTime": dateTime });
+        interval += 1500;
+        break;
+
+      case 'Payment':
+        this.deleteTypingFromMessageFlow();
+        this.showSendMessage({ "MessageAction": "Received", "textFlow": FilteredMessageArray, "dateTime": dateTime });
         interval += 1500;
         break;
 
       case 'Default':
         // this.showTypingDots = false;
         this.deleteTypingFromMessageFlow();
-        this.showSendMessage({ "MessageAction": "Received", "BotIntentFlow": FilteredMessageArray, "dateTime": dateTime });
+        this.showSendMessage({ "MessageAction": "Received", "textFlow": FilteredMessageArray, "dateTime": dateTime });
         interval += 1500;
         break;
     }
@@ -641,7 +664,7 @@ export class ChatPreviewComponent implements OnInit {
       }
       // this.showTypingDots = false;
       this.deleteTypingFromMessageFlow();
-      this.showSendMessage({ "MessageAction": "Received", "BotIntentFlow": message, "sendMessage": attribute, "dateTime": dateTime });
+      this.showSendMessage({ "MessageAction": "Received", "textFlow": message, "sendMessage": attribute, "dateTime": dateTime });
     });
   }
 
@@ -665,31 +688,36 @@ export class ChatPreviewComponent implements OnInit {
   menageFlow() {
     // // console.log("ManageFlows");
     var MessageArray = this.messageFlowTemp;
-    // // console.log("MessageArray :", MessageArray)
     var FilteredMessageArray = this.filterArray(MessageArray);
     if (FilteredMessageArray.length > 0) {
 
       //now check if this is a timeout card
-      if (FilteredMessageArray[0].name === 'Duration') {
+      if (FilteredMessageArray[0].name == this.messageType.TIMEOUT) {
         this.waitForTimeout(FilteredMessageArray[0]);
         return;
       }
-      // console.log("FilteredMessageArray.length > 0")
       this.manageReceivedMessaged(FilteredMessageArray[0].name, FilteredMessageArray[0]);
 
       // UPDATE FLAG IN ARRAY
       FilteredMessageArray[0].isSent = 1;
-      if (FilteredMessageArray[0].name === 'Json API' && this.checkIfAllAttribSent(FilteredMessageArray[0])) {
-        // // console.log("Check All attribute in array :", FilteredMessageArray[0])
+      //json api rule
+      if (FilteredMessageArray[0].name === this.messageType.JSON_API && this.checkIfAllAttribSent(FilteredMessageArray[0])) {
         return;
       }
 
       // UPDATE TO CONTEXT
       this.messageFlowTemp = FilteredMessageArray
       // // console.log("UPDATE MessageArray :", MessageArray)
-      if (FilteredMessageArray[0].name !== 'Prompts' && FilteredMessageArray[0].name !== 'Location' && FilteredMessageArray[0].name !== 'Json API') {
-        // console.log("RECURSION CALLED - " + FilteredMessageArray[0].name)
-        this.menageFlow();
+      if (FilteredMessageArray[0].name !== this.messageType.USER_INPUT &&
+        FilteredMessageArray[0].name !== this.messageType.JSON_API &&
+        FilteredMessageArray[0].name !== this.messageType.QUICK_REPLIES) {
+        setTimeout(() => {
+          this.menageFlow();
+        }, 1000);
+        // setTimeout(function () {
+        //   // console.log("RECURSION CALLED - " + FilteredMessageArray[0].name)
+        //   this.menageFlow();
+        // }, 1000);
       }
     }
     else {
@@ -732,7 +760,7 @@ export class ChatPreviewComponent implements OnInit {
     let dateTime = this.getDateTimeForSendMessage()
     let defaultMessage = {
       "MessageAction": "Received",
-      "BotIntentFlow": {
+      "textFlow": {
         "data": menutrigger.MenuMessage,
         "buttonoptions": menutrigger.MenuIntent,
         "date": dateTime,
@@ -754,7 +782,7 @@ export class ChatPreviewComponent implements OnInit {
     let dateTime = this.getDateTimeForSendMessage()
     let defaultMessage = {
       "MessageAction": "Received",
-      "BotIntentFlow": {
+      "textFlow": {
         "data": message,
         "date": dateTime,
         "name": 'Default'
@@ -770,10 +798,11 @@ export class ChatPreviewComponent implements OnInit {
     // this.scrollIntoView();
   }
 
-  // Get botIntent flow from backend
+  // Get botIntent flow from backend 
   getFlowFromServer(data, header) {
+    let details = "?dialogId=" + data.BotId + "&&userId=" + data.userID + "&&message=" + data.textFlow.data + "&&wildcard=1";
     return new Promise((resolve, reject) => {
-      this.apiService.getResponseFlow(data, header)
+      this.apiService.getResponseFlowV2(details, header)
         .subscribe(res => {
           if (res.result) {
             resolve(res.result)
@@ -792,7 +821,7 @@ export class ChatPreviewComponent implements OnInit {
     let dateTime = this.getDateTimeForSendMessage()
     let obj = {
       "MessageAction": "Received",
-      "BotIntentFlow": {
+      "textFlow": {
         "data": message,
         "date": dateTime,
         "name": "Default",
@@ -880,7 +909,7 @@ export class ChatPreviewComponent implements OnInit {
     switch (SentMessage.entityType) {
       case '@sys.date':
         {
-          let mystring = text.replace(/\./g,'/')
+          let mystring = text.replace(/\./g, '/')
           var today = new Date(mystring);
           // debugger;
           // console.log("today: ", JSON.stringify(today))
@@ -1055,13 +1084,13 @@ export class ChatPreviewComponent implements OnInit {
 
     var logBody =
     {
-      UserId: this.userid,
+      UserId: this.userId,
       BotId: this.botId,
       MessageAction: messageObj.MessageAction,
       // EndUserId: "userId",
-      EndUserId: this.userid,
+      EndUserId: this.userId,
       Platform: 'Web chat',
-      MessageType: messageObj.BotIntentFlow.name,
+      MessageType: messageObj.textFlow.name,
       Message: messageObj,
       PlatformType: "TEXT"
     }
@@ -1106,13 +1135,13 @@ export class ChatPreviewComponent implements OnInit {
     let dateTime = this.getDateTimeForSendMessage()
     let sendMessageObj = {
       "MessageAction": "Send",
-      "BotIntentFlow": {
+      "textFlow": {
         "data": "Amount :" + amount + "#Card No :" + this.paymentOption.cardNumber + "#Expiry month :" + this.paymentOption.expiryMonth + "#Expiry year :" + this.paymentOption.expiryYear + "#CVV :" + this.paymentOption.cvvNumber,
         "dateTime": dateTime.substr(dateTime.indexOf(' ') + 1),
         "name": "Text",
       },
       BotId: this.botId,
-      // userID: this.userid,
+      // userID: this.userId,
       message: "Amount :" + amount + "#Card No :" + this.paymentOption.cardNumber + "#Expiry month :" + this.paymentOption.expiryMonth + "#Expiry year :" + this.paymentOption.expiryYear + "#CVV :" + this.paymentOption.cvvNumber,
       isLuisCall: 0,
       "dateTime": dateTime
@@ -1136,7 +1165,7 @@ export class ChatPreviewComponent implements OnInit {
       let dateTime = this.getDateTimeForSendMessage()
       let paymentMessage = {
         "MessageAction": "Received",
-        "BotIntentFlow": {
+        "textFlow": {
           "data": response.message,
           "dateTime": dateTime.substr(dateTime.indexOf(' ') + 1),
           "name": "Default",
@@ -1152,7 +1181,7 @@ export class ChatPreviewComponent implements OnInit {
       // // console.log("2) errer in makepaymentOnStripe :", err);
       let paymentMessage = {
         "MessageAction": "Received",
-        "BotIntentFlow": {
+        "textFlow": {
           "data": err.message,
           "dateTime": dateTime.substr(dateTime.indexOf(' ') + 1),
           "name": "Default",
@@ -1188,8 +1217,8 @@ export class ChatPreviewComponent implements OnInit {
 
 
   // sendJsonApiPrompt(messageObject, date){
-  //   // console.log("BotIntentFlow of JSON or prompt :", messageObject);
-  //   if(messageObject.BotIntentFlow.name == "Prompts"){
+  //   // console.log("textFlow of JSON or prompt :", messageObject);
+  //   if(messageObject.textFlow.name == "Prompts"){
   //       this.sendMessageToUI(messageObject)
   //   }else{
   //   }
@@ -1198,7 +1227,7 @@ export class ChatPreviewComponent implements OnInit {
   // defaultResponce(message, timeNow){
   //   let defaultMessage = {:
   //     "MessageAction": "Received",
-  //     "BotIntentFlow": {
+  //     "textFlow": {
   //       "data": message,
   //       "date": timeNow,                   
   //       "name": 'Default'
@@ -1219,7 +1248,7 @@ export class ChatPreviewComponent implements OnInit {
   //   if (val == undefined) {
   //     return true
   //   } else {
-  //     if (val.BotIntentFlow.name == 'Prompts' || val.BotIntentFlow.name == 'Json API' ) {
+  //     if (val.textFlow.name == 'Prompts' || val.textFlow.name == 'Json API' ) {
   //       return false
   //     } else {
   //       return true
@@ -1234,49 +1263,49 @@ export class ChatPreviewComponent implements OnInit {
   //     switch (this.messageFlowTemp[a].name) {
   //       case 'Text':
   //         // console.log("text message")
-  //         this.setTimeIntervalBetweenFlow({ "MessageAction": "Received","BotIntentFlow": this.messageFlowTemp[a], "isSend":0 }, interval);
+  //         this.setTimeIntervalBetweenFlow({ "MessageAction": "Received","textFlow": this.messageFlowTemp[a], "isSend":0 }, interval);
   //         interval+=1500;
   //         break;
 
   //       case 'Image':
-  //         this.setTimeIntervalBetweenFlow({ "MessageAction": "Received","BotIntentFlow": this.messageFlowTemp[a], "isSend":0  }, interval);
+  //         this.setTimeIntervalBetweenFlow({ "MessageAction": "Received","textFlow": this.messageFlowTemp[a], "isSend":0  }, interval);
   //         interval+=1500;
   //         break;
 
   //       case 'Audio':
-  //         this.setTimeIntervalBetweenFlow({ "MessageAction": "Received","BotIntentFlow": this.messageFlowTemp[a], "isSend":0  }, interval);
+  //         this.setTimeIntervalBetweenFlow({ "MessageAction": "Received","textFlow": this.messageFlowTemp[a], "isSend":0  }, interval);
   //         interval+=1500;
   //         break;
 
   //       case 'Video':
-  //         this.setTimeIntervalBetweenFlow({ "MessageAction": "Received","BotIntentFlow": this.messageFlowTemp[a], "isSend":0  }, interval);
+  //         this.setTimeIntervalBetweenFlow({ "MessageAction": "Received","textFlow": this.messageFlowTemp[a], "isSend":0  }, interval);
   //         interval+=1500;
   //         break;
 
   //       case 'Button':
-  //         this.setTimeIntervalBetweenFlow({ "MessageAction": "Received","BotIntentFlow": this.messageFlowTemp[a], "isSend":0  }, interval);
+  //         this.setTimeIntervalBetweenFlow({ "MessageAction": "Received","textFlow": this.messageFlowTemp[a], "isSend":0  }, interval);
   //         interval+=1500;
   //         break;
 
   //       case 'Carousel':
   //         let id = this.createDynamicId();
-  //         this.setTimeIntervalBetweenFlow({ "MessageAction": "Received","dynamicId":id,"BotIntentFlow": this.messageFlowTemp[a], "isSend":0  }, interval);
+  //         this.setTimeIntervalBetweenFlow({ "MessageAction": "Received","dynamicId":id,"textFlow": this.messageFlowTemp[a], "isSend":0  }, interval);
   //         interval+=1500;
   //         this.addActiveClass(interval);
   //         break;
 
   //       case 'Json API':
-  //         this.sendJsonApiPrompt({ "MessageAction": "Received","BotIntentFlow": this.messageFlowTemp[a], "isSend":0  }, interval);
+  //         this.sendJsonApiPrompt({ "MessageAction": "Received","textFlow": this.messageFlowTemp[a], "isSend":0  }, interval);
   //         interval+=1500;
   //         break;
 
   //       case 'Prompts':
-  //         this.sendJsonApiPrompt({ "MessageAction": "Received","BotIntentFlow": this.messageFlowTemp[a], "isSend":0  }, interval);
+  //         this.sendJsonApiPrompt({ "MessageAction": "Received","textFlow": this.messageFlowTemp[a], "isSend":0  }, interval);
   //         interval+=1500;
   //         break;
 
   //       case 'Default':
-  //       this.setTimeIntervalBetweenFlow({ "MessageAction": "Received","BotIntentFlow": this.messageFlowTemp[a], "isSend":0  }, interval);
+  //       this.setTimeIntervalBetweenFlow({ "MessageAction": "Received","textFlow": this.messageFlowTemp[a], "isSend":0  }, interval);
   //       interval+=1500;
   //       break;
   //     }

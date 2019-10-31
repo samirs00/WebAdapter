@@ -7,8 +7,8 @@
 
           <!-- show send message -->
           <div class="SendMessageBox" *ngIf="message.MessageAction == 'Send'">
-            <div id="userMessage" class="sendMessageData" [innerHtml]="message.textFlow.data | nextLine">
-              {{message.textFlow.data}}
+            <div id="userMessage" class="sendMessageData" [innerHtml]="message.textFlow.title | nextLine">
+              {{message.textFlow.title}}
             </div>
             <div class="dateBox">
               {{message.textFlow.dateTime}}
@@ -35,8 +35,8 @@
               <div *ngIf="message.textFlow.name === 'Text'">
                 <div>{{message.textFlow.data}}</div>
                 <div *ngIf="message.textFlow.buttons">
-                  <button *ngFor="let btn of message.textFlow.buttons" class="btn btnstyle"
-                    style="margin: 5px 5px 5px 0;" (click)="getMessage(btn,'button')">{{btn.title}}</button>
+                  <button *ngFor="let btn of message.textFlow.buttons" class="btn btnstyle commanMargin"
+                     (click)="getMessage(btn,'button')">{{btn.title}}</button>
                 </div>
               </div>
 
@@ -44,8 +44,7 @@
               <div *ngIf="message.textFlow.name === 'Button'">
                 <div>{{message.textFlow.data}}</div>
                 <div>
-                  <button *ngFor="let btn of message.textFlow.buttonoptions" class="btn btnstyle"
-                    style="margin: 5px 5px 5px 0;"
+                  <button *ngFor="let btn of message.textFlow.buttonoptions" class="btn btnstyle commanMargin"
                     (click)="getMessage(btn,'button')">{{btn.Label || btn.IntentName}}</button>
                 </div>
               </div>
@@ -54,9 +53,8 @@
               <div *ngIf="message.textFlow.name === 'Quick Replies'">
                 <div>{{message.textFlow.data}}</div>
                 <div>
-                  <button *ngFor="let btn of message.textFlow.buttons" class="btn btnstyle"
-                    style="margin: 5px 5px 5px 0;"
-                    (click)="getMessage(btn,'button')">{{btn.title}}</button>
+                  <button *ngFor="let btn of message.textFlow.buttons" class="btn btnstyle commanMargin"
+                     (click)="getMessage(btn,'button')">{{btn.title}}</button>
                 </div>
               </div>
 
@@ -64,8 +62,8 @@
               <div *ngIf="message.textFlow.name === 'User Input'">
                 <div>{{message.textFlow.question}}</div>
                 <div *ngIf="message.textFlow.entityType === '@sys.confirm'">
-                  <button *ngFor="let btn of message.Button" class="btn btnstyle" style="margin: 5px 5px 5px 0;"
-                    (click)="getMessage({'IntentName':btn},'button')">{{btn}}</button>
+                  <button *ngFor="let btn of message.Button" class="btn btnstyle commanMargin"
+                    (click)="getMessage({'title':btn},'button')">{{btn}}</button>
                 </div>
                 <div class="dateClass" *ngIf="message.textFlow.entityType === '@sys.date'">
                   <!-- <input class="dateClass" placeholder="mm-dd-yy" type="date" name="bday"
@@ -98,41 +96,9 @@
                   <source [src]="message.textFlow.data" type="audio/mpeg">
                 </audio>
               </div>
-              <!-- <div *ngIf="message.textFlow.name === 'Carousel'">
-                  <div id="{{message.dynamicId}}" class="carousel slide" data-ride="carousel">
-                      <div class="carousel-inner">
-                        <div class="carousel-item" *ngFor="let image of message.textFlow.carousel">
-                          <div *ngIf="image.linkUrl" >
-                              <a href="{{image.linkUrl}}" target="_blank">
-                                <img src="{{image.imageUrl}}" (load)="imgLoad('carousel')" >
-                              </a>
-                            </div>
-                            <div *ngIf="!image.linkUrl">
-                              <a>
-                                <img src="{{image.imageUrl}}" (load)="imgLoad('carousel')">
-                              </a>
-                            </div>
-                            <div class="carouselTitleDesc">
-                                <h5>{{image.title}}</h5>
-                                <h6>{{image.desc}}</h6>
-                            </div>
-                          <button *ngFor="let btn of image.buttons" class="btn btn-primary" style="margin: 5px 5px 5px 0;"
-                            (click)="getMessage(btn, 'button')">{{btn.Label || btn.IntentName}}<br/> </button>
-                        </div>
-                      </div>
-                      <a class="carousel-control-prev" href="#{{message.dynamicId}}" role="button" data-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="sr-only">Previous</span>
-                      </a>
-                      <a class="carousel-control-next" href="#{{message.dynamicId}}" role="button" data-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="sr-only">Next</span>
-                      </a>
-                    </div>
-                </div> -->
 
               <!-- JSON API card -->
-              <div *ngIf="message.textFlow.name === 'Json API'">
+              <div *ngIf="message.textFlow.name === 'JSON API'">
                 {{message.sendMessage.question}}
               </div>
 
@@ -146,7 +112,14 @@
 
             <!-- Carousel card -->
             <div id="botMessage" class="receivedCarousel" *ngIf="message.textFlow.name === 'Carousel'">
+
               <div id="{{message.dynamicId}}" class="carousel slide" data-ride="carousel">
+
+                <a class="carousel-control-prev" href="#{{message.dynamicId}}" role="button" data-slide="prev">
+                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                  <span class="sr-only">Previous</span>
+                </a>
+
                 <div class="carousel-inner">
                   <div class="carousel-item" *ngFor="let image of message.textFlow.carousel">
                     <!-- <div *ngIf="image.linkUrl">
@@ -173,15 +146,17 @@
                     </div>
                   </div>
                 </div>
-                <a class="carousel-control-prev" href="#{{message.dynamicId}}" role="button" data-slide="prev">
+
+                <!-- <a class="carousel-control-prev" href="#{{message.dynamicId}}" role="button" data-slide="prev">
                   <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                   <span class="sr-only">Previous</span>
-                </a>
+                </a> -->
                 <a class="carousel-control-next" href="#{{message.dynamicId}}" role="button" data-slide="next">
                   <span class="carousel-control-next-icon" aria-hidden="true"></span>
                   <span class="sr-only">Next</span>
                 </a>
               </div>
+
             </div>
 
             <!-- Payment card -->
@@ -481,10 +456,10 @@
               <img src="../../../assets/images/attachment.jpg" class="attachment-image">
           </div>
       </div> -->
-    <input type="text" id="inputSend" class="form-control" (keyup.enter)="getMessage({'IntentName':message}, 'other')"
+    <input type="text" id="inputSend" class="form-control" (keyup.enter)="getMessage({'title':message}, 'other')"
       [(ngModel)]="message" placeholder="Type your message">
     <div class="input-group-append">
-      <button class="btn btnCss" type="submit" (click)="getMessage({'IntentName':message}, 'other')">
+      <button class="btn btnCss" type="submit" (click)="getMessage({'title':message}, 'other')">
         <img src="assets/images/message-sending-img.png" class="sendBtn">
       </button>
     </div>

@@ -119,7 +119,7 @@ export class ChatPreviewComponent implements OnInit {
   }
   getMessage(messageObject, type) {
     // console.log("Send message :", messageObject.Label || messageObject.IntentName);
-    if ((messageObject.Label || messageObject.IntentName != "") && (messageObject.Label || messageObject.IntentName != null) && (messageObject.Label || messageObject.IntentName != undefined)) {
+    if (messageObject.title && messageObject.title != "" && messageObject.title != undefined) {
       this.message = "";
       if (!this.userId) {
         this.userId = "userId"
@@ -134,13 +134,14 @@ export class ChatPreviewComponent implements OnInit {
         sendMessageObj = {
           "MessageAction": "Send",
           "textFlow": {
-            "data": messageObject.Label || messageObject.IntentName,
+            "data": messageObject.selectedBlock || messageObject.title,
+            "title": messageObject.title,
             "dateTime": dateTime.substr(0, dateTime.indexOf(' ')),                         // only time
             "name": "Text",
           },
           BotId: this.botId,
           userID: this.userId,
-          message: messageObject.IntentName,
+          message: messageObject.selectedBlock,
           isLuisCall: 0,
           "dateTime": dateTime
         }
@@ -148,13 +149,14 @@ export class ChatPreviewComponent implements OnInit {
         sendMessageObj = {
           "MessageAction": "Send",
           "textFlow": {
-            "data": messageObject.IntentName,
+            "data": messageObject.title,
+            "title": messageObject.title,
             "dateTime": dateTime.substr(dateTime.indexOf(' ') + 1),
             "name": "Text",
           },
           BotId: this.botId,
           userID: this.userId,
-          message: messageObject.IntentName,
+          message: messageObject.selectedBlock,
           isLuisCall: 0,
           "dateTime": dateTime
         }
@@ -164,18 +166,21 @@ export class ChatPreviewComponent implements OnInit {
       } else {
         if (this.messageFlowTemp.length == 0) {
           //messageFlowTemp is empty
-          this.startFlow(sendMessageObj, header)
+          this.startFlow(sendMessageObj, header, 'other')
         } else {
           //data is already present
-          console.log("DATA FOUND IN messageFlowTemp :", this.messageFlowTemp);
+          // console.log("DATA FOUND IN messageFlowTemp :", this.messageFlowTemp);
           this.contineuFlow(sendMessageObj);
         }
       }
     }
   }
+  // getMessage2(messageObject, type){
+
+  // }
   onDateChange(event) {
-    console.log("datechange :", event.formatted)
-    this.getMessage({ 'IntentName': event.formatted }, 'other')
+    // console.log("datechange :", event.formatted)
+    this.getMessage({ 'title': event.formatted }, 'other')
   }
   handleAddressChange(event) {
     // // console.log("handleAddressChange :", event);
@@ -184,14 +189,17 @@ export class ChatPreviewComponent implements OnInit {
   contineuFlow(sendMessageObj) {
     this.showSendMessage(sendMessageObj);
     this.showSendMessage(this.sendTypingMessage);
-    // this.showTypingDots = true;
     var result_MessageArray = this.messageFlowTemp;
     this.CheckMessageSendByUser(sendMessageObj, result_MessageArray, (ValdiationResponse) => {
       // console.log("CheckMessageSendByUser:ValdiationResposne\n" + JSON.stringify(ValdiationResponse));
-      if (ValdiationResponse.isValid === false) {
+
+      if (ValdiationResponse.StartMenuTrigger) {
+        // SendMenuTrigger(envelope.sender_id, result_MenuTrigger);
+      } else if (ValdiationResponse.isValid === false) {
         let dateTime = this.getDateTimeForSendMessage()
         let sendMessageObj = {
           "data": ValdiationResponse.ReturnMessage,
+          "title": ValdiationResponse.ReturnMessage,
           "dateTime": dateTime,
           "isSent": 1,
           "inputType": "string",
@@ -201,7 +209,8 @@ export class ChatPreviewComponent implements OnInit {
         // this.showTypingDots = false;
         this.deleteTypingFromMessageFlow();
         this.showSendMessage({ "MessageAction": "Received", "textFlow": sendMessageObj, "isSend": 0 });
-      } else {
+      }
+      else {
         this.messageFlowTemp = result_MessageArray
         this.menageFlow();
       }
@@ -221,8 +230,6 @@ export class ChatPreviewComponent implements OnInit {
     }
     // // console.log("Last message CheckMessageSendByUser:" + JSON.stringify(MessageArray));
     this.getlastPromptSentToUser(MessageArray, (SentMessage) => {
-      // // console.log("CheckMessageSendByUser SentMessage - " + JSON.stringify(SentMessage))
-      // // console.log("CheckMessageSendByUser envelope - " + JSON.stringify(envelope))
       if (SentMessage) {
         // console.log("Last message type is: " + SentMessage.name);
         if (SentMessage.name == this.messageType.USER_INPUT) {
@@ -243,14 +250,25 @@ export class ChatPreviewComponent implements OnInit {
 
         } else if (SentMessage.name == this.messageType.JSON_API) {
           //if last message is a JSON API message
-          // // console.log('Last message is a JSON API message :', SentMessage);
+          // console.log('Last message is a JSON API message :', SentMessage);
           this.bindParameterAnswerToJsonApi(envelope, SentMessage).then(transformedItems => {
-            // // console.log("transformedItems:" + JSON.stringify(transformedItems));
+            // console.log("transformedItems:" + JSON.stringify(transformedItems));
             SentMessage.attribute = transformedItems;
             this.messageFlowTemp = [SentMessage];
             //Success callback
             callback(ResultResponse);
           })
+        } else if (SentMessage.name === this.messageType.QUICK_REPLIES) {
+          ResultResponse = this.checkIfQuickRepliesIsCorrect(envelope.textFlow.data, SentMessage, ResultResponse)
+          if (ResultResponse.isValid) {
+            SentMessage.answer = envelope.textFlow.data;
+          }
+          if (ResultResponse.exitConversation) {
+            this.deleteTypingFromMessageFlow();
+            this.messageFlowTemp = [];
+            return;
+          }
+          callback(ResultResponse);
         } else {
           // if last send message is of any other type
           // LAST SENT MESSAGE WAS NOT PROMPTS
@@ -277,7 +295,6 @@ export class ChatPreviewComponent implements OnInit {
             } else {
               element.answer = envelope.textFlow.data;
             }
-
             // // console.log("\n Question:" + element.question + "\n Answer:" + element.answer)
             this.getEntityInputIfAny(envelope).then(entityInput => {
               if (entityInput) {
@@ -353,7 +370,6 @@ export class ChatPreviewComponent implements OnInit {
         for (let j = 0; j < flowElement.data.length; j++) {
           flowElement.data[j].name = flowElement.name;
         }
-        console.log("getSeparatedUserInputs");
         //add this at position i
         flow.splice(i, 1, ...flowElement.data)
         i = i + flowElement.data.length - 1;
@@ -362,8 +378,10 @@ export class ChatPreviewComponent implements OnInit {
     }
     return flow;
   }
-  startFlow(data, apiHeader) {
-    this.showSendMessage(data);
+  startFlow(data, apiHeader, type) {
+    if (type === 'other') {
+      this.showSendMessage(data);
+    }
     this.showSendMessage(this.sendTypingMessage);
     // this.showTypingDots = true;
     this.getFlowFromServer(data, apiHeader).then(res => {
@@ -384,7 +402,7 @@ export class ChatPreviewComponent implements OnInit {
   }
 
   manageReceivedMessaged(type, FilteredMessageArray) {
-    console.log("manageReceivedMessaged :", type, FilteredMessageArray)
+    // console.log("manageReceivedMessaged :", type, FilteredMessageArray)
     var interval = 0;
     let dateTime = this.getDateTimeForSendMessage()
     switch (type) {
@@ -432,9 +450,14 @@ export class ChatPreviewComponent implements OnInit {
         this.addActiveClass(interval);
         break;
 
+      case this.messageType.REDIRECT:
+        this.deleteTypingFromMessageFlow();
+        this.redirectFlow(FilteredMessageArray, dateTime)
+        interval += 1500;
+        break;
+
       case this.messageType.JSON_API:
-        // this.showTypingDots = false;
-        // // // console.log("Json API :", FilteredMessageArray)
+        // console.log("Json API :", FilteredMessageArray)
         var item = FilteredMessageArray;
         //check if request has parameters
         if (item.attribute && item.attribute.length > 0) {
@@ -442,8 +465,7 @@ export class ChatPreviewComponent implements OnInit {
           for (var i = 0; i < item.attribute.length; i++) {
             var attribute = item.attribute[i];
             if (attribute.isSent === 0) {
-              // // // console.log("send message :" , { "MessageAction": "Received","textFlow": item,"sendMessage": attribute, "isSend":0 });
-              // this.showTypingDots = false;
+              // console.log("send message :" , { "MessageAction": "Received","textFlow": item,"sendMessage": attribute, "isSend":0 });
               this.deleteTypingFromMessageFlow();
               this.showSendMessage({ "MessageAction": "Received", "textFlow": item, "sendMessage": attribute, "isSend": 0 });
               break;
@@ -464,7 +486,6 @@ export class ChatPreviewComponent implements OnInit {
             }
 
           }
-
         } else {
           // no parameters are associated with this url, directly call this api
           // // console.log("no parameters are associated with this url, directly call this api")
@@ -502,6 +523,7 @@ export class ChatPreviewComponent implements OnInit {
     }
   }
   sendJSONAPIResponse(message, callback) {
+    // console.log("message :", message)
     var url = message.endpoint_url;
     var requestBody = {};
     var content_type = {};
@@ -511,15 +533,18 @@ export class ChatPreviewComponent implements OnInit {
     if (url.indexOf('weather') >= 0) {
       content_type = {
         "content_type": 'application/javascript',
-        "authorizationKey": this.authorizationKey
+        "key": message.authorizationKey,
+        "value": message.authorization
+
       }
     } else {
       content_type = {
         "content_type": 'application/json',
-        "authorizationKey": this.authorizationKey
+        "key": message.authorizationKey,
+        "value": message.authorization
       }
     }
-    // // // console.log("ready url :", url, "ready requestBody :", requestBody, "ready content_type :", content_type)
+    console.log("ready url :", url, "ready requestBody :", requestBody, "ready content_type :", content_type)
     if (message.attribute.length > 0) {
       if (message.api_type === 'GET') {
         //query string
@@ -530,7 +555,7 @@ export class ChatPreviewComponent implements OnInit {
         })
         //trim extra characters in url
         url = url.trimRight('&&')
-        // // console.log("url :", url)
+        console.log("get url :", url)
         this.jsonGetRequest(message, url, requestBody, content_type, (data => {
           callback(data)
         }));
@@ -543,10 +568,18 @@ export class ChatPreviewComponent implements OnInit {
         this.jsonPostRquest(message, url, requestBody, content_type, (data => {
           callback(data)
         }));
-        // callback()
       }
     } else {
       if (message.api_type === 'GET') {
+        //query string
+        url = url + "?";
+        message.attribute.forEach(attribute => {
+          //get values for all the parameters
+          url = url + attribute.key + "=" + attribute.answer + "&&";
+        })
+        //trim extra characters in url
+        url = url.trimRight('&&')
+        console.log("get url :", url)
         this.jsonGetRequest(message, url, requestBody, content_type, (data) => {
           callback(data)
         });
@@ -558,6 +591,25 @@ export class ChatPreviewComponent implements OnInit {
       // callback()
 
     }
+  }
+
+  redirectFlow(messageObject, dateTime) {
+    let sendMessageObj = {
+      "MessageAction": "Send",
+      "textFlow": {
+        "data": messageObject.data,
+        "title": messageObject.data,
+        "dateTime": dateTime.substr(dateTime.indexOf(' ') + 1),
+        "name": "Text",
+      },
+      BotId: this.botId,
+      userID: this.userId,
+      message: messageObject.data,
+      isLuisCall: 0,
+      "dateTime": dateTime
+    }
+    this.messageFlowTemp = [];
+    this.startFlow(sendMessageObj, 'apiHeader', 'redirect')
   }
 
   async jsonGetRequest(message, url, requestBody, content_type, callback) {
@@ -587,13 +639,14 @@ export class ChatPreviewComponent implements OnInit {
         "apiType": "POST",
         "url": url,
         "requestBody": requestBody,
-        "authorizationKey": content_type.authorizationKey,
+        "authorizationKey": content_type,
         "content_type": content_type.content_type,
         "answer_attributes": message.answer_attributes,
         "json_card": message
       }
-      let jsonApiResponse = await this.getAndParseJSONApi(postRequest);
-      // // console.log("final json post:", jsonApiResponse);
+      console.log("final json post:", postRequest);
+      let jsonApiResponse = await this.jsonPostApi(postRequest);
+      console.log("final json post:", jsonApiResponse);
       this.sendJsonResultToUI(jsonApiResponse, message);
       callback(jsonApiResponse)
 
@@ -602,6 +655,41 @@ export class ChatPreviewComponent implements OnInit {
       // // console.log("Error occure in post catch")
     }
   }
+  jsonPostApi(data) {
+    return new Promise((resolve, reject) => {
+      this.apiService.jsonPostRequest(data)
+        .subscribe(res => {
+          if (res) {
+            resolve(res)
+          } else {
+            reject(res)
+          }
+        }, err => {
+          if (err) {
+            // // // console.log("Error is occured....");
+            reject(err)
+          }
+        })
+    })
+  }
+
+  jsonGetApi(data) {
+    return new Promise((resolve, reject) => {
+      this.apiService.jsonGetRequest(data)
+        .subscribe(res => {
+          if (res) {
+            resolve(res)
+          } else{
+            reject(res)
+          }
+        }, err => {
+          if (err) {
+            reject(err)
+          }
+        })
+    })
+  }
+
   getAndParseJSONApi(data) {
     return new Promise((resolve, reject) => {
       this.apiService.jsonRequest(data)
@@ -619,40 +707,6 @@ export class ChatPreviewComponent implements OnInit {
         })
     })
   }
-  // JsonPostRequest(url, data, content_type){
-  //   return new Promise((resolve, reject) => {
-  //     this.apiService.JsonPostRequest(url, data, content_type)
-  //       .subscribe(res => {
-  //         // // console.log("JsonPostRequest API call res :", res)
-  //         if (res) {
-  //           resolve(res)
-  //         }
-  //       }, err => {
-  //         if (err) {
-  //           // // // console.log("Error is occured....");
-  //           reject(err)
-  //         }
-  //       })
-  //   })
-  // }
-
-  // JsonGetRequest(url, data, content_type){
-  //   return new Promise((resolve, reject) => {
-  //     this.apiService.JsonGetRequest(url, data, content_type)
-  //       .subscribe(res => {
-  //         // // console.log("JsonGetRequest API call res :", res)
-  //         if (res) {
-  //           resolve(res)
-  //         }
-  //       }, err => {
-  //         if (err) {
-  //           // // // console.log("Error is occured....");
-  //           reject(err)
-  //         }
-  //       })
-  //   })
-  // }
-
   sendJsonResultToUI(userAnswer, message) {
     // // // console.log("sendJsonResultToUI :", userAnswer);
     let dateTime = this.getDateTimeForSendMessage()
@@ -673,15 +727,13 @@ export class ChatPreviewComponent implements OnInit {
  * @param {*} FilteredMessageArray 
  */
   waitForTimeout(FilteredMessageArray) {
-    // // console.log("waitForTimeout-", +FilteredMessageArray.duration);
     this.showSendMessage(this.sendTypingMessage);
     setTimeout(() => {
       FilteredMessageArray.isSent = 1;
-      // this.messageFlowTemp = FilteredMessageArray
       this.messageFlowTemp.push(FilteredMessageArray)
       this.deleteTypingFromMessageFlow();
       this.menageFlow();
-    }, +FilteredMessageArray.duration * 1000);
+    }, +FilteredMessageArray.data * 1000);
 
   }
 
@@ -737,14 +789,14 @@ export class ChatPreviewComponent implements OnInit {
         }
       }
     }
-    // // console.log("checkIfAllAttribSent:" + allAttribSent);
+    // console.log("checkIfAllAttribSent:" + allAttribSent);
     return allAttribSent;
   }
   filterArray(ArrayToFilter) {
     var ResultArray = [];
     if (ArrayToFilter && ArrayToFilter.length) {
       ArrayToFilter.forEach(function (element) {
-        if (element.name === 'Json API' && element.answer_sent != 1) {
+        if (element.name === 'JSON API' && element.answer_sent != 1) {
           ResultArray.push(element);
         }
         else if (element.isSent === 0) {
@@ -898,7 +950,31 @@ export class ChatPreviewComponent implements OnInit {
       this.scrollIntoView();
     }
   }
-
+  checkIfQuickRepliesIsCorrect(text, SentMessage, ResultResponse) {
+    /*
+ * CHECK IF MESSAGE SENT TO USER IS valid or not, IF YES CHECK TEXT ENTERED BY USER 
+ * RETURN "isValid" = "TRUE" IF OK ELSE  
+ * RETURN "isValid" = "FALSE" AND WITH MESSAGE TO SEND TO USER "ReturnMessage"
+ */
+    let check = false;
+    for (let index = 0; index < SentMessage.buttons.length; index++) {
+      if (SentMessage.buttons[index].title == text || SentMessage.buttons[index].title.toLowerCase() == text.toLowerCase()) {
+        check = true;
+        break;
+      } else {
+        check = false;
+      }
+    }
+    if (check) {
+      ResultResponse.isValid = true;
+      ResultResponse.StartMenuTrigger = false;
+    } else {
+      ResultResponse.ReturnMessage = "Please enter valid input";
+      ResultResponse.isValid = false;
+      ResultResponse.StartMenuTrigger = false;
+    }
+    return ResultResponse;
+  }
   checkIfPromptInputIsCorrect(text, SentMessage, ResultResponse) {
     // console.log("text: ", text)
     /*
@@ -1214,118 +1290,6 @@ export class ChatPreviewComponent implements OnInit {
         })
     })
   }
-
-
-  // sendJsonApiPrompt(messageObject, date){
-  //   // console.log("textFlow of JSON or prompt :", messageObject);
-  //   if(messageObject.textFlow.name == "Prompts"){
-  //       this.sendMessageToUI(messageObject)
-  //   }else{
-  //   }
-  // }
-  // send message when server get crash and user say exit
-  // defaultResponce(message, timeNow){
-  //   let defaultMessage = {:
-  //     "MessageAction": "Received",
-  //     "textFlow": {
-  //       "data": message,
-  //       "date": timeNow,                   
-  //       "name": 'Default'
-  //     }
-  //   }
-  //   this.setTimeIntervalBetweenFlow(defaultMessage, 1500)
-  // }
-  // this is for time interval between message flow
-  // setTimeIntervalBetweenFlow(messageObj, time) {  
-  //     this.sendMessageToUI(messageObj);
-  //     // setTimeout(() => {
-  //     //   this.sendMessageToUI(messageObj)
-  //     // }, time);
-  // }
-  // checkLastAddedMessage() {
-  //   var val = this.messageFlow[this.messageFlow.length - 1];
-  //   // console.log("last added message in checkLastAddedMessage :", val);
-  //   if (val == undefined) {
-  //     return true
-  //   } else {
-  //     if (val.textFlow.name == 'Prompts' || val.textFlow.name == 'Json API' ) {
-  //       return false
-  //     } else {
-  //       return true
-  //     }
-  //   }
-  // }
-  // manage message flow
-  // showResponceToUI(){
-  //   // this.messageFlowTemp
-  //   let interval = 1500;
-  //   for(var a = 0; a< this.messageFlowTemp.length; a++){
-  //     switch (this.messageFlowTemp[a].name) {
-  //       case 'Text':
-  //         // console.log("text message")
-  //         this.setTimeIntervalBetweenFlow({ "MessageAction": "Received","textFlow": this.messageFlowTemp[a], "isSend":0 }, interval);
-  //         interval+=1500;
-  //         break;
-
-  //       case 'Image':
-  //         this.setTimeIntervalBetweenFlow({ "MessageAction": "Received","textFlow": this.messageFlowTemp[a], "isSend":0  }, interval);
-  //         interval+=1500;
-  //         break;
-
-  //       case 'Audio':
-  //         this.setTimeIntervalBetweenFlow({ "MessageAction": "Received","textFlow": this.messageFlowTemp[a], "isSend":0  }, interval);
-  //         interval+=1500;
-  //         break;
-
-  //       case 'Video':
-  //         this.setTimeIntervalBetweenFlow({ "MessageAction": "Received","textFlow": this.messageFlowTemp[a], "isSend":0  }, interval);
-  //         interval+=1500;
-  //         break;
-
-  //       case 'Button':
-  //         this.setTimeIntervalBetweenFlow({ "MessageAction": "Received","textFlow": this.messageFlowTemp[a], "isSend":0  }, interval);
-  //         interval+=1500;
-  //         break;
-
-  //       case 'Carousel':
-  //         let id = this.createDynamicId();
-  //         this.setTimeIntervalBetweenFlow({ "MessageAction": "Received","dynamicId":id,"textFlow": this.messageFlowTemp[a], "isSend":0  }, interval);
-  //         interval+=1500;
-  //         this.addActiveClass(interval);
-  //         break;
-
-  //       case 'Json API':
-  //         this.sendJsonApiPrompt({ "MessageAction": "Received","textFlow": this.messageFlowTemp[a], "isSend":0  }, interval);
-  //         interval+=1500;
-  //         break;
-
-  //       case 'Prompts':
-  //         this.sendJsonApiPrompt({ "MessageAction": "Received","textFlow": this.messageFlowTemp[a], "isSend":0  }, interval);
-  //         interval+=1500;
-  //         break;
-
-  //       case 'Default':
-  //       this.setTimeIntervalBetweenFlow({ "MessageAction": "Received","textFlow": this.messageFlowTemp[a], "isSend":0  }, interval);
-  //       interval+=1500;
-  //       break;
-  //     }
-  //   }
-  // }
-  // sendMessageToUI(messageObj){
-  //   if(this.checkLastAddedMessage()){
-  //     messageObj['isSend'] = 1
-  //     this.messageFlow.push(messageObj);
-  //     this.scrollIntoView();
-  //     // console.log("to be deleted :", messageObj);
-  //     // // console.log("to be deleted messageFlowTemp:", this.messageFlowTemp);
-  //   }else if(messageObj.isSend === 1){
-  //     // console.log("last message is prompt");
-  //     this.messageFlow.push(messageObj);
-  //     this.scrollIntoView();
-  //   }
-  //     // this.messageFlow.push(messageObj);
-  //     // this.scrollIntoView();
-  // }
 
 }
 

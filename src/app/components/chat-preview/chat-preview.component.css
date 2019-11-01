@@ -7,8 +7,8 @@
   margin-bottom: 8px;
 }
 .sendMessageData{
-  box-shadow: 0px 1.75946px 3.8649px rgba(13, 51, 32, 0.1);
-  background: #FFE01B;
+  /* box-shadow: 0px 1.75946px 3.8649px rgba(13, 51, 32, 0.1);
+  background: #FFE01B; */
   color: #030f09;
   max-width: 80%;
   /* font-weight: 600; */
@@ -32,8 +32,8 @@
   margin-top: 5px;
 }
 .receivedMessageData{
-  box-shadow: 0px 1.75946px 3.8649px rgba(13, 51, 32, 0.1);
-  background:  #fff9d1;
+  /* box-shadow: 0px 1.75946px 3.8649px rgba(13, 51, 32, 0.1);
+  background:  #fff9d1; */
   color: #030f09;
   max-width: 80%;
   /* font-weight: 600; */
@@ -44,9 +44,22 @@
   display: inline-block;
   margin-left: 5px;
 }
+.receivedMessageText{
+  /* box-shadow: 0px 1.75946px 3.8649px rgba(13, 51, 32, 0.1);
+  background:  #fff9d1; */
+  color: #030f09;
+  max-width: 100%;
+  /* font-weight: 600; */
+  font-family: 'Nunito', sans-serif;
+  word-wrap: break-word;
+  border-radius: 14px 14px 14px 2px;
+  padding: 4px 10px 4px;
+  display: inline-block;
+  margin-left: 5px;
+}
 .receivedCarousel{
   box-shadow: 0px 1.75946px 3.8649px rgba(13, 51, 32, 0.1);
-  background:  #fff9d1;
+  background:  #F0F0F0;
   color: #333;;
   max-width: 80%;
   word-wrap: break-word;

@@ -36,20 +36,35 @@ export class ApisService {
     return this.httpClient.get(this.baseUrl + 'block/getBlockOfMessage'+data)
       .pipe(catchError(this.handleErrorObservable));
   }
+  getStyles(data, header): Observable<any>{
+    let headers = new HttpHeaders()
+    .set('Content-Type', 'application/json')
+    .append('botId', header.botId)
+    .append('tokenId', header.tokenId)
+    return this.httpClient.get(this.baseUrl + 'getStyles'+data)
+      .pipe(catchError(this.handleErrorObservable));
+  }
   jsonGetRequest(data): Observable<any>{
     let headers = new HttpHeaders()
     .set('Content-Type', data.content_type)
-    .append(data.authorizationKey.key, data.authorizationKey.value)
+    if(data.header){
+      headers.append(data.authorizationKey.key, data.authorizationKey.value)
+    }
     return this.httpClient.get(data.url, {headers})
       .pipe(catchError(this.handleErrorObservable));
   }
   jsonPostRequest(data): Observable<any>{
     let headers = new HttpHeaders()
     .set('Content-Type', data.content_type)
-    .append(data.authorizationKey.key, data.authorizationKey.value)
+    if(data.header){
+      headers.append(data.authorizationKey.key, data.authorizationKey.value)
+    }
+    
     return this.httpClient.post(data.url, data.requestBody, {headers})
       .pipe(catchError(this.handleErrorObservable));
   }
+
+
   getResponseFlow(data, header): Observable<any> {
     let headers = new HttpHeaders()
       .set('Content-Type', 'application/json')

@@ -7,7 +7,9 @@
 
           <!-- show send message -->
           <div class="SendMessageBox" *ngIf="message.MessageAction == 'Send'">
-            <div id="userMessage" class="sendMessageData" [innerHtml]="message.textFlow.title | nextLine">
+            <div id="userMessage" [style.color]="dynamicStyle.sendMessageTextColor"
+              [style.backgroundColor]="dynamicStyle.sendMessageBackground" class="sendMessageData"
+              [innerHtml]="message.textFlow.title | nextLine">
               {{message.textFlow.title}}
             </div>
             <div class="dateBox">
@@ -19,7 +21,8 @@
           <div *ngIf="message.MessageAction == 'Common'" class="ReceivedMessageBox">
             <img src="{{localImgSrc}}" class="botIconImg" alt="" title="" />
             <div id="botMessage" class="receivedMessageData">
-              <div>
+              <div [style.color]="dynamicStyle.receivedMessageTextColor" class="receivedMessageText"
+                [style.backgroundColor]="dynamicStyle.receivedMessageBackground">
                 <img [src]="message.textFlow.data" class="" alt="" title="" />
               </div>
             </div>
@@ -33,10 +36,11 @@
               *ngIf="message.textFlow.name != 'Carousel' && message.textFlow.name != 'Payment'">
               <!-- text card -->
               <div *ngIf="message.textFlow.name === 'Text'">
-                <div>{{message.textFlow.data}}</div>
+                <div [style.color]="dynamicStyle.receivedMessageTextColor" class="receivedMessageText"
+                  [style.backgroundColor]="dynamicStyle.receivedMessageBackground">{{message.textFlow.data}}</div>
                 <div *ngIf="message.textFlow.buttons">
                   <button *ngFor="let btn of message.textFlow.buttons" class="btn btnstyle commanMargin"
-                     (click)="getMessage(btn,'button')">{{btn.title}}</button>
+                    (click)="getMessage(btn,'button')">{{btn.title}}</button>
                 </div>
               </div>
 
@@ -51,16 +55,18 @@
 
               <!-- quick replies card -->
               <div *ngIf="message.textFlow.name === 'Quick Replies'">
-                <div>{{message.textFlow.data}}</div>
+                <div [style.color]="dynamicStyle.receivedMessageTextColor" class="receivedMessageText"
+                  [style.backgroundColor]="dynamicStyle.receivedMessageBackground">{{message.textFlow.data}}</div>
                 <div>
                   <button *ngFor="let btn of message.textFlow.buttons" class="btn btnstyle commanMargin"
-                     (click)="getMessage(btn,'button')">{{btn.title}}</button>
+                    (click)="getMessage(btn,'button')">{{btn.title}}</button>
                 </div>
               </div>
 
               <!-- User Input card -->
               <div *ngIf="message.textFlow.name === 'User Input'">
-                <div>{{message.textFlow.question}}</div>
+                <div [style.color]="dynamicStyle.receivedMessageTextColor" class="receivedMessageText"
+                  [style.backgroundColor]="dynamicStyle.receivedMessageBackground">{{message.textFlow.question}}</div>
                 <div *ngIf="message.textFlow.entityType === '@sys.confirm'">
                   <button *ngFor="let btn of message.Button" class="btn btnstyle commanMargin"
                     (click)="getMessage({'title':btn},'button')">{{btn}}</button>
@@ -99,13 +105,17 @@
 
               <!-- JSON API card -->
               <div *ngIf="message.textFlow.name === 'JSON API'">
-                {{message.sendMessage.question}}
+                <div [style.color]="dynamicStyle.receivedMessageTextColor" class="receivedMessageText"
+                  [style.backgroundColor]="dynamicStyle.receivedMessageBackground">
+                  {{message.sendMessage.question}}
+                </div>
               </div>
 
               <!-- Default message -->
               <div *ngIf="message.textFlow.name === 'Default'">
-                <div>{{message.textFlow.data}}</div>
-
+                <div [style.color]="dynamicStyle.receivedMessageTextColor" class="receivedMessageText"
+                  [style.backgroundColor]="dynamicStyle.receivedMessageBackground">
+                  {{message.textFlow.data}}</div>
               </div>
 
             </div>

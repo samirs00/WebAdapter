@@ -7,6 +7,7 @@ export class DataService {
 
   data:any = [];
   botDetails:any;
+  dynamicStyles:any;
   constructor() { }
   addmessageInArray(obj){
     console.log("addmessageInArray :", obj)
@@ -20,5 +21,11 @@ export class DataService {
   }
   getBotDetails(){
     return this.botDetails;
+  }
+  setDynamicStyles(styles){
+    this.dynamicStyles = styles;
+  }
+  getDynamicStyles(){
+    return this.dynamicStyles;
   }
 }

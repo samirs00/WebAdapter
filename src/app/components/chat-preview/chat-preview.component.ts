@@ -8,6 +8,10 @@ import { MessageType } from '../../classes/common-data';
 import * as $ from 'jquery';
 import { PaymentOption } from '../../services/custom-option'
 import { IMyDpOptions } from 'mydatepicker';
+
+import * as jsonpath from "jsonpath";
+import * as each from "sync-each";
+
 // import { CreditCardValidator } from 'angular-cc-library';
 // import * as moment from "moment";
 // import { NEXT } from '@angular/core/src/render3/interfaces/view';
@@ -53,6 +57,17 @@ export class ChatPreviewComponent implements OnInit {
   message: any = "";
   messageFlow: any[] = [];
   messageFlowTemp: any[] = [];
+  dynamicStyle: any = {
+    'receivedMessageBackground': '#fff9d1',
+    'sendMessageTextColor': "#030f09",
+    'sendMessageBackground': '#FFE01B',
+    'receivedMessageTextColor': "#030f09",
+    'headerBackground': '#FFFFFF',
+    'headerTextColor': "#000000",
+    'buttonBorderColor': "#ffe01b",
+    'buttonHoverColor': "#ffe01b",
+    'buttonTextColor': "#000"
+  }
   constructor(public dataService: DataService,
     private apiService: ApisService,
     private route: ActivatedRoute,
@@ -296,20 +311,20 @@ export class ChatPreviewComponent implements OnInit {
               element.answer = envelope.textFlow.data;
             }
             // // console.log("\n Question:" + element.question + "\n Answer:" + element.answer)
-            this.getEntityInputIfAny(envelope).then(entityInput => {
-              if (entityInput) {
-                // // // console.log("entity response :", entityInput[0].entity);
-                let entity = entityInput[0].entity
-                if (!isNaN(entity)) {
-                  element.answer = parseInt(entity)
-                }
-                else {
-                  element.answer = entityInput[0].entity;
-                }
-              }
-            }).catch(err => {
-              // // console.log("Error in getEntityInputIfAny :", err)
-            })
+            // this.getEntityInputIfAny(envelope).then(entityInput => {
+            //   if (entityInput) {
+            //     // // // console.log("entity response :", entityInput[0].entity);
+            //     let entity = entityInput[0].entity
+            //     if (!isNaN(entity)) {
+            //       element.answer = parseInt(entity)
+            //     }
+            //     else {
+            //       element.answer = entityInput[0].entity;
+            //     }
+            //   }
+            // }).catch(err => {
+            //   console.log("Error in getEntityInputIfAny :", err)
+            // })
             element.isSent = 1;
             binded = true;
             attrElement.push(element)
@@ -381,19 +396,42 @@ export class ChatPreviewComponent implements OnInit {
   startFlow(data, apiHeader, type) {
     if (type === 'other') {
       this.showSendMessage(data);
+      this.showSendMessage(this.sendTypingMessage);
     }
-    this.showSendMessage(this.sendTypingMessage);
+    // this.showSendMessage(this.sendTypingMessage);
     // this.showTypingDots = true;
     this.getFlowFromServer(data, apiHeader).then(res => {
-      let data: any = res;
+
       // console.log("responce of server :", data);
-      if (data.block.textFlowTemp && data.block.textFlowTemp.length > 0) {
-        //we  get array of user input, separate these user input from array and add it to conversation flow
-        //this will require little coding and provide more readability and flexibility.
-        this.messageFlowTemp = this.getSeparatedUserInputs(data.block.textFlowTemp);
-        this.menageFlow();
+      if (res['block'] || res['defaultResponse']) {
+        var data = {};
+        if (res['block']) {
+          data['textFlow'] = res['block'].textFlowTemp
+        }
+        if (res['entities']) {
+          data['entities'] = res['entities']
+        }
+        if (res['defaultResponse']) {
+          data['defaultResponse'] = res['defaultResponse']
+        }
+
+
+        if (data['textFlow'] && data['textFlow'].length > 0) {
+          //we  get array of user input, separate these user input from array and add it to conversation flow
+          //this will require little coding and provide more readability and flexibility.
+          this.messageFlowTemp = this.getSeparatedUserInputs(data['textFlow']);
+          this.menageFlow();
+        } else {
+          if (data['defaultResponse']) {
+            this.showMenuTrigger(data['defaultResponse'])
+          } else {
+            console.log("no data for user input");
+            this.showDefaultResponce(this.defaultMessage.NOT_SURE)
+          }
+        }
       } else {
-        this.showMenuTrigger(data.defaultResponse)
+        console.log("getFlowForMessage  -- NO DATA FROM API FOR MEESAGE ARRAY");
+        this.showDefaultResponce(this.defaultMessage.NOT_SURE)
       }
     }).catch(err => {
       console.log("Error message startFlow :", err)
@@ -523,10 +561,10 @@ export class ChatPreviewComponent implements OnInit {
     }
   }
   sendJSONAPIResponse(message, callback) {
-    // console.log("message :", message)
     var url = message.endpoint_url;
     var requestBody = {};
     var content_type = {};
+    var header = false;
     if (!this.authorizationKey) {
       this.authorizationKey = "authorizationKey"
     }
@@ -535,7 +573,9 @@ export class ChatPreviewComponent implements OnInit {
         "content_type": 'application/javascript',
         "key": message.authorizationKey,
         "value": message.authorization
-
+      }
+      if (content_type['key'] != "" && content_type['value'] != "") {
+        header = true
       }
     } else {
       content_type = {
@@ -543,8 +583,10 @@ export class ChatPreviewComponent implements OnInit {
         "key": message.authorizationKey,
         "value": message.authorization
       }
+      if (content_type['key'] != "" && content_type['value'] != "") {
+        header = true
+      }
     }
-    console.log("ready url :", url, "ready requestBody :", requestBody, "ready content_type :", content_type)
     if (message.attribute.length > 0) {
       if (message.api_type === 'GET') {
         //query string
@@ -556,16 +598,15 @@ export class ChatPreviewComponent implements OnInit {
         //trim extra characters in url
         url = url.trimRight('&&')
         console.log("get url :", url)
-        this.jsonGetRequest(message, url, requestBody, content_type, (data => {
+        this.jsonGetRequest(message, url, requestBody, content_type, header, (data => {
           callback(data)
         }));
-
       } else {
         message.attribute.forEach(attribute => {
           //get values for all the parameters
           requestBody[attribute.key] = attribute.answer;
         })
-        this.jsonPostRquest(message, url, requestBody, content_type, (data => {
+        this.jsonPostRquest(message, url, requestBody, content_type, header, (data => {
           callback(data)
         }));
       }
@@ -580,16 +621,14 @@ export class ChatPreviewComponent implements OnInit {
         //trim extra characters in url
         url = url.trimRight('&&')
         console.log("get url :", url)
-        this.jsonGetRequest(message, url, requestBody, content_type, (data) => {
+        this.jsonGetRequest(message, url, requestBody, content_type, header, (data) => {
           callback(data)
         });
       } else {
-        this.jsonPostRquest(message, url, requestBody, content_type, (data => {
+        this.jsonPostRquest(message, url, requestBody, content_type, header, (data => {
           callback(data)
         }));
       }
-      // callback()
-
     }
   }
 
@@ -612,7 +651,7 @@ export class ChatPreviewComponent implements OnInit {
     this.startFlow(sendMessageObj, 'apiHeader', 'redirect')
   }
 
-  async jsonGetRequest(message, url, requestBody, content_type, callback) {
+  async jsonGetRequest(message, url, requestBody, content_type, header, callback) {
     try {
       let getRequest = {
         "apiType": "GET",
@@ -623,17 +662,27 @@ export class ChatPreviewComponent implements OnInit {
         "answer_attributes": message.answer_attributes,
         "json_card": message
       }
-      let jsonApiResponse = await this.getAndParseJSONApi(getRequest);
-      // // console.log("final json get:", jsonApiResponse);
-      callback(jsonApiResponse)
-      this.sendJsonResultToUI(jsonApiResponse, message);
+      console.log("final json get request:", getRequest);
+      let jsonApiResponse = await this.jsonGetApi(getRequest);
+      message['data'] = jsonApiResponse;
+      this.parseJsonApiResponse(message, (response => {
+        console.log("final json get response:", response);
+        this.sendJsonResultToUI(response, message);
+        callback(jsonApiResponse)
+      }))
     } catch (error) {
+      // console.log("Error occure in get catch")
+      let dateTime = this.getDateTimeForSendMessage()
       this.deleteTypingFromMessageFlow();
-      // // console.log("Error occure in get catch")
+      if (message.defaultAnswer != "") {
+        var attribute = {
+          "question": message.defaultAnswer
+        }
+        this.showSendMessage({ "MessageAction": "Received", "textFlow": message, "sendMessage": attribute, "dateTime": dateTime });
+      }
     }
   }
-
-  async jsonPostRquest(message, url, requestBody, content_type, callback) {
+  async jsonPostRquest(message, url, requestBody, content_type, header, callback) {
     try {
       let postRequest = {
         "apiType": "POST",
@@ -642,70 +691,28 @@ export class ChatPreviewComponent implements OnInit {
         "authorizationKey": content_type,
         "content_type": content_type.content_type,
         "answer_attributes": message.answer_attributes,
-        "json_card": message
+        "json_card": message,
+        "header": header
       }
-      console.log("final json post:", postRequest);
+      console.log("final json post request:", postRequest);
       let jsonApiResponse = await this.jsonPostApi(postRequest);
-      console.log("final json post:", jsonApiResponse);
-      this.sendJsonResultToUI(jsonApiResponse, message);
-      callback(jsonApiResponse)
-
+      message['data'] = jsonApiResponse;
+      this.parseJsonApiResponse(message, (response => {
+        console.log("final json post response:", response);
+        this.sendJsonResultToUI(response, message);
+        callback(jsonApiResponse)
+      }))
     } catch (error) {
+      // console.log("Error occure in post catch")
+      let dateTime = this.getDateTimeForSendMessage()
       this.deleteTypingFromMessageFlow();
-      // // console.log("Error occure in post catch")
+      if (message.defaultAnswer != "") {
+        var attribute = {
+          "question": message.defaultAnswer
+        }
+        this.showSendMessage({ "MessageAction": "Received", "textFlow": message, "sendMessage": attribute, "dateTime": dateTime });
+      }
     }
-  }
-  jsonPostApi(data) {
-    return new Promise((resolve, reject) => {
-      this.apiService.jsonPostRequest(data)
-        .subscribe(res => {
-          if (res) {
-            resolve(res)
-          } else {
-            reject(res)
-          }
-        }, err => {
-          if (err) {
-            // // // console.log("Error is occured....");
-            reject(err)
-          }
-        })
-    })
-  }
-
-  jsonGetApi(data) {
-    return new Promise((resolve, reject) => {
-      this.apiService.jsonGetRequest(data)
-        .subscribe(res => {
-          if (res) {
-            resolve(res)
-          } else{
-            reject(res)
-          }
-        }, err => {
-          if (err) {
-            reject(err)
-          }
-        })
-    })
-  }
-
-  getAndParseJSONApi(data) {
-    return new Promise((resolve, reject) => {
-      this.apiService.jsonRequest(data)
-        .subscribe(res => {
-          if (res.status === 200) {
-            resolve(res.result)
-          } else {
-            reject(res.result)
-          }
-        }, err => {
-          if (err) {
-            // // // console.log("Error is occured....");
-            reject(err)
-          }
-        })
-    })
   }
   sendJsonResultToUI(userAnswer, message) {
     // // // console.log("sendJsonResultToUI :", userAnswer);
@@ -721,6 +728,59 @@ export class ChatPreviewComponent implements OnInit {
       this.showSendMessage({ "MessageAction": "Received", "textFlow": message, "sendMessage": attribute, "dateTime": dateTime });
     });
   }
+  jsonPostApi(data) {
+    return new Promise((resolve, reject) => {
+      this.apiService.jsonPostRequest(data)
+        .subscribe(res => {
+          if (res) {
+            resolve(res)
+          } else {
+            reject(null)
+          }
+        }, err => {
+          if (err) {
+            console.log("Error is occured jsonPostApi :", err);
+            reject(err)
+          }
+        })
+    })
+  }
+
+  jsonGetApi(data) {
+    return new Promise((resolve, reject) => {
+      this.apiService.jsonGetRequest(data)
+        .subscribe(res => {
+          if (res) {
+            resolve(res)
+          } else {
+            reject(null)
+          }
+        }, err => {
+          if (err) {
+            reject(err)
+          }
+        })
+    })
+  }
+
+  // getAndParseJSONApi(data) {
+  //   return new Promise((resolve, reject) => {
+  //     this.apiService.jsonRequest(data)
+  //       .subscribe(res => {
+  //         if (res.status === 200) {
+  //           resolve(res.result)
+  //         } else {
+  //           reject(res.result)
+  //         }
+  //       }, err => {
+  //         if (err) {
+  //           // // // console.log("Error is occured....");
+  //           reject(err)
+  //         }
+  //       })
+  //   })
+  // }
+
 
   /**
  * This block the flow for specific amount of time,and show typing during timeout
@@ -813,15 +873,25 @@ export class ChatPreviewComponent implements OnInit {
     let defaultMessage = {
       "MessageAction": "Received",
       "textFlow": {
-        "data": menutrigger.MenuMessage,
-        "buttonoptions": menutrigger.MenuIntent,
+        "data": menutrigger.defaultMessage,
+        "title":menutrigger.defaultMessage,
         "date": dateTime,
-        "name": 'Button'
+        "name": this.messageType.TEXT
       },
       BotId: this.botId,
-      message: menutrigger.MenuMessage,
+      message: menutrigger.defaultMessage,
       isLuisCall: 0,
       "dateTime": dateTime
+    }
+    if(menutrigger.defaultBlock.length > 0){
+      defaultMessage.textFlow['buttons'] = []
+      menutrigger.defaultBlock.forEach(element => {
+        let button = {
+          'title':element,
+          'selectedBlock':element
+        }
+        defaultMessage.textFlow['buttons'].push(button)
+      });
     }
     this.deleteTypingFromMessageFlow();
     this.showSendMessage(defaultMessage)
@@ -1291,6 +1361,50 @@ export class ChatPreviewComponent implements OnInit {
     })
   }
 
+
+  parseJsonApiResponse(message, callback) {
+    var userAnswer = message.answer;
+    var answer_attributes = message.answer_attributes;
+    var json = message.data;
+    this.parseJsonAndReturnResult(answer_attributes, json, userAnswer, function (allAttributeAnswer) {
+      callback(allAttributeAnswer);
+    });
+  }
+  parseJsonAndReturnResult(answer_attributes, json, userAnswer, callback) {
+    //assume that key is of type {name,path,value}
+    //traverse through each element of an array
+    each(answer_attributes,
+      (element, next) => {
+        var keyWithValue = this.getValueForAnswerAttribute(element, json);
+        next(null, keyWithValue);
+      },
+      function (err, transformedItems) {
+        //console.log("parseJsonAndReturnResult");
+        //replace actual key with the key:value
+        transformedItems.forEach(element => {
+          userAnswer = userAnswer.replace(element.key,/*element.key +" : "+ */element.value + "\n");
+        });
+        callback(userAnswer)
+      }
+    );
+  }
+  getValueForAnswerAttribute(key, json) {
+    var finalString = "";
+    var answer = [];
+    answer = jsonpath.query(json, key.path);
+    if (answer && answer.length > 0) {
+      //we got value for the path
+      //now we have array of values convert this into the single string
+      answer.forEach(element => {
+        finalString = finalString + element + "\n"
+      });
+    } else {
+      //we dont get value for the path
+    }
+    //assign value to the key
+    key.value = finalString;
+    return key;
+  }
 }
 
 

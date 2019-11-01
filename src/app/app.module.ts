@@ -37,7 +37,7 @@ import { AddSpacePipe } from './pipes/add-space.pipe';
     FormsModule,
     HttpClientModule,
     GooglePlaceModule,
-    MyDatePickerModule 
+    MyDatePickerModule,
     // NguCarouselModule
   ],
   providers: [],

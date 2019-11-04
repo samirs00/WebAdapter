@@ -12,9 +12,9 @@
               [innerHtml]="message.textFlow.title | nextLine">
               {{message.textFlow.title}}
             </div>
-            <div class="dateBox">
+            <!-- <div class="dateBox">
               {{message.textFlow.dateTime}}
-            </div>
+            </div> -->
           </div>
 
           <!-- show typing dots -->
@@ -58,7 +58,7 @@
                 <div [style.color]="dynamicStyle.receivedMessageTextColor" class="receivedMessageText"
                   [style.backgroundColor]="dynamicStyle.receivedMessageBackground">{{message.textFlow.data}}</div>
                 <div>
-                  <button *ngFor="let btn of message.textFlow.buttons" class="btn btnstyle commanMargin"
+                  <button *ngFor="let btn of message.textFlow.buttons" class="btn quickReplybtnstyle commanMargin"
                     (click)="getMessage(btn,'button')">{{btn.title}}</button>
                 </div>
               </div>
@@ -122,14 +122,11 @@
 
             <!-- Carousel card -->
             <div id="botMessage" class="receivedCarousel" *ngIf="message.textFlow.name === 'Carousel'">
-
               <div id="{{message.dynamicId}}" class="carousel slide" data-ride="carousel">
-
                 <a class="carousel-control-prev" href="#{{message.dynamicId}}" role="button" data-slide="prev">
                   <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                   <span class="sr-only">Previous</span>
                 </a>
-
                 <div class="carousel-inner">
                   <div class="carousel-item" *ngFor="let image of message.textFlow.carousel">
                     <!-- <div *ngIf="image.linkUrl">
@@ -139,12 +136,15 @@
                     </div> -->
                     <div>
                       <a>
-                        <img src="{{image.imageUrl}}" (load)="imgLoad('carousel')">
+                        <img class="carouselImg" src="{{image.imageUrl}}" (load)="imgLoad('carousel')">
                       </a>
                     </div>
                     <div class="carouselTitleDesc">
                       <h5>{{image.title}}</h5>
                       <h6>{{image.desc}}</h6>
+                    </div>
+                    <div *ngIf="!image.buttons" class="btnDiv">
+
                     </div>
                     <div *ngIf="image.buttons" class="btnDiv">
                       <button *ngFor="let btn of image.buttons" class="btn carouselButton"
@@ -470,7 +470,7 @@
       [(ngModel)]="message" placeholder="Type your message">
     <div class="input-group-append">
       <button class="btn btnCss" type="submit" (click)="getMessage({'title':message}, 'other')">
-        <img src="assets/images/message-sending-img.png" class="sendBtn">
+        <img src="assets/images/send-img.svg" class="sendBtn">
       </button>
     </div>
   </div>

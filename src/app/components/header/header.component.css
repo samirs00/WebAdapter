@@ -1,59 +1,14 @@
-/* .example-container {
-    display: flex;
-    flex-direction: column;
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    right: 0;
-  }
- .rightSideHeaderDiv{ 
-    margin: 0 auto;
-  }
-  .example-fill-remaining-space {
-    flex: 1 1 auto;
-  }
-.mat-button{
-    min-width: 54px;
-  }
-
-
-  .responsive-web-app .header-toolbar {
-    position: fixed;
-    z-index: 2;
-  }
-  
-  h1.example-app-name {
-    margin-left: 8px;
-  }
-  
-  .responsive-sidenav-container {
-
-    flex: 1;
-  }
-  
-  .responsive-web-app .responsive-sidenav-container {
-    flex: 1 0 auto;
-  }
-  .main {
-      position: relative;
-    }
-  .headerClass{
-    background-color: black;
-    color: white;
-  } */
-
 
   .header-toolbar{
     position: fixed;
     width: 100%;
     /* background: #929292;
      */
-     background-image: linear-gradient(-90deg, #928f8f, #fefeff);
-    height: 50px;
+     /* background-image: linear-gradient(-90deg, #928f8f, #fefeff); */
+     box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.1);
+    height: 45px;
     color: white;
   }
-
   .headerClass{
     padding-top: 10px;
     padding-left: 12px;

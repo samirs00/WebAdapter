@@ -76,32 +76,12 @@ export class ChatPreviewComponent implements OnInit {
 
   ngOnInit() {
 
-
-    // // console.log("URL :", url);
-    // const urlParams = new URLSearchParams(window.location.search);
-    // const myParam = urlParams.get('authorizationkey');
-    // // console.log(myParam);
-    // var url1 = new URL(window.location.href);
-    // // console.log(window.location.href);
-
-    // var c = url1.searchParams.get("botid");
-    // // console.log("Botid :", this.getParameterByName('botid', window.location.href));
-    this.botId = this.getParameterByName('botid', window.location.href)
+    this.botId = this.getParameterByName('dialogid', window.location.href)
     this.userId = this.getParameterByName('userid', window.location.href)
-    // this.userName =this.getParameterByName('username', window.location.href)
-    this.authorizationKey = this.getParameterByName('authorizationtoken', window.location.href)
-    this.imageSrc = this.getParameterByName('imgsrc', window.location.href);
+    this.imageSrc = this.getParameterByName('dialogimg', window.location.href);
     if (this.imageSrc) {
       this.localImgSrc = this.imageSrc;
     }
-
-
-    // let url = this.router.url;
-    // var result = url.split('/');
-    // this.botId =result[result.indexOf('botid') + 1]
-    // this.tokenId =result[result.indexOf('tokenid') + 1]
-    // this.userName =result[result.indexOf('username') + 1]
-    // this.authorizationKey =result[result.indexOf('authorizationkey') + 1]
     console.log("botid :", this.botId, "userid :", this.userId, "authorizationtoken :", this.authorizationKey, "localImgSrc :", this.localImgSrc)
     // this.welcomeMessage(this.userName)
   }
@@ -133,7 +113,6 @@ export class ChatPreviewComponent implements OnInit {
     }, 2000);
   }
   getMessage(messageObject, type) {
-    // console.log("Send message :", messageObject.Label || messageObject.IntentName);
     if (messageObject.title && messageObject.title != "" && messageObject.title != undefined) {
       this.message = "";
       if (!this.userId) {
@@ -151,7 +130,7 @@ export class ChatPreviewComponent implements OnInit {
           "textFlow": {
             "data": messageObject.selectedBlock || messageObject.title,
             "title": messageObject.title,
-            "dateTime": dateTime.substr(0, dateTime.indexOf(' ')),                         // only time
+            "dateTime": dateTime.substr(dateTime.indexOf(' ') + 1),                         // only time
             "name": "Text",
           },
           BotId: this.botId,
@@ -171,7 +150,7 @@ export class ChatPreviewComponent implements OnInit {
           },
           BotId: this.botId,
           userID: this.userId,
-          message: messageObject.selectedBlock,
+          message: messageObject.title,
           isLuisCall: 0,
           "dateTime": dateTime
         }
@@ -565,9 +544,9 @@ export class ChatPreviewComponent implements OnInit {
     var requestBody = {};
     var content_type = {};
     var header = false;
-    if (!this.authorizationKey) {
-      this.authorizationKey = "authorizationKey"
-    }
+    // if (!this.authorizationKey) {
+    //   this.authorizationKey = "authorizationKey"
+    // }
     if (url.indexOf('weather') >= 0) {
       content_type = {
         "content_type": 'application/javascript',
@@ -680,6 +659,7 @@ export class ChatPreviewComponent implements OnInit {
         }
         this.showSendMessage({ "MessageAction": "Received", "textFlow": message, "sendMessage": attribute, "dateTime": dateTime });
       }
+      callback(attribute)
     }
   }
   async jsonPostRquest(message, url, requestBody, content_type, header, callback) {
@@ -712,6 +692,7 @@ export class ChatPreviewComponent implements OnInit {
         }
         this.showSendMessage({ "MessageAction": "Received", "textFlow": message, "sendMessage": attribute, "dateTime": dateTime });
       }
+      callback(attribute)
     }
   }
   sendJsonResultToUI(userAnswer, message) {
@@ -787,6 +768,7 @@ export class ChatPreviewComponent implements OnInit {
  * @param {*} FilteredMessageArray 
  */
   waitForTimeout(FilteredMessageArray) {
+    this.deleteTypingFromMessageFlow();
     this.showSendMessage(this.sendTypingMessage);
     setTimeout(() => {
       FilteredMessageArray.isSent = 1;
@@ -922,7 +904,7 @@ export class ChatPreviewComponent implements OnInit {
 
   // Get botIntent flow from backend 
   getFlowFromServer(data, header) {
-    let details = "?dialogId=" + data.BotId + "&&userId=" + data.userID + "&&message=" + data.textFlow.data + "&&wildcard=1";
+    let details = "?dialogId=" + data.BotId + "&&userId=" + data.userID + "&&message=" + data.textFlow.data + "&&wildcard=1&&channelName=conveeChat";
     return new Promise((resolve, reject) => {
       this.apiService.getResponseFlowV2(details, header)
         .subscribe(res => {
@@ -978,7 +960,9 @@ export class ChatPreviewComponent implements OnInit {
     // // console.log("Send message :", sendMessageObj)
     this.messageFlow.push(messageObj);
     this.scrollIntoView();
-    this.logMessage(messageObj)
+
+
+    // this.logMessage(messageObj)
   }
   // scroll to new added message
   scrollIntoView() {

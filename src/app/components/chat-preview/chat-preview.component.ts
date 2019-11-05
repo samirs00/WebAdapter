@@ -41,7 +41,8 @@ export class ChatPreviewComponent implements OnInit {
   dateTime: any;
   authorizationKey: any;
   imageSrc: any;
-  localImgSrc: any = "assets/images/e_hd_trans.png"
+  localImgSrc: any = "assets/images/e_hd_trans.png";
+  userImg:any = "assets/images/profile.svg";
   showTypingDots: boolean = false;
   sendTypingMessage: any = {
     "isSent": 1,
@@ -163,17 +164,12 @@ export class ChatPreviewComponent implements OnInit {
           this.startFlow(sendMessageObj, header, 'other')
         } else {
           //data is already present
-          // console.log("DATA FOUND IN messageFlowTemp :", this.messageFlowTemp);
           this.contineuFlow(sendMessageObj);
         }
       }
     }
   }
-  // getMessage2(messageObject, type){
-
-  // }
   onDateChange(event) {
-    // console.log("datechange :", event.formatted)
     this.getMessage({ 'title': event.formatted }, 'other')
   }
   handleAddressChange(event) {
@@ -222,14 +218,11 @@ export class ChatPreviewComponent implements OnInit {
       StartMenuTrigger: false,
       exitConversation: false
     }
-    // // console.log("Last message CheckMessageSendByUser:" + JSON.stringify(MessageArray));
     this.getlastPromptSentToUser(MessageArray, (SentMessage) => {
       if (SentMessage) {
-        // console.log("Last message type is: " + SentMessage.name);
         if (SentMessage.name == this.messageType.USER_INPUT) {
           this.deleteTypingFromMessageFlow();
           ResultResponse = this.checkIfPromptInputIsCorrect(envelope.textFlow.data, SentMessage, ResultResponse);
-          // // console.log("ResultResponse :", ResultResponse)
           //LOG ANSWER 
           if (ResultResponse.isValid) {
             SentMessage.answer = envelope.textFlow.data;
@@ -244,9 +237,7 @@ export class ChatPreviewComponent implements OnInit {
 
         } else if (SentMessage.name == this.messageType.JSON_API) {
           //if last message is a JSON API message
-          // console.log('Last message is a JSON API message :', SentMessage);
           this.bindParameterAnswerToJsonApi(envelope, SentMessage).then(transformedItems => {
-            // console.log("transformedItems:" + JSON.stringify(transformedItems));
             SentMessage.attribute = transformedItems;
             this.messageFlowTemp = [SentMessage];
             //Success callback
@@ -325,17 +316,14 @@ export class ChatPreviewComponent implements OnInit {
       "message": envelope.textFlow.data,
       "isLuisCall": 0
     }
-
     return new Promise((resolve, reject) => {
       this.apiService.getEntityFromLuis(data)
         .subscribe(res => {
-          // // console.log("responce od get entity if any :", res)
           if (res && res.result && res.result.length > 0) {
             resolve(res.result)
           }
         }, err => {
           if (err) {
-            // // console.log("Error is occured....");
             reject(err)
           }
         })
@@ -377,11 +365,7 @@ export class ChatPreviewComponent implements OnInit {
       this.showSendMessage(data);
       this.showSendMessage(this.sendTypingMessage);
     }
-    // this.showSendMessage(this.sendTypingMessage);
-    // this.showTypingDots = true;
     this.getFlowFromServer(data, apiHeader).then(res => {
-
-      // console.log("responce of server :", data);
       if (res['block'] || res['defaultResponse']) {
         var data = {};
         if (res['block']) {
@@ -404,12 +388,10 @@ export class ChatPreviewComponent implements OnInit {
           if (data['defaultResponse']) {
             this.showMenuTrigger(data['defaultResponse'])
           } else {
-            console.log("no data for user input");
             this.showDefaultResponce(this.defaultMessage.NOT_SURE)
           }
         }
       } else {
-        console.log("getFlowForMessage  -- NO DATA FROM API FOR MEESAGE ARRAY");
         this.showDefaultResponce(this.defaultMessage.NOT_SURE)
       }
     }).catch(err => {
@@ -419,7 +401,6 @@ export class ChatPreviewComponent implements OnInit {
   }
 
   manageReceivedMessaged(type, FilteredMessageArray) {
-    // console.log("manageReceivedMessaged :", type, FilteredMessageArray)
     var interval = 0;
     let dateTime = this.getDateTimeForSendMessage()
     switch (type) {
@@ -474,7 +455,6 @@ export class ChatPreviewComponent implements OnInit {
         break;
 
       case this.messageType.JSON_API:
-        // console.log("Json API :", FilteredMessageArray)
         var item = FilteredMessageArray;
         //check if request has parameters
         if (item.attribute && item.attribute.length > 0) {
@@ -482,7 +462,6 @@ export class ChatPreviewComponent implements OnInit {
           for (var i = 0; i < item.attribute.length; i++) {
             var attribute = item.attribute[i];
             if (attribute.isSent === 0) {
-              // console.log("send message :" , { "MessageAction": "Received","textFlow": item,"sendMessage": attribute, "isSend":0 });
               this.deleteTypingFromMessageFlow();
               this.showSendMessage({ "MessageAction": "Received", "textFlow": item, "sendMessage": attribute, "isSend": 0 });
               break;
@@ -490,9 +469,7 @@ export class ChatPreviewComponent implements OnInit {
             //check if this is a last index
             if (i === item.attribute.length - 1) {
               //we have got all the parameters value from user
-              // // console.log("we have got all the parameters value from user");
               this.sendJSONAPIResponse(item, (result) => {
-                // // console.log("final callback sendJSONAPIResponse:", result)
                 //mark this message as sent,save in messageFlowTemp
                 FilteredMessageArray.answer_sent = 1;
                 FilteredMessageArray.isSent = 1;
@@ -505,9 +482,7 @@ export class ChatPreviewComponent implements OnInit {
           }
         } else {
           // no parameters are associated with this url, directly call this api
-          // // console.log("no parameters are associated with this url, directly call this api")
           this.sendJSONAPIResponse(item, (result) => {
-            // // console.log("final callback sendJSONAPIResponse:", result)
             //mark this message as sent,save in messageFlowTemp
             FilteredMessageArray.answer_sent = 1;
             FilteredMessageArray.isSent = 1;
@@ -519,7 +494,6 @@ export class ChatPreviewComponent implements OnInit {
         break;
 
       case 'Button':
-        // this.showTypingDots = false;
         this.deleteTypingFromMessageFlow();
         this.showSendMessage({ "MessageAction": "Received", "textFlow": FilteredMessageArray, "dateTime": dateTime });
         interval += 1500;
@@ -650,7 +624,6 @@ export class ChatPreviewComponent implements OnInit {
         callback(jsonApiResponse)
       }))
     } catch (error) {
-      // console.log("Error occure in get catch")
       let dateTime = this.getDateTimeForSendMessage()
       this.deleteTypingFromMessageFlow();
       if (message.defaultAnswer != "") {
@@ -683,7 +656,6 @@ export class ChatPreviewComponent implements OnInit {
         callback(jsonApiResponse)
       }))
     } catch (error) {
-      // console.log("Error occure in post catch")
       let dateTime = this.getDateTimeForSendMessage()
       this.deleteTypingFromMessageFlow();
       if (message.defaultAnswer != "") {
@@ -696,15 +668,12 @@ export class ChatPreviewComponent implements OnInit {
     }
   }
   sendJsonResultToUI(userAnswer, message) {
-    // // // console.log("sendJsonResultToUI :", userAnswer);
     let dateTime = this.getDateTimeForSendMessage()
     var msgChunk = userAnswer.match(/.{1,639}/g);
-    // // // console.log("msgChunk :", msgChunk);
     msgChunk.forEach(element => {
       var attribute = {
         "question": element
       }
-      // this.showTypingDots = false;
       this.deleteTypingFromMessageFlow();
       this.showSendMessage({ "MessageAction": "Received", "textFlow": message, "sendMessage": attribute, "dateTime": dateTime });
     });
@@ -744,24 +713,6 @@ export class ChatPreviewComponent implements OnInit {
     })
   }
 
-  // getAndParseJSONApi(data) {
-  //   return new Promise((resolve, reject) => {
-  //     this.apiService.jsonRequest(data)
-  //       .subscribe(res => {
-  //         if (res.status === 200) {
-  //           resolve(res.result)
-  //         } else {
-  //           reject(res.result)
-  //         }
-  //       }, err => {
-  //         if (err) {
-  //           // // // console.log("Error is occured....");
-  //           reject(err)
-  //         }
-  //       })
-  //   })
-  // }
-
 
   /**
  * This block the flow for specific amount of time,and show typing during timeout
@@ -780,7 +731,6 @@ export class ChatPreviewComponent implements OnInit {
   }
 
   menageFlow() {
-    // // console.log("ManageFlows");
     var MessageArray = this.messageFlowTemp;
     var FilteredMessageArray = this.filterArray(MessageArray);
     if (FilteredMessageArray.length > 0) {
@@ -801,21 +751,15 @@ export class ChatPreviewComponent implements OnInit {
 
       // UPDATE TO CONTEXT
       this.messageFlowTemp = FilteredMessageArray
-      // // console.log("UPDATE MessageArray :", MessageArray)
       if (FilteredMessageArray[0].name !== this.messageType.USER_INPUT &&
         FilteredMessageArray[0].name !== this.messageType.JSON_API &&
         FilteredMessageArray[0].name !== this.messageType.QUICK_REPLIES) {
         setTimeout(() => {
           this.menageFlow();
         }, 1000);
-        // setTimeout(function () {
-        //   // console.log("RECURSION CALLED - " + FilteredMessageArray[0].name)
-        //   this.menageFlow();
-        // }, 1000);
       }
     }
     else {
-      // console.log("FilteredMessageArray.length <= 0");
       this.deleteTypingFromMessageFlow();
       this.messageFlowTemp = [];
     }
@@ -913,7 +857,6 @@ export class ChatPreviewComponent implements OnInit {
           }
         }, err => {
           if (err) {
-            // console.log("Error is occured....: ", err);
             reject(err)
           }
         })
@@ -957,7 +900,6 @@ export class ChatPreviewComponent implements OnInit {
 
   // push message to messageflow send and received message
   showSendMessage(messageObj) {
-    // // console.log("Send message :", sendMessageObj)
     this.messageFlow.push(messageObj);
     this.scrollIntoView();
 
@@ -967,16 +909,8 @@ export class ChatPreviewComponent implements OnInit {
   // scroll to new added message
   scrollIntoView() {
     setTimeout(() => {
-      // document.getElementById('ChatView').scrollTo(0, document.getElementById('ChatView').scrollHeight);
-
       let objDiv = document.getElementById("ChatView");
       objDiv.scrollTop = objDiv.scrollHeight;
-
-      // $('ChatView').scrollTop(Number.MAX_VALUE);
-
-      // let el = document.getElementById('ChatView');
-      // el.scrollIntoView();
-      // // console.log("after 1000")
     });
   }
   getDateTimeForSendMessage() {
@@ -996,8 +930,6 @@ export class ChatPreviewComponent implements OnInit {
     }, 2000);
   }
   imgLoad(item) {
-    // // console.log("image is load:", item)
-    // this.scrollIntoView();
     if (item == 'carousel') {
       this.scrollCarousel();
     } else {
@@ -1041,8 +973,6 @@ export class ChatPreviewComponent implements OnInit {
         {
           let mystring = text.replace(/\./g, '/')
           var today = new Date(mystring);
-          // debugger;
-          // console.log("today: ", JSON.stringify(today))
           var tday = JSON.stringify(today)
           if (tday != "null") {
             ResultResponse.isValid = true
@@ -1239,13 +1169,9 @@ export class ChatPreviewComponent implements OnInit {
   // delete typing dots from UI
   deleteTypingFromMessageFlow() {
     var removeIndex = this.messageFlow.map(function (item) { return item.MessageAction; }).indexOf("Common");
-    // // console.log("remove index :", removeIndex);
     if (removeIndex != -1) {
       this.messageFlow.splice(removeIndex, 1);
     }
-
-    // // console.log("in delete typing from messageflow :", this.messageFlow);
-    // callback();
   }
 
   // remove space from card no
@@ -1257,11 +1183,7 @@ export class ChatPreviewComponent implements OnInit {
     }
   }
   sendPaymentDetails(event, amount) {
-    // debugger;
-    // console.log("sendPaymentDetails :", this.paymentOption.cardNumber)
     let tempnum: any = this.paymentOption.cardNumber;
-    // console.log("sendPaymentDetails :", tempnum.replace(/(\d{4})/g, '$1 ').replace(/(^\s+|\s+$)/, ''));
-    debugger;
     let dateTime = this.getDateTimeForSendMessage()
     let sendMessageObj = {
       "MessageAction": "Send",
@@ -1290,7 +1212,6 @@ export class ChatPreviewComponent implements OnInit {
     }
     this.paymentOption = {}
     this.makeStripePayment(paymentDetails).then(data => {
-      // // console.log("data in makeStripePayment :", data);
       let response: any = data
       let dateTime = this.getDateTimeForSendMessage()
       let paymentMessage = {
@@ -1308,7 +1229,6 @@ export class ChatPreviewComponent implements OnInit {
       }
       this.showSendMessage(paymentMessage);
     }).catch(err => {
-      // // console.log("2) errer in makepaymentOnStripe :", err);
       let paymentMessage = {
         "MessageAction": "Received",
         "textFlow": {
@@ -1330,7 +1250,6 @@ export class ChatPreviewComponent implements OnInit {
     return new Promise((resolve, reject) => {
       this.apiService.makePayment(data)
         .subscribe(res => {
-          // console.log("response in makeStripePayment :", res)
           if (res.status.code === '200') {
             resolve(res.status)
           } else {
@@ -1338,7 +1257,6 @@ export class ChatPreviewComponent implements OnInit {
           }
         }, err => {
           if (err) {
-            // console.log("1) Error is occured in makeStripePayemnt....: ", err);
             reject(err)
           }
         })
@@ -1363,7 +1281,6 @@ export class ChatPreviewComponent implements OnInit {
         next(null, keyWithValue);
       },
       function (err, transformedItems) {
-        //console.log("parseJsonAndReturnResult");
         //replace actual key with the key:value
         transformedItems.forEach(element => {
           userAnswer = userAnswer.replace(element.key,/*element.key +" : "+ */element.value + "\n");

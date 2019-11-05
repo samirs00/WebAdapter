@@ -15,6 +15,7 @@
             <!-- <div class="dateBox">
               {{message.textFlow.dateTime}}
             </div> -->
+            <img src="{{userImg}}" class="botIconImg" alt="" title="" />
           </div>
 
           <!-- show typing dots -->
@@ -157,10 +158,6 @@
                   </div>
                 </div>
 
-                <!-- <a class="carousel-control-prev" href="#{{message.dynamicId}}" role="button" data-slide="prev">
-                  <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                  <span class="sr-only">Previous</span>
-                </a> -->
                 <a class="carousel-control-next" href="#{{message.dynamicId}}" role="button" data-slide="next">
                   <span class="carousel-control-next-icon" aria-hidden="true"></span>
                   <span class="sr-only">Next</span>
@@ -467,8 +464,8 @@
           </div>
       </div> -->
     <input type="text" id="inputSend" class="form-control" (keyup.enter)="getMessage({'title':message}, 'other')"
-      [(ngModel)]="message" placeholder="Type your message">
-    <div class="input-group-append">
+      [(ngModel)]="message" placeholder="Type your text here">
+    <div class="input-group-append" title="send">
       <button class="btn btnCss" type="submit" (click)="getMessage({'title':message}, 'other')">
         <img src="assets/images/send-img.svg" class="sendBtn">
       </button>

@@ -19,6 +19,7 @@
   display: inline-block;
   font-size: 14px;
   box-shadow: 0px 4.75946px 15.8649px rgba(13, 51, 32, 0.1);
+  margin-right: 5px;
 }
 .dateBox{
   font-size: 10px;
@@ -108,7 +109,7 @@
 }
 .carouselButton{
   width: 100%;
-  border: 1.5px solid #ffe01b;
+  border: 1px solid #ffe01b;
   background: #F0F0F0;
   /* padding: 2px 10px 2px; */
   border-radius: 6.34594px;
@@ -151,7 +152,7 @@
   width: fit-content;
   text-align: center;
   background: #fff;
-  border: 1.5px solid #ffe01b;
+  border: 1px solid #ffe01b;
   padding:0px 10px 0px 10px;
   border-radius: 6.34594px;
   box-sizing: border-box;
@@ -166,7 +167,7 @@
   width: fit-content;
   text-align: center;
   background: #FFE01B;
-  border: 1.5px solid #ffe01b;
+  border: 1px solid #ffe01b;
   padding:0px 10px 0px 10px;
   border-radius: 16px;
   box-sizing: border-box;
@@ -192,39 +193,6 @@
   border-radius: 25px;
   width: 100%;
 }
-
-/* .carousel-control-prev-icon,
-.carousel-control-next-icon {
-  background-image: none;
-}
-.carousel-control-next-icon:after{
-  content: '>';
-  font-size: 18px;
-  color: black;
-  background-color: #efe9e9;
-  padding-bottom: 5px;
-  border: 1px solid #777777;
-  border-right: none;
-  margin-right: -7px;
-  border-radius: 3px;
-}
-
-.carousel-control-prev-icon:after {
-  content: '<';
-  font-size: 18px;
-  color: black;
-  background-color: #efe9e9;
-  padding-bottom: 5px;
-  border: 1px solid #777777;
-  border-left: none;
-  margin-left: -7px;
-  border-radius: 3px;
-} */
-
-/* .carousel-control-prev, .carousel-control-next{
-  width: auto !important;
-  opacity: unset !important;
-} */
 .carousel-control-next-icon, .carousel-control-prev-icon {
   width: 14px;
 }
@@ -304,6 +272,9 @@
 .inputTagCss{
   margin-left: 2px;
 }
+.inputTagCss .form-control{
+  border: none;
+}
 .sendBtn{
   position: relative;
     height: 21px;
@@ -315,9 +286,13 @@
   margin: 0px 0px 0px 0px;
   } 
 .btnCss{
-  border-color: #ced4da;
+  /* border-color: #ced4da; */
   border-left-color: white;
   margin-right: 3px;
+}
+.btn:focus,.btn:active {
+  outline: none !important;
+  box-shadow: none;
 }
 .error-message{
   color: #e9604a;
@@ -327,17 +302,17 @@
 
 ::-webkit-input-placeholder { /* Chrome/Opera/Safari */
   /* color: pink; */
-  font-size: 11.6px
+  font-size: 14px;
 }
 ::-moz-placeholder { /* Firefox 19+ */
   /* color: pink; */
-  font-size: 11.6px
+  font-size: 14px;
 }
 :-ms-input-placeholder { /* IE 10+ */
   /* color: pink; */
-  font-size: 11.6px
+  font-size: 14px;
 }
 :-moz-placeholder { /* Firefox 18- */
   /* color: pink; */
-  font-size: 11.6px
+  font-size: 14px;
 }

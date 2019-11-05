@@ -63,8 +63,6 @@ export class ApisService {
     return this.httpClient.post(data.url, data.requestBody, {headers})
       .pipe(catchError(this.handleErrorObservable));
   }
-
-
   getResponseFlow(data, header): Observable<any> {
     let headers = new HttpHeaders()
       .set('Content-Type', 'application/json')
@@ -81,7 +79,6 @@ export class ApisService {
     return this.httpClient.post(this.baseUrl + 'getEntityForMessage', data)
     .pipe(catchError(this.handleErrorObservable));
   }
-
   logMessage(data): Observable<any>{
         // let headers = new HttpHeaders()
     // .set('Content-Type', 'application/json')

@@ -902,9 +902,7 @@ export class ChatPreviewComponent implements OnInit {
   showSendMessage(messageObj) {
     this.messageFlow.push(messageObj);
     this.scrollIntoView();
-
-
-    // this.logMessage(messageObj)
+    this.logMessage(messageObj)
   }
   // scroll to new added message
   scrollIntoView() {
@@ -1141,18 +1139,17 @@ export class ChatPreviewComponent implements OnInit {
   }
 
   logMessage(messageObj) {
-
     var logBody =
     {
-      UserId: this.userId,
-      BotId: this.botId,
-      MessageAction: messageObj.MessageAction,
-      // EndUserId: "userId",
-      EndUserId: this.userId,
-      Platform: 'Web chat',
-      MessageType: messageObj.textFlow.name,
-      Message: messageObj,
-      PlatformType: "TEXT"
+      userId: this.userId,
+      botId: this.botId,
+      messageAction: messageObj.MessageAction,
+      endUserId: this.userId,
+      platform: 'conveeChat',
+      messageType: messageObj.textFlow.name,
+      message: messageObj,
+      platformType: "TEXT",
+      "wildcard":1
     }
     this.apiService.logMessage(logBody)
       .subscribe(res => {

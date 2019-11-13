@@ -198,7 +198,7 @@ export class ChatPreviewComponent implements OnInit {
         }
         // this.showTypingDots = false;
         this.deleteTypingFromMessageFlow();
-        this.showSendMessage({ "MessageAction": "Received", "textFlow": sendMessageObj, "isSend": 0 });
+        this.showSendMessage({ "MessageAction": "Received", "textFlow": sendMessageObj, "isSend": 0, "dateTime": dateTime  });
       }
       else {
         this.messageFlowTemp = result_MessageArray
@@ -463,7 +463,7 @@ export class ChatPreviewComponent implements OnInit {
             var attribute = item.attribute[i];
             if (attribute.isSent === 0) {
               this.deleteTypingFromMessageFlow();
-              this.showSendMessage({ "MessageAction": "Received", "textFlow": item, "sendMessage": attribute, "isSend": 0 });
+              this.showSendMessage({ "MessageAction": "Received", "textFlow": item, "sendMessage": attribute, "isSend": 0, "dateTime": dateTime });
               break;
             }
             //check if this is a last index

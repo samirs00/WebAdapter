@@ -14,8 +14,8 @@ import { catchError } from 'rxjs/operators';
 export class ApisService {
 
       // baseUrl:String="http://ec2-54-86-110-104.compute-1.amazonaws.com:5011/home/"  
-      // baseUrl: String = 'https://convee.ai:9090/api/';      // production URL
-      baseUrl:String="http://192.168.9.101:9090/api/"; //deepak machine
+      baseUrl: String = 'https://convee.ai:9090/api/';      // production URL
+      // baseUrl:String="http://192.168.9.101:9090/api/"; //deepak machine
       // baseUrl:String="https://8a3c607a.ngrok.io/home/";
 
   constructor(private httpClient: HttpClient) { }

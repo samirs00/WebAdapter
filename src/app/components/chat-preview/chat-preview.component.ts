@@ -1142,7 +1142,7 @@ export class ChatPreviewComponent implements OnInit {
     var logBody =
     {
       userId: this.userId,
-      botId: this.botId,
+      dialogId: this.botId,
       messageAction: messageObj.MessageAction,
       endUserId: this.userId,
       platform: 'conveeChat',

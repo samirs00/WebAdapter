@@ -42,7 +42,7 @@ export class ChatPreviewComponent implements OnInit {
   authorizationKey: any;
   imageSrc: any;
   localImgSrc: any = "assets/images/e_hd_trans.png";
-  userImg:any = "assets/images/profile.svg";
+  userImg: any = "assets/images/profile.svg";
   showTypingDots: boolean = false;
   sendTypingMessage: any = {
     "isSent": 1,
@@ -83,7 +83,7 @@ export class ChatPreviewComponent implements OnInit {
     if (this.imageSrc) {
       this.localImgSrc = this.imageSrc;
     }
-    console.log("botid :", this.botId, "userid :", this.userId, "authorizationtoken :", this.authorizationKey, "localImgSrc :", this.localImgSrc)
+    // console.log("botid :", this.botId, "userid :", this.userId, "authorizationtoken :", this.authorizationKey, "localImgSrc :", this.localImgSrc)
     // this.welcomeMessage(this.userName)
   }
   getParameterByName(name, url) {
@@ -198,7 +198,10 @@ export class ChatPreviewComponent implements OnInit {
         }
         // this.showTypingDots = false;
         this.deleteTypingFromMessageFlow();
-        this.showSendMessage({ "MessageAction": "Received", "textFlow": sendMessageObj, "isSend": 0, "dateTime": dateTime  });
+        this.showSendMessage({ "MessageAction": "Received", "textFlow": sendMessageObj, "isSend": 0, "dateTime": dateTime });
+        if (ValdiationResponse.lastMessage)
+          this.showSendMessage({ "MessageAction": "Received", "textFlow": ValdiationResponse.lastMessage, "dateTime": dateTime });
+
       }
       else {
         this.messageFlowTemp = result_MessageArray
@@ -378,8 +381,10 @@ export class ChatPreviewComponent implements OnInit {
           data['defaultResponse'] = res['defaultResponse']
         }
 
-
         if (data['textFlow'] && data['textFlow'].length > 0) {
+          //log this block
+          this.logBlock(res['block'].name);
+
           //we  get array of user input, separate these user input from array and add it to conversation flow
           //this will require little coding and provide more readability and flexibility.
           this.messageFlowTemp = this.getSeparatedUserInputs(data['textFlow']);
@@ -395,11 +400,32 @@ export class ChatPreviewComponent implements OnInit {
         this.showDefaultResponce(this.defaultMessage.NOT_SURE)
       }
     }).catch(err => {
-      console.log("Error message startFlow :", err)
+      // console.log("Error message startFlow :", err)
       this.showDefaultResponce(this.defaultMessage.SERVER_CRASH)
     })
   }
+  logBlock(blockName) {
+    let details = {
+      'userId': this.userId,
+      'dialogId': this.botId,
+      'blockName': blockName,
+      'endUserId': this.userId,
+      'platform': 'conveeChat',
+      'platformType': 'TEXT',
+      'wildcard': 1
+    }
+    this.apiService.logBlockData(details)
+    .subscribe(res => {
+      if (res.result) {
+        // console.log("Succssfully save block log")
+      }
+    }, err => {
+      if (err) {
+        // console.log("Error is occured to save block log");
+      }
+    })
 
+  }
   manageReceivedMessaged(type, FilteredMessageArray) {
     var interval = 0;
     let dateTime = this.getDateTimeForSendMessage()
@@ -550,7 +576,7 @@ export class ChatPreviewComponent implements OnInit {
         })
         //trim extra characters in url
         url = url.trimRight('&&')
-        console.log("get url :", url)
+        // console.log("get url :", url)
         this.jsonGetRequest(message, url, requestBody, content_type, header, (data => {
           callback(data)
         }));
@@ -573,7 +599,7 @@ export class ChatPreviewComponent implements OnInit {
         })
         //trim extra characters in url
         url = url.trimRight('&&')
-        console.log("get url :", url)
+        // console.log("get url :", url)
         this.jsonGetRequest(message, url, requestBody, content_type, header, (data) => {
           callback(data)
         });
@@ -615,11 +641,11 @@ export class ChatPreviewComponent implements OnInit {
         "answer_attributes": message.answer_attributes,
         "json_card": message
       }
-      console.log("final json get request:", getRequest);
+      // console.log("final json get request:", getRequest);
       let jsonApiResponse = await this.jsonGetApi(getRequest);
       message['data'] = jsonApiResponse;
       this.parseJsonApiResponse(message, (response => {
-        console.log("final json get response:", response);
+        // console.log("final json get response:", response);
         this.sendJsonResultToUI(response, message);
         callback(jsonApiResponse)
       }))
@@ -647,11 +673,11 @@ export class ChatPreviewComponent implements OnInit {
         "json_card": message,
         "header": header
       }
-      console.log("final json post request:", postRequest);
+      // console.log("final json post request:", postRequest);
       let jsonApiResponse = await this.jsonPostApi(postRequest);
       message['data'] = jsonApiResponse;
       this.parseJsonApiResponse(message, (response => {
-        console.log("final json post response:", response);
+        // console.log("final json post response:", response);
         this.sendJsonResultToUI(response, message);
         callback(jsonApiResponse)
       }))
@@ -689,7 +715,7 @@ export class ChatPreviewComponent implements OnInit {
           }
         }, err => {
           if (err) {
-            console.log("Error is occured jsonPostApi :", err);
+            // console.log("Error is occured jsonPostApi :", err);
             reject(err)
           }
         })
@@ -800,7 +826,7 @@ export class ChatPreviewComponent implements OnInit {
       "MessageAction": "Received",
       "textFlow": {
         "data": menutrigger.defaultMessage,
-        "title":menutrigger.defaultMessage,
+        "title": menutrigger.defaultMessage,
         "date": dateTime,
         "name": this.messageType.TEXT
       },
@@ -809,12 +835,12 @@ export class ChatPreviewComponent implements OnInit {
       isLuisCall: 0,
       "dateTime": dateTime
     }
-    if(menutrigger.defaultBlock.length > 0){
+    if (menutrigger.defaultBlock.length > 0) {
       defaultMessage.textFlow['buttons'] = []
       menutrigger.defaultBlock.forEach(element => {
         let button = {
-          'title':element,
-          'selectedBlock':element
+          'title': element,
+          'selectedBlock': element
         }
         defaultMessage.textFlow['buttons'].push(button)
       });
@@ -956,6 +982,7 @@ export class ChatPreviewComponent implements OnInit {
       ResultResponse.ReturnMessage = "Please enter valid input";
       ResultResponse.isValid = false;
       ResultResponse.StartMenuTrigger = false;
+      ResultResponse['lastMessage'] = SentMessage;
     }
     return ResultResponse;
   }
@@ -1149,16 +1176,16 @@ export class ChatPreviewComponent implements OnInit {
       messageType: messageObj.textFlow.name,
       message: messageObj,
       platformType: "TEXT",
-      "wildcard":1
+      "wildcard": 1
     }
     this.apiService.logMessage(logBody)
       .subscribe(res => {
         if (res.result) {
-          console.log("Succssfully save log")
+          // console.log("Succssfully save log")
         }
       }, err => {
         if (err) {
-          console.log("Error is occured to save log");
+          // console.log("Error is occured to save log");
         }
       })
   }

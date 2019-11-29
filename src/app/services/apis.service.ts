@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpResponse, HttpClientModule  } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpResponse, HttpClientModule } from '@angular/common/http';
 import { Observable } from 'rxjs';
 // import { Observable } from 'rxjs/Observable';
 // import 'rxjs/add/operator/catch';
@@ -13,54 +13,54 @@ import { catchError } from 'rxjs/operators';
 })
 export class ApisService {
 
-      // baseUrl:String="http://ec2-54-86-110-104.compute-1.amazonaws.com:5011/home/"  
-      baseUrl: String = 'https://convee.ai:9090/api/';      // production URL
-      // baseUrl:String="http://192.168.9.101:9090/api/"; //deepak machine
-      // baseUrl:String="https://8a3c607a.ngrok.io/home/";
+  // baseUrl:String="http://ec2-54-86-110-104.compute-1.amazonaws.com:5011/home/"  
+  baseUrl: String = 'https://convee.ai:9090/api/';      // production URL
+  // baseUrl:String="http://192.168.9.101:9090/api/"; //deepak machine
+  // baseUrl:String="https://8a3c607a.ngrok.io/home/";
 
   constructor(private httpClient: HttpClient) { }
 
-  makePayment(data): Observable<any>{
+  makePayment(data): Observable<any> {
     // let headers = new HttpHeaders()
     // .set('Content-Type', 'application/json')
     // .append('botId', header.botId)
     // .append('tokenId', header.tokenId)
     return this.httpClient.post(this.baseUrl + 'makePayment', data)
-    .pipe(catchError(this.handleErrorObservable));
-  }
-  getResponseFlowV2(data, header): Observable<any>{
-    let headers = new HttpHeaders()
-    .set('Content-Type', 'application/json')
-    .append('botId', header.botId)
-    .append('tokenId', header.tokenId)
-    return this.httpClient.get(this.baseUrl + 'block/getBlockOfMessage'+data)
       .pipe(catchError(this.handleErrorObservable));
   }
-  getStyles(data, header): Observable<any>{
+  getResponseFlowV2(data, header): Observable<any> {
     let headers = new HttpHeaders()
-    .set('Content-Type', 'application/json')
-    .append('botId', header.botId)
-    .append('tokenId', header.tokenId)
-    return this.httpClient.get(this.baseUrl + 'getStyles'+data)
+      .set('Content-Type', 'application/json')
+      .append('botId', header.botId)
+      .append('tokenId', header.tokenId)
+    return this.httpClient.get(this.baseUrl + 'block/getBlockOfMessage' + data)
       .pipe(catchError(this.handleErrorObservable));
   }
-  jsonGetRequest(data): Observable<any>{
+  getStyles(data, header): Observable<any> {
     let headers = new HttpHeaders()
-    .set('Content-Type', data.content_type)
-    if(data.header){
+      .set('Content-Type', 'application/json')
+      .append('botId', header.botId)
+      .append('tokenId', header.tokenId)
+    return this.httpClient.get(this.baseUrl + 'getStyles' + data)
+      .pipe(catchError(this.handleErrorObservable));
+  }
+  jsonGetRequest(data): Observable<any> {
+    let headers = new HttpHeaders()
+      .set('Content-Type', data.content_type)
+    if (data.header) {
       headers.append(data.authorizationKey.key, data.authorizationKey.value)
     }
-    return this.httpClient.get(data.url, {headers})
+    return this.httpClient.get(data.url, { headers })
       .pipe(catchError(this.handleErrorObservable));
   }
-  jsonPostRequest(data): Observable<any>{
+  jsonPostRequest(data): Observable<any> {
     let headers = new HttpHeaders()
-    .set('Content-Type', data.content_type)
-    if(data.header){
+      .set('Content-Type', data.content_type)
+    if (data.header) {
       headers.append(data.authorizationKey.key, data.authorizationKey.value)
     }
-    
-    return this.httpClient.post(data.url, data.requestBody, {headers})
+
+    return this.httpClient.post(data.url, data.requestBody, { headers })
       .pipe(catchError(this.handleErrorObservable));
   }
   getResponseFlow(data, header): Observable<any> {
@@ -68,24 +68,32 @@ export class ApisService {
       .set('Content-Type', 'application/json')
       .append('botId', header.botId)
       .append('tokenId', header.tokenId)
-    return this.httpClient.post(this.baseUrl + 'getMessagesForIntentV2', data, {headers})
+    return this.httpClient.post(this.baseUrl + 'getMessagesForIntentV2', data, { headers })
       .pipe(catchError(this.handleErrorObservable));
   }
-  getEntityFromLuis(data): Observable<any>{
+  getEntityFromLuis(data): Observable<any> {
     // let headers = new HttpHeaders()
     // .set('Content-Type', 'application/json')
     // .append('botId', header.botId)
     // .append('tokenId', header.tokenId)
     return this.httpClient.post(this.baseUrl + 'getEntityForMessage', data)
-    .pipe(catchError(this.handleErrorObservable));
+      .pipe(catchError(this.handleErrorObservable));
   }
-  logMessage(data): Observable<any>{
-        // let headers = new HttpHeaders()
+  logMessage(data): Observable<any> {
+    // let headers = new HttpHeaders()
     // .set('Content-Type', 'application/json')
     // .append('botId', header.botId)
     // .append('tokenId', header.tokenId)
     return this.httpClient.post(this.baseUrl + 'conversation/logConversationMessage', data)
-    .pipe(catchError(this.handleErrorObservable));
+      .pipe(catchError(this.handleErrorObservable));
+  }
+  logBlockData(data): Observable<any> {
+    // let headers = new HttpHeaders()
+    // .set('Content-Type', 'application/json')
+    // .append('botId', header.botId)
+    // .append('tokenId', header.tokenId)
+    return this.httpClient.post(this.baseUrl + 'blockLogs/logBlockData', data)
+      .pipe(catchError(this.handleErrorObservable));
   }
   jsonRequest(data): Observable<any> {
     // let headers = new HttpHeaders()

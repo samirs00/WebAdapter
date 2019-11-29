@@ -1170,15 +1170,25 @@ export class ChatPreviewComponent implements OnInit {
     {
       userId: this.userId,
       dialogId: this.botId,
-      messageAction: messageObj.MessageAction,
+      // messageAction: messageObj.MessageAction,
       endUserId: this.userId,
       platform: 'conveeChat',
       messageType: messageObj.textFlow.name,
-      message: messageObj,
+      messageRaw: messageObj,
+      // message:messageObj,
       platformType: "TEXT",
       "wildcard": 1
     }
-    this.apiService.logMessage(logBody)
+    if(messageObj.MessageAction == 'Send'){
+      logBody['messageAction'] = 'Receive';
+      logBody['message'] = {text:messageObj.textFlow.data};
+    }else if (messageObj.MessageAction == 'Received'){
+      logBody['messageAction'] = 'Send';
+      logBody['message'] = {text:messageObj.textFlow };
+    }
+    debugger;
+    if(messageObj.MessageAction != 'Common'){
+      this.apiService.logMessage(logBody)
       .subscribe(res => {
         if (res.result) {
           // console.log("Succssfully save log")
@@ -1188,6 +1198,8 @@ export class ChatPreviewComponent implements OnInit {
           // console.log("Error is occured to save log");
         }
       })
+    }
+
   }
 
   // delete typing dots from UI

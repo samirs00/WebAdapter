@@ -272,64 +272,63 @@ export class ChatPreviewComponent implements OnInit {
   }
   bindParameterAnswerToJsonApi(envelope, SentMessage) {
     var attrElement = [];
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       var binded = false;
-      SentMessage.attribute.forEach(element => {
+      for (let index = 0; index < SentMessage.attribute.length; index++) {
         if (!binded) {
-          if (element.isSent === 0) {
+          if (SentMessage.attribute[index].isSent === 0) {
             //bind this answer to the question
             if (!isNaN(envelope.textFlow.data)) {
-              element.answer = parseInt(envelope.textFlow.data)
+              SentMessage.attribute[index].answer = parseInt(envelope.textFlow.data)
             } else {
-              element.answer = envelope.textFlow.data;
+              SentMessage.attribute[index].answer = envelope.textFlow.data;
             }
-            // // console.log("\n Question:" + element.question + "\n Answer:" + element.answer)
-            // this.getEntityInputIfAny(envelope).then(entityInput => {
-            //   if (entityInput) {
-            //     // // // console.log("entity response :", entityInput[0].entity);
-            //     let entity = entityInput[0].entity
-            //     if (!isNaN(entity)) {
-            //       element.answer = parseInt(entity)
-            //     }
-            //     else {
-            //       element.answer = entityInput[0].entity;
-            //     }
-            //   }
-            // }).catch(err => {
-            //   console.log("Error in getEntityInputIfAny :", err)
-            // })
-            element.isSent = 1;
+            try {
+              let entityInput: any = await this.getEntityInputIfAny(envelope);
+              if (entityInput) {
+                // let entity = entityInput[0].value
+                if (!isNaN(entityInput)) {
+                  SentMessage.attribute[index].answer = parseInt(entityInput)
+                }
+                else {
+                  SentMessage.attribute[index].answer = entityInput
+                }
+              }
+            } catch (error) {
+              console.log("Error in getEntityInputIfAny :", error)
+            }
+            SentMessage.attribute[index].isSent = 1;
             binded = true;
-            attrElement.push(element)
+            attrElement.push(SentMessage.attribute[index])
           } else {
-            attrElement.push(element)
+            attrElement.push(SentMessage.attribute[index])
           }
         } else {
-          attrElement.push(element)
+          attrElement.push(SentMessage.attribute[index])
         }
-      })
+      }
       resolve(attrElement)
     })
   }
-
   getEntityInputIfAny(envelope) {
-    var data = {
-      "BotId": this.botId,
-      "userID": "jasd90q",
-      "message": envelope.textFlow.data,
-      "isLuisCall": 0
-    }
+    let details = "?dialogId=" + this.botId + "&&userId=" + this.userId + "&&message=" + envelope.textFlow.data + "&&channelName=conveeChat" + "&&wildcard=1";
     return new Promise((resolve, reject) => {
-      this.apiService.getEntityFromLuis(data)
-        .subscribe(res => {
-          if (res && res.result && res.result.length > 0) {
-            resolve(res.result)
-          }
-        }, err => {
-          if (err) {
-            reject(err)
-          }
-        })
+      if (envelope.textFlow.data.indexOf(' ') != -1) {
+        this.apiService.getEntityFromMessage(details)
+          .subscribe(res => {
+            if (res && res.result.entities && res.result.entities.length > 0) {
+              resolve(res.result.entities[0].value)
+            } else {
+              reject(null)
+            }
+          }, err => {
+            if (err) {
+              reject(err)
+            }
+          })
+      } else {
+        resolve(envelope.message.data)
+      }
     })
   }
   getlastPromptSentToUser(ArrayToFilter, callback) {
@@ -415,15 +414,15 @@ export class ChatPreviewComponent implements OnInit {
       'wildcard': 1
     }
     this.apiService.logBlockData(details)
-    .subscribe(res => {
-      if (res.result) {
-        // console.log("Succssfully save block log")
-      }
-    }, err => {
-      if (err) {
-        // console.log("Error is occured to save block log");
-      }
-    })
+      .subscribe(res => {
+        if (res.result) {
+          // console.log("Succssfully save block log")
+        }
+      }, err => {
+        if (err) {
+          // console.log("Error is occured to save block log");
+        }
+      })
 
   }
   manageReceivedMessaged(type, FilteredMessageArray) {
@@ -1179,25 +1178,25 @@ export class ChatPreviewComponent implements OnInit {
       platformType: "TEXT",
       "wildcard": 1
     }
-    if(messageObj.MessageAction == 'Send'){
+    if (messageObj.MessageAction == 'Send') {
       logBody['messageAction'] = 'Receive';
-      logBody['message'] = {text:messageObj.textFlow.data};
-    }else if (messageObj.MessageAction == 'Received'){
+      logBody['message'] = { text: messageObj.textFlow.data };
+    } else if (messageObj.MessageAction == 'Received') {
       logBody['messageAction'] = 'Send';
-      logBody['message'] = {text:messageObj.textFlow };
+      logBody['message'] = { text: messageObj.textFlow };
     }
-    debugger;
-    if(messageObj.MessageAction != 'Common'){
+    // debugger;
+    if (messageObj.MessageAction != 'Common') {
       this.apiService.logMessage(logBody)
-      .subscribe(res => {
-        if (res.result) {
-          // console.log("Succssfully save log")
-        }
-      }, err => {
-        if (err) {
-          // console.log("Error is occured to save log");
-        }
-      })
+        .subscribe(res => {
+          if (res.result) {
+            // console.log("Succssfully save log")
+          }
+        }, err => {
+          if (err) {
+            // console.log("Error is occured to save log");
+          }
+        })
     }
 
   }

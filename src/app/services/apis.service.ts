@@ -16,7 +16,7 @@ export class ApisService {
   // baseUrl:String="http://ec2-54-86-110-104.compute-1.amazonaws.com:5011/home/"  
   baseUrl: String = 'https://convee.ai:9090/api/';      // production URL
   // baseUrl:String="http://192.168.9.101:9090/api/"; //deepak machine
-  // baseUrl:String="https://8a3c607a.ngrok.io/home/";
+  // ABhijeetUserId:String="http://localhost:4200/#/?dialogid=5df21b2da1d4c27935f87909&&userid=5d7238d0b1b66127bf82579c";
 
   constructor(private httpClient: HttpClient) { }
 
@@ -71,12 +71,12 @@ export class ApisService {
     return this.httpClient.post(this.baseUrl + 'getMessagesForIntentV2', data, { headers })
       .pipe(catchError(this.handleErrorObservable));
   }
-  getEntityFromLuis(data): Observable<any> {
+  getEntityFromMessage(data): Observable<any> {
     // let headers = new HttpHeaders()
     // .set('Content-Type', 'application/json')
     // .append('botId', header.botId)
     // .append('tokenId', header.tokenId)
-    return this.httpClient.post(this.baseUrl + 'getEntityForMessage', data)
+    return this.httpClient.get(this.baseUrl + 'entity/getEntityFromMessage'+ data)
       .pipe(catchError(this.handleErrorObservable));
   }
   logMessage(data): Observable<any> {

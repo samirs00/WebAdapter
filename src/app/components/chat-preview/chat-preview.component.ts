@@ -69,6 +69,7 @@ export class ChatPreviewComponent implements OnInit {
     'buttonHoverColor': "#ffe01b",
     'buttonTextColor': "#000"
   }
+  isLiveAgent: boolean = false;
   constructor(public dataService: DataService,
     private apiService: ApisService,
     private route: ActivatedRoute,
@@ -367,41 +368,82 @@ export class ChatPreviewComponent implements OnInit {
       this.showSendMessage(data);
       this.showSendMessage(this.sendTypingMessage);
     }
-    this.getFlowFromServer(data, apiHeader).then(res => {
-      if (res['block'] || res['defaultResponse']) {
-        var data = {};
-        if (res['block']) {
-          data['textFlow'] = res['block'].textFlowTemp
-        }
-        if (res['entities']) {
-          data['entities'] = res['entities']
-        }
-        if (res['defaultResponse']) {
-          data['defaultResponse'] = res['defaultResponse']
-        }
-
-        if (data['textFlow'] && data['textFlow'].length > 0) {
-          //log this block
-          this.logBlock(res['block'].name);
-
-          //we  get array of user input, separate these user input from array and add it to conversation flow
-          //this will require little coding and provide more readability and flexibility.
-          this.messageFlowTemp = this.getSeparatedUserInputs(data['textFlow']);
-          this.menageFlow();
-        } else {
-          if (data['defaultResponse']) {
-            this.showMenuTrigger(data['defaultResponse'])
-          } else {
-            this.showDefaultResponce(this.defaultMessage.NOT_SURE)
+    // when not connected to live agent then get flow from database
+    if (!this.isLiveAgent) {
+      this.getFlowFromServer(data, apiHeader).then(res => {
+        if (res['block'] || res['defaultResponse']) {
+          var data = {};
+          if (res['block']) {
+            data['textFlow'] = res['block'].textFlowTemp
           }
+          if (res['entities']) {
+            data['entities'] = res['entities']
+          }
+          if (res['defaultResponse']) {
+            data['defaultResponse'] = res['defaultResponse']
+          }
+
+          if (data['textFlow'] && data['textFlow'].length > 0) {
+            //log this block
+            this.logBlock(res['block'].name);
+
+            //we  get array of user input, separate these user input from array and add it to conversation flow
+            //this will require little coding and provide more readability and flexibility.
+            this.messageFlowTemp = this.getSeparatedUserInputs(data['textFlow']);
+            this.menageFlow();
+          } else {
+            if (data['defaultResponse']) {
+              this.showMenuTrigger(data['defaultResponse'])
+              this.isLiveAgent = true;      // request for live agent
+            } else {
+              this.showDefaultResponce(this.defaultMessage.NOT_SURE)
+            }
+          }
+        } else {
+          this.showDefaultResponce(this.defaultMessage.NOT_SURE)
         }
-      } else {
-        this.showDefaultResponce(this.defaultMessage.NOT_SURE)
-      }
-    }).catch(err => {
-      // console.log("Error message startFlow :", err)
-      this.showDefaultResponce(this.defaultMessage.SERVER_CRASH)
-    })
+      }).catch(err => {
+        // console.log("Error message startFlow :", err)
+        this.showDefaultResponce(this.defaultMessage.SERVER_CRASH)
+      })
+    }else{        // when requested to live agent message get from live agent
+      this.getFlowFromLiveAgent(data, apiHeader).then(res => {
+        if (res['block'] || res['defaultResponse']) {
+          var data = {};
+          if (res['block']) {
+            data['textFlow'] = res['block'].textFlowTemp
+          }
+          if (res['entities']) {
+            data['entities'] = res['entities']
+          }
+          if (res['defaultResponse']) {
+            data['defaultResponse'] = res['defaultResponse']
+          }
+
+          if (data['textFlow'] && data['textFlow'].length > 0) {
+            //log this block
+            this.logBlock(res['block'].name);
+
+            //we  get array of user input, separate these user input from array and add it to conversation flow
+            //this will require little coding and provide more readability and flexibility.
+            this.messageFlowTemp = this.getSeparatedUserInputs(data['textFlow']);
+            this.menageFlow();
+          } else {
+            if (data['defaultResponse']) {
+              this.showMenuTrigger(data['defaultResponse'])
+              // this.isLiveAgent = true;
+            } else {
+              this.showDefaultResponce(this.defaultMessage.NOT_SURE)
+            }
+          }
+        } else {
+          this.showDefaultResponce(this.defaultMessage.NOT_SURE)
+        }
+      }).catch(err => {
+        // console.log("Error message startFlow :", err)
+        this.showDefaultResponce(this.defaultMessage.SERVER_CRASH)
+      })
+    }
   }
   logBlock(blockName) {
     let details = {
@@ -876,6 +918,23 @@ export class ChatPreviewComponent implements OnInit {
     let details = "?dialogId=" + data.BotId + "&&userId=" + data.userID + "&&message=" + data.textFlow.data + "&&wildcard=1&&channelName=conveeChat";
     return new Promise((resolve, reject) => {
       this.apiService.getResponseFlowV2(details, header)
+        .subscribe(res => {
+          if (res.result) {
+            resolve(res.result)
+          }
+        }, err => {
+          if (err) {
+            reject(err)
+          }
+        })
+    })
+  }
+
+  // Get botIntent flow from live agent 
+  getFlowFromLiveAgent(data, header) {
+    let details = "?dialogId=" + data.BotId + "&&userId=" + data.userID + "&&message=" + data.textFlow.data + "&&wildcard=1&&channelName=conveeChat";
+    return new Promise((resolve, reject) => {
+      this.apiService.getResponseFlowFromAgent(details, header)
         .subscribe(res => {
           if (res.result) {
             resolve(res.result)

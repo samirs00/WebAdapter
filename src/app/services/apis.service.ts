@@ -36,6 +36,14 @@ export class ApisService {
     return this.httpClient.get(this.baseUrl + 'block/getBlockOfMessage' + data)
       .pipe(catchError(this.handleErrorObservable));
   }
+  getResponseFlowFromAgent(data, header): Observable<any> {
+    let headers = new HttpHeaders()
+      .set('Content-Type', 'application/json')
+      .append('botId', header.botId)
+      .append('tokenId', header.tokenId)
+    return this.httpClient.get(this.baseUrl + 'sample/sendMessageToLiveAgent' + data)
+      .pipe(catchError(this.handleErrorObservable));
+  }
   getStyles(data, header): Observable<any> {
     let headers = new HttpHeaders()
       .set('Content-Type', 'application/json')

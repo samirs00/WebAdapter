@@ -3,6 +3,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DataService } from '../../services/data.service'
 import { ApisService } from '../../services/apis.service';
+import { SocketConnectionService } from '../../services/socket-connection.service';
 import { DefaultMessage } from '../../classes/common-data';
 import { MessageType } from '../../classes/common-data';
 import * as $ from 'jquery';
@@ -70,12 +71,16 @@ export class ChatPreviewComponent implements OnInit {
     'buttonTextColor': "#000"
   }
   isLiveAgent: boolean = false;
+  broadcastMessage: any;
   constructor(public dataService: DataService,
     private apiService: ApisService,
+    private socketConnectionService: SocketConnectionService,
     private route: ActivatedRoute,
     private router: Router) { }
 
-
+  ngOnDestroy() {
+    this.socketConnectionService.removeEvent('destroy');
+  }
   ngOnInit() {
 
     this.botId = this.getParameterByName('dialogid', window.location.href)
@@ -84,6 +89,24 @@ export class ChatPreviewComponent implements OnInit {
     if (this.imageSrc) {
       this.localImgSrc = this.imageSrc;
     }
+
+
+    this.socketConnectionService.listenEvent();
+
+    this.broadcastMessage = this.socketConnectionService.broadcastObservable.subscribe((details) => {
+      console.log("broadcast message in component:", details)
+      this.messageFlowTemp = this.getSeparatedUserInputs(details['textFlow']);
+      this.menageFlow();
+
+    });
+    // this.socketConnectionService.sendMessage()
+
+
+
+    // this.socketConnectionService.getMessages().subscribe(message =>{
+    //   console.log("in component :", message);
+    // })
+
     // console.log("botid :", this.botId, "userid :", this.userId, "authorizationtoken :", this.authorizationKey, "localImgSrc :", this.localImgSrc)
     // this.welcomeMessage(this.userName)
   }
@@ -406,7 +429,7 @@ export class ChatPreviewComponent implements OnInit {
         // console.log("Error message startFlow :", err)
         this.showDefaultResponce(this.defaultMessage.SERVER_CRASH)
       })
-    }else{        // when requested to live agent message get from live agent
+    } else {        // when requested to live agent message get from live agent
       this.getFlowFromLiveAgent(data, apiHeader).then(res => {
         if (res['block'] || res['defaultResponse']) {
           var data = {};

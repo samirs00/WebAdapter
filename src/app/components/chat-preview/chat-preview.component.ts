@@ -92,21 +92,13 @@ export class ChatPreviewComponent implements OnInit {
 
 
     this.socketConnectionService.listenEvent();
-
     this.broadcastMessage = this.socketConnectionService.broadcastObservable.subscribe((details) => {
-      console.log("broadcast message in component:", details)
-      this.messageFlowTemp = this.getSeparatedUserInputs(details['textFlow']);
-      this.menageFlow();
-
+      if (this.botId == details.dialogId) {
+        console.log("broadcast message in component:", details)
+        this.messageFlowTemp = this.getSeparatedUserInputs(details['textFlow']);
+        this.menageFlow();
+      }
     });
-    // this.socketConnectionService.sendMessage()
-
-
-
-    // this.socketConnectionService.getMessages().subscribe(message =>{
-    //   console.log("in component :", message);
-    // })
-
     // console.log("botid :", this.botId, "userid :", this.userId, "authorizationtoken :", this.authorizationKey, "localImgSrc :", this.localImgSrc)
     // this.welcomeMessage(this.userName)
   }
@@ -417,7 +409,7 @@ export class ChatPreviewComponent implements OnInit {
           } else {
             if (data['defaultResponse']) {
               this.showMenuTrigger(data['defaultResponse'])
-              this.isLiveAgent = true;      // request for live agent
+              // this.isLiveAgent = true;      // request for live agent
             } else {
               this.showDefaultResponce(this.defaultMessage.NOT_SURE)
             }
@@ -843,7 +835,8 @@ export class ChatPreviewComponent implements OnInit {
       this.messageFlowTemp = FilteredMessageArray
       if (FilteredMessageArray[0].name !== this.messageType.USER_INPUT &&
         FilteredMessageArray[0].name !== this.messageType.JSON_API &&
-        FilteredMessageArray[0].name !== this.messageType.QUICK_REPLIES) {
+        FilteredMessageArray[0].name !== this.messageType.QUICK_REPLIES &&
+        FilteredMessageArray[0].name !== this.messageType.REDIRECT) {             // user input issue solved
         setTimeout(() => {
           this.menageFlow();
         }, 1000);

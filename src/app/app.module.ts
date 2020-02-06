@@ -19,7 +19,7 @@ import { GooglePlaceModule } from "ngx-google-places-autocomplete";
 import { NextLinePipe } from './pipes/next-line.pipe';
 import { AddSpacePipe } from './pipes/add-space.pipe';
 
-const config: SocketIoConfig = { url: 'http://192.168.9.101:9090', options: {} };
+const config: SocketIoConfig = { url: 'https://convee.ai:9090', options: {} };
 @NgModule({
   declarations: [
     AppComponent,

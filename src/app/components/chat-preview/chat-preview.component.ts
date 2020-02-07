@@ -97,6 +97,22 @@ export class ChatPreviewComponent implements OnInit {
         console.log("broadcast message in component:", details)
         this.messageFlowTemp = this.getSeparatedUserInputs(details['textFlow']);
         this.menageFlow();
+        let header = {
+          "botId": this.botId,
+          "tokenId": this.userId
+        }
+        let data = {
+          "broadcastId": details._id,
+          "userId": this.userId,
+          "platform": "conveeChat",
+          "read": true
+        }
+        this.saveBroadcastReceipt(data, header).then(res =>{
+          console.log("save read")
+        }).catch(err =>{
+          console.log(err)
+        })
+
       }
     });
     // console.log("botid :", this.botId, "userid :", this.userId, "authorizationtoken :", this.authorizationKey, "localImgSrc :", this.localImgSrc)
@@ -1355,7 +1371,22 @@ export class ChatPreviewComponent implements OnInit {
       this.showSendMessage(paymentMessage);
     })
   }
-
+  saveBroadcastReceipt(data, header) {
+    return new Promise((resolve, reject) => {
+      this.apiService.saveBroadcastReceipt(data, header)
+        .subscribe(res => {
+          if (res.status.code === '200') {
+            resolve(res.status)
+          } else {
+            reject(res.status)
+          }
+        }, err => {
+          if (err) {
+            reject(err)
+          }
+        })
+    })
+  }
   makeStripePayment(data) {
     return new Promise((resolve, reject) => {
       this.apiService.makePayment(data)

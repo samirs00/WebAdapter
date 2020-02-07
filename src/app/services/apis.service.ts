@@ -79,6 +79,14 @@ export class ApisService {
     return this.httpClient.post(this.baseUrl + 'getMessagesForIntentV2', data, { headers })
       .pipe(catchError(this.handleErrorObservable));
   }
+  saveBroadcastReceipt(data, header): Observable<any> {
+    let headers = new HttpHeaders()
+      .set('Content-Type', 'application/json')
+      .append('botId', header.botId)
+      .append('tokenId', header.tokenId)
+    return this.httpClient.post(this.baseUrl + 'broadcast/saveBroadcastReceipt', data, { headers })
+      .pipe(catchError(this.handleErrorObservable));
+  }
   getEntityFromMessage(data): Observable<any> {
     // let headers = new HttpHeaders()
     // .set('Content-Type', 'application/json')
